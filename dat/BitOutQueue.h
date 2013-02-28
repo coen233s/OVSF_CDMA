@@ -23,6 +23,7 @@ public:
 	virtual ~BitOutQueue();
 
 	bool hasData();
+	// returns 0 or 1
 	char popBit();
 };
 

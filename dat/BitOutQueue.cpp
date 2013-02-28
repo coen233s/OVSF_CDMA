@@ -13,6 +13,7 @@
 BitOutQueue::BitOutQueue()
 : m_hasDataInByteBuffer(false)
 , m_bitMask(1)
+, m_dataByte(0)
 {
 }
 
@@ -30,13 +31,14 @@ char BitOutQueue::popBit()
 		if (empty()) {
 			throw logic_error("BitOutQueue::popBit: queue empty");
 		} else {
+		    m_hasDataInByteBuffer = true;
 			m_dataByte = front();
 			pop();
 			m_bitMask = 1;
 		}
 	}
 
-	char bitOutput = m_dataByte & m_bitMask;
+	char bitOutput = !!(m_dataByte & m_bitMask);
 
 	// byte boundary
 	if (m_bitMask & 0x80)

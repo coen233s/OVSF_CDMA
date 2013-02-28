@@ -8,8 +8,9 @@
 #ifndef TRANSMITTER_H_
 #define TRANSMITTER_H_
 
-#include "../ovsf.h"
-#include "RxTxBase.h"
+#include <ovsf.h>
+#include <phy/RxTxBase.h>
+#include <dat/BitOutQueue.h>
 
 class Transmitter : public RxTxBase {
 private:
@@ -17,8 +18,13 @@ private:
 	WHCode *m_pWalshCode;
 	int m_walshIdx;
 	char m_nextChip;
+	char m_currentBit; // -1, 0, +1
+
+    // Data queue
+    BitOutQueue m_BitQueue;
+
 public:
-	Transmitter();
+	Transmitter(string &name);
 	virtual ~Transmitter();
 	virtual void onTick();
 
@@ -31,6 +37,10 @@ public:
 	// Called after onTick(). Returns 0, +1 or -1.
 	int getChip() {
 		return m_nextChip;
+	}
+
+	void pushData(unsigned char ch) {
+	    m_BitQueue.push(ch);
 	}
 };
 

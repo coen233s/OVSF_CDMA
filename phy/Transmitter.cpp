@@ -5,10 +5,14 @@
  *      Author: Danke
  */
 
+#include <iostream>
 #include "Transmitter.h"
 
-Transmitter::Transmitter()
-: m_pWalshCode(0)
+using namespace std;
+
+Transmitter::Transmitter(string &name)
+: RxTxBase(name)
+, m_pWalshCode(0)
 {
 }
 
@@ -21,7 +25,15 @@ void Transmitter::onTick() {
 		return;
 	}
 
-	m_nextChip = m_pWalshCode->getChipBit(m_walshIdx);
+	char walshChip = m_pWalshCode->getChipBit(m_walshIdx);
+
+	if (m_walshIdx == 0) {
+	    m_currentBit = m_BitQueue.hasData() ?
+	            (2 * m_BitQueue.popBit() - 1) : 0;
+	}
+
+	m_nextChip = m_currentBit * walshChip;
+
 	if (++m_walshIdx >= m_pWalshCode->length()) {
 		m_walshIdx = 0;
 	}

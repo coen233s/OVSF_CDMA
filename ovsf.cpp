@@ -327,18 +327,3 @@ int OVSFTree::expandTree(unsigned int size)
   return upperbound - 1;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-int main()
-{
-  OVSFTree t;
-  int expand = 8;
-  int l = t.expandTree(expand);
-
-  cout << "expand = " << expand << " new len= " << l << endl;
-  t.print();
-  t.expandTree(9);
-  t.print();
-
-  return 0;
-}

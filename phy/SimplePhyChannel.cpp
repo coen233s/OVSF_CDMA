@@ -5,7 +5,10 @@
  *      Author: Danke
  */
 
+#include <iostream>
 #include "SimplePhyChannel.h"
+
+using namespace std;
 
 SimplePhyChannel::SimplePhyChannel()
 : tick(0)

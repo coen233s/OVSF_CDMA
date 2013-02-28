@@ -10,16 +10,14 @@
 
 #include <string>
 #include <vector>
-#include "../ovsf.h"
-#include "RxTxBase.h"
-#include "../dat/BitInQueue.h"
+#include <ovsf.h>
+#include <phy/RxTxBase.h>
+#include <dat/BitInQueue.h>
 
 using namespace std;
 
 class Receiver : public RxTxBase {
 private:
-	string &name;
-
 	// Last received chip
 	int m_LastChip;
 
@@ -47,6 +45,16 @@ public:
 	void setChip(int chip) {
 		m_LastChip = chip;
 	}
+
+	bool hasData() {
+	    return !m_BitQueue.empty();
+	}
+
+    unsigned char popData() {
+        char dat = m_BitQueue.front();
+        m_BitQueue.pop();
+        return dat;
+    }
 };
 
 #endif /* RECEIVER_H_ */

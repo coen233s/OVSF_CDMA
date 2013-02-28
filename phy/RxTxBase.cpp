@@ -7,7 +7,11 @@
 
 #include "RxTxBase.h"
 
-RxTxBase::RxTxBase() {
+using namespace std;
+
+RxTxBase::RxTxBase(string &name)
+: name(name)
+{
 }
 
 RxTxBase::~RxTxBase() {

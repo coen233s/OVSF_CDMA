@@ -5,10 +5,14 @@
  *      Author: Danke
  */
 
+#include <iostream>
 #include "BitInQueue.h"
+
+using namespace std;
 
 BitInQueue::BitInQueue()
 : m_bitMask(1)
+, m_dataByte(0)
 {
 }
 

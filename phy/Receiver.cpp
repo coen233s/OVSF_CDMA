@@ -8,8 +8,10 @@
 #include <iostream>
 #include "Receiver.h"
 
+using namespace std;
+
 Receiver::Receiver(string &name)
-: name(name)
+: RxTxBase(name)
 {
 }
 
@@ -34,8 +36,6 @@ void Receiver::onTick() {
 
 		// Received one bit
 		if (++m_WalshIdx[i] >= codeLen) {
-			m_WalshIdx[i] = 0;
-
 			if (m_WalshDotProd[i] == codeLen)
 				m_BitQueue.pushBit(1); // received 1
 			else if (m_WalshDotProd[i] == -codeLen)
@@ -45,6 +45,10 @@ void Receiver::onTick() {
 						"] got unexpected dot product " << m_WalshDotProd[i] <<
 						" codeLen: " << codeLen << endl;
 			}
+
+			// clear idx & dot product
+            m_WalshIdx[i] = 0;
+			m_WalshDotProd[i] = 0;
 		}
 	}
 }
