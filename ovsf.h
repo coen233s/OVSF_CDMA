@@ -53,9 +53,15 @@ class OVSFTree
 public:
   class NodeInfo {
   public:
+    NodeInfo(const WHCode& wh_code, int id);
     NodeInfo(int id);
     NodeInfo();
     NodeInfo(const NodeInfo& other);
+
+    int getUserId() const { return userId; }
+    int getNodeId() const { return nodeId; }
+    std::vector<int> getBlockNodeIds() const { return blockNodeId; }
+    WHCode getWHCode() const { return code; }
 
     NodeInfo& setUserId(int id);
     NodeInfo& setNodeId(int id);
@@ -63,23 +69,29 @@ public:
 
     NodeInfo& unsetUserId();
     NodeInfo& unsetBlockNodeId(int id);
+    NodeInfo& unsetAllBlockNodeId();
 
     NodeInfo& operator=(const NodeInfo& rhs);
 
+    bool isUsedCode() const { return userId != 0; }
+    bool isBlockCode() const { return !blockNodeId.empty(); }
+
+    // Data
     int userId; // the userId that is using this node
     int nodeId; // the nodeId of this node
     std::vector<int> blockNodeId; // the nodeId that blocks this node
-
-    bool isUsedCode() const { return userId != 0; }
-    bool isBlockCode() const { return !blockNodeId.empty(); }
+    WHCode code;
   };
 
-  OVSFTree();
+  OVSFTree(int initialSize = 15);
   virtual ~OVSFTree();
 
   bool peek(int level, int nodeId, WHCode& code) const;
   bool assign(int level, int nodeId, int userId);
   bool release(int level, int nodeId);
+  bool releaseUserId(int userId);
+  void releaseAll();
+
   bool isBlock(int level, int id) const;
 
   void print() const;
@@ -89,10 +101,10 @@ public:
   int freeCodeCount() const;
   int blockCodeCount() const;
 
+  std::vector<std::pair<int,WHCode> > listUsedCode() const;
+
 protected:
   int expandTree(unsigned int size);
-  NodeInfo getNodeInfo(int nodeId) const;
-  void setNodeInfo(const int nodeId, const NodeInfo& info);
 
 private:
   unsigned int log2(unsigned int v) const;
@@ -100,10 +112,32 @@ private:
   bool validate(int level, int id) const;
   bool isAncestorFreeCode(int nodeId) const;
 
+  int setAncestorBlockNode(int nodeId, bool isBlock);
+  int setDescendantBlockNode(int nodeId, bool isBlock);
+
   // data
-  typedef std::map<int,NodeInfo> Table_T;
-  Table_T nodeInfo;
-  std::vector<WHCode> codes;
+  std::vector<NodeInfo> nodes;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Assigner 
+{
+public:
+  Assigner();
+  virtual ~Assigner();
+
+  std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
+  std::vector<std::pair<bool,WHCode> > assignUserIds(std::vector<std::pair<int,int> > requestInfo);
+
+  void releaseUserId(int userId);
+  void releaseAll();
+
+  std::vector<std::pair<int, WHCode> > listUsedCode() const;
+
+protected:
+  OVSFTree tree;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

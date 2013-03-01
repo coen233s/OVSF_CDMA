@@ -190,6 +190,18 @@ OVSFTree::NodeInfo& OVSFTree::NodeInfo::unsetBlockNodeId(int id)
   return *this;
 }
 
+OVSFTree::NodeInfo& OVSFTree::NodeInfo::unsetAllBlockNodeId()
+{
+  blockNodeId.clear();
+  return *this;
+}
+
+OVSFTree::NodeInfo::NodeInfo(const WHCode& wh_code, int id): code(wh_code), 
+							     nodeId(id), 
+							     userId(0) 
+{
+}
+
 OVSFTree::NodeInfo::NodeInfo(int id): nodeId(id), userId(0) {
 }
 
@@ -207,55 +219,31 @@ OVSFTree::NodeInfo& OVSFTree::NodeInfo::operator=(const NodeInfo& rhs)
   userId = rhs.userId;
   nodeId = rhs.nodeId;
   blockNodeId = rhs.blockNodeId;
+  code = rhs.code;
   return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-OVSFTree::OVSFTree()
+OVSFTree::OVSFTree(int initialSize)
 {
   // index 0 is unused. 
-  codes.push_back(WHCode());
+  nodes.push_back(NodeInfo());
   // index 1 is a root node
-  codes.push_back(WHCode());
+  nodes.push_back(NodeInfo());
+
+  expandTree(initialSize);
 }
 
 OVSFTree::~OVSFTree()
 {
 }
 
-OVSFTree::NodeInfo OVSFTree::getNodeInfo(int nodeId) const
-{
-  NodeInfo nif;
-  Table_T::const_iterator it = nodeInfo.find(nodeId);
-  if (it == nodeInfo.end()) {
-    // you are free to use this node
-    nif.userId = 0;
-    nif.nodeId = nodeId;
-  }
-  else {
-    nif = it->second;
-  }
-  return nif;
-}
-
-void OVSFTree::setNodeInfo(const int nodeId, const NodeInfo& info)
-{
-  Table_T::iterator it = nodeInfo.find(nodeId);
-  if (it == nodeInfo.end()) {
-    nodeInfo.insert(std::make_pair(nodeId,info));
-  }
-  else {
-    it->second = info;
-  }
-}
-
 bool OVSFTree::isBlock(int level, int id) const
 {
   assert(validate(level,id));
   int nodeId = convertToNodeId(level,id);
-  NodeInfo info = getNodeInfo(nodeId);
-  return info.isBlockCode();
+  return nodes[nodeId].isBlockCode();
 }
 
 bool OVSFTree::peek(int level, int id, WHCode& code) const
@@ -263,7 +251,7 @@ bool OVSFTree::peek(int level, int id, WHCode& code) const
   assert(validate(level,id));
   int nodeId = convertToNodeId(level,id);
   if (nodeId >= 1 && nodeId <= codeCount()) {
-    code = codes[nodeId];
+    code = nodes[nodeId].getWHCode();
     return true;
   }
   return false;
@@ -284,44 +272,41 @@ bool OVSFTree::assign(int level, int id, int userId)
     expandTree(nodeId);
   }
 
-
-  NodeInfo info = getNodeInfo(nodeId);
-  assert(info.nodeId == nodeId);
-  if (info.isUsedCode()) {
+  if (nodes[nodeId].isUsedCode()) {
     return false;
   }
 
-  if (info.isBlockCode()) {
+  if (nodes[nodeId].isBlockCode()) {
     return false;
   }
 
-  info.userId = userId;
-  setNodeInfo(nodeId,info);
+  nodes[nodeId].setUserId(userId);
+  setAncestorBlockNode(nodeId,true);
+  setDescendantBlockNode(nodeId,true);
+  return true;
+}
 
-  // need to block all descendants and ascestors nodes
-  int parentNodeId = nodeId / 2;
-  while (parentNodeId > 0) {
-    NodeInfo tmpInfo = getNodeInfo(parentNodeId);
-    tmpInfo.setBlockNodeId(nodeId);
-    setNodeInfo(parentNodeId,tmpInfo);
-    parentNodeId /= 2;
+void OVSFTree::releaseAll()
+{
+  for (unsigned int k=1; k<=codeCount(); k++) {
+    nodes[k].unsetUserId();
+    nodes[k].unsetAllBlockNodeId();
   }
+}
 
-  // for all existing descendents code has to be blocked as well
-  int lastNode = codeCount();
-  int childNodeId = nodeId;
-  while (childNodeId <= lastNode) {
-    childNodeId = childNodeId * 2 + 1;
-    NodeInfo tmpInfo1 = getNodeInfo(childNodeId);
-    tmpInfo1.setBlockNodeId(nodeId);
-    setNodeInfo(childNodeId,tmpInfo1);
-    
-    childNodeId--;
-    NodeInfo tmpInfo2 = getNodeInfo(childNodeId);
-    tmpInfo2.setBlockNodeId(nodeId);
-    setNodeInfo(childNodeId,tmpInfo2);
+bool OVSFTree::releaseUserId(int userId) 
+{
+  bool bRelease = false;
+  for (unsigned int k=1; k<=codeCount(); k++) {
+    if (nodes[k].getUserId() == userId) {
+      nodes[k].unsetUserId();
+      assert(nodes[k].isBlockCode() == false);
+      setAncestorBlockNode(k, false);
+      setDescendantBlockNode(k, false);
+      bRelease = true;
+    }
   }
-  return false;
+  return bRelease;
 }
 
 bool OVSFTree::release(int level, int id)
@@ -332,37 +317,13 @@ bool OVSFTree::release(int level, int id)
   if (nodeId > codeCount())
     return false;
 
-  NodeInfo info = getNodeInfo(nodeId);
-  if (!info.isUsedCode())
+  if (!nodes[nodeId].isUsedCode())
     return false; // cannot release unclaimed code
 
-  info.unsetUserId();
-  setNodeInfo(nodeId,info);
-
-  // unblock ancestors
-  int parentId = nodeId/2;
-  while (parentId > 0) {
-    NodeInfo info = getNodeInfo(parentId);
-    info.unsetBlockNodeId(nodeId);
-    setNodeInfo(parentId,info);
-    parentId /= 2;
-  }
-
-  // unblock descendant
-  int childId = nodeId;
-  int lastNode = codeCount();
-  while (childId <= lastNode) {
-    childId = childId * 2 + 1;
-    NodeInfo info1 = getNodeInfo(childId);
-    info1.unsetBlockNodeId(nodeId);
-    setNodeInfo(childId,info1);
-
-    childId--;
-    NodeInfo info2 = getNodeInfo(childId);
-    info1.unsetBlockNodeId(nodeId);
-    setNodeInfo(childId,info1);
-  }
-  return false;
+  nodes[nodeId].unsetUserId();
+  setAncestorBlockNode(nodeId,false);
+  setDescendantBlockNode(nodeId,false);
+  return true;
 }
 
 bool OVSFTree::validate(int level, int nodeId) const
@@ -394,17 +355,16 @@ void OVSFTree::print() const
     cout << "NodeId:" << nodeId 
 	 << ",Level=" << log2(nodeId)
 	 << ",WH = "  ;
-    codes[nodeId].print();
+    nodes[nodeId].getWHCode().print();
     
-    NodeInfo info = getNodeInfo(nodeId);
     cout << "Block(";
-    for (int k=0; k<info.blockNodeId.size(); k++) {
-      cout << info.blockNodeId[k] << ",";
+    for (int k=0; k<nodes[nodeId].blockNodeId.size(); k++) {
+      cout << nodes[nodeId].blockNodeId[k] << ",";
     }
-    if(info.blockNodeId.empty()) {
+    if(nodes[nodeId].blockNodeId.empty()) {
       cout << "0";
     }
-    cout << ")UserId(" << info.userId << ")";
+    cout << ")UserId(" << nodes[nodeId].userId << ")";
     cout << endl;
   }
   cout << "FreeCode = " << freeCodeCount() << endl;
@@ -414,15 +374,14 @@ void OVSFTree::print() const
 
 int OVSFTree::codeCount() const
 {
-  return codes.size() - 1;
+  return nodes.size() - 1;
 }
 
 int OVSFTree::usedCodeCount() const
 {
   int s = 0;
   for (int i=1; i<=codeCount(); i++) {
-    NodeInfo info = getNodeInfo(i);
-    if (info.isUsedCode())
+    if (nodes[i].isUsedCode())
       s++;
   }
   return s;
@@ -432,8 +391,7 @@ int OVSFTree::freeCodeCount() const
 {
   int s = 0;
   for (int i=1; i<=codeCount(); i++) {
-    NodeInfo info = getNodeInfo(i);
-    if (!info.isUsedCode() && !info.isBlockCode())
+    if (!nodes[i].isUsedCode() && !nodes[i].isBlockCode())
       s++;
   }
   return s;
@@ -443,8 +401,7 @@ int OVSFTree::blockCodeCount() const
 {
   int s = 0;
   for (int i=1; i<=codeCount(); i++) {
-    NodeInfo info = getNodeInfo(i);
-    if (info.isBlockCode())
+    if (nodes[i].isBlockCode())
       s++;
   }
   return s;
@@ -471,7 +428,7 @@ int OVSFTree::expandTree(unsigned int size)
   // allocate more space for expanding
   unsigned extraspace = upperbound - codeCount() - 1;
   for (unsigned int i=0; i<extraspace; i++) {
-    codes.push_back(WHCode());
+    nodes.push_back(NodeInfo());
   }
  
   // construct new WHCode for the expanding nodes
@@ -489,7 +446,7 @@ int OVSFTree::expandTree(unsigned int size)
     if (nodeId <= lastNode)
       continue;
 
-    WHCode parent = codes[nodeId/2];
+    WHCode parent = nodes[nodeId/2].getWHCode();
     vector<int> pattern;
     if (nodeId % 2) {
       pattern.push_back(1);
@@ -499,7 +456,8 @@ int OVSFTree::expandTree(unsigned int size)
       pattern.push_back(1);
       pattern.push_back(1);
     }
-    codes[nodeId] = WHCode(parent,pattern);
+    nodes[nodeId] = NodeInfo(WHCode(parent,pattern), nodeId);
+
   }
   assert(upperbound - 1 == codeCount());
   return upperbound - 1;
@@ -509,8 +467,7 @@ bool OVSFTree::isAncestorFreeCode(int nodeId) const
 {
   int parentNodeId = nodeId / 2;
   while(parentNodeId > 0) {
-    NodeInfo info = getNodeInfo(parentNodeId);
-    if (info.isBlockCode()) {
+    if (nodes[parentNodeId].isBlockCode()) {
       return false;
     }
     parentNodeId /= 2;
@@ -518,9 +475,106 @@ bool OVSFTree::isAncestorFreeCode(int nodeId) const
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+int OVSFTree::setAncestorBlockNode(int nodeId, bool isBlock)
+{
+  int parentNodeId = nodeId / 2;
+  while(parentNodeId > 0) {
+    if (isBlock)
+      nodes[parentNodeId].setBlockNodeId(nodeId);
+    else
+      nodes[parentNodeId].unsetBlockNodeId(nodeId);
+    parentNodeId /= 2;
+  }
+}
 
-void test_assign();
+int OVSFTree::setDescendantBlockNode(int nodeId, bool isBlock)
+{
+  int childId = nodeId;
+  const int lastNode = codeCount();
+  while (childId <= lastNode) {
+    childId = childId * 2 + 1;
+
+    if (childId > lastNode)
+      break;
+
+    if (isBlock)
+      nodes[childId].setBlockNodeId(nodeId);
+    else
+      nodes[childId].unsetBlockNodeId(nodeId);
+
+    childId--;
+    if (childId > lastNode)
+      break;
+
+    if (isBlock)
+      nodes[childId].setBlockNodeId(nodeId);
+    else
+      nodes[childId].unsetBlockNodeId(nodeId);
+  }
+}
+
+std::vector<std::pair<int,WHCode> > OVSFTree::listUsedCode() const
+{
+  std::vector<std::pair<int,WHCode> > usedCode;
+  for (unsigned int k=1; k<=codeCount(); k++) {
+    if (nodes[k].isUsedCode()) {
+      usedCode.push_back(std::make_pair(nodes[k].getUserId(),
+					nodes[k].getWHCode()));
+    }
+  }
+  return usedCode;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+Assigner::Assigner()
+{
+}
+
+Assigner::~Assigner()
+{
+}
+
+std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
+{
+  if (codeLens <= 0) 
+    return std::make_pair(false,WHCode());
+
+  int level = codeLens - 1;
+  int numTries = 1 << level;
+  for (int n=0; n<numTries; n++) {
+    bool success = tree.assign(level, n, userId);
+    if (success) {
+      WHCode code;
+      tree.peek(level, n, code);
+      return std::make_pair(true,code);
+    }
+  }
+  return std::make_pair(false,WHCode());
+}
+
+std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(std::vector<std::pair<int,int> > requestInfo)
+{
+  std::vector<std::pair<bool,WHCode> > codes;
+  for (unsigned int k=0; k<requestInfo.size(); k++) {
+    codes.push_back(assignUserId(requestInfo[k].first,requestInfo[k].second));
+  }
+  return codes;
+}
+
+void Assigner::releaseUserId(int userId)
+{
+  tree.releaseUserId(userId);
+}
+
+void Assigner::releaseAll()
+{
+  tree.releaseAll();
+}
+
+std::vector<std::pair<int, WHCode> > Assigner::listUsedCode() const
+{
+  return tree.listUsedCode();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
