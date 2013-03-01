@@ -15,6 +15,7 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@ public:
 
   std::vector<WHCode> split(int k) const;
 
-  int getChipBit(size_t index) const;
+  int getChipBit(unsigned int index) const;
   void print() const;
 
 protected:
@@ -50,10 +51,27 @@ protected:
 class OVSFTree
 {
 public:
-  struct NodeInfo {
+  class NodeInfo {
+  public:
+    NodeInfo(int id);
+    NodeInfo();
+    NodeInfo(const NodeInfo& other);
+
+    NodeInfo& setUserId(int id);
+    NodeInfo& setNodeId(int id);
+    NodeInfo& setBlockNodeId(int id);
+
+    NodeInfo& unsetUserId();
+    NodeInfo& unsetBlockNodeId(int id);
+
+    NodeInfo& operator=(const NodeInfo& rhs);
+
     int userId; // the userId that is using this node
     int nodeId; // the nodeId of this node
-    int blockNodeId; // the nodeId that blocks this node
+    std::vector<int> blockNodeId; // the nodeId that blocks this node
+
+    bool isUsedCode() const { return userId != 0; }
+    bool isBlockCode() const { return !blockNodeId.empty(); }
   };
 
   OVSFTree();
@@ -62,6 +80,7 @@ public:
   bool peek(int level, int nodeId, WHCode& code) const;
   bool assign(int level, int nodeId, int userId);
   bool release(int level, int nodeId);
+  bool isBlock(int level, int id) const;
 
   void print() const;
 
@@ -70,17 +89,20 @@ public:
   int freeCodeCount() const;
   int blockCodeCount() const;
 
-  //protected:
-  int expandTree(unsigned int size);
-
 protected:
-  NodeInfo getNodeInfo(int nodeId);
+  int expandTree(unsigned int size);
+  NodeInfo getNodeInfo(int nodeId) const;
+  void setNodeInfo(const int nodeId, const NodeInfo& info);
 
 private:
   unsigned int log2(unsigned int v) const;
+  int convertToNodeId(int level, int id) const;
+  bool validate(int level, int id) const;
+  bool isAncestorFreeCode(int nodeId) const;
 
+  // data
   typedef std::map<int,NodeInfo> Table_T;
-  Table_T info;
+  Table_T nodeInfo;
   std::vector<WHCode> codes;
 };
 
