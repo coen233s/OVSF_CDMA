@@ -7,16 +7,37 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void test_assign();
+
 int main()
 {
-  OVSFTree t;
-  int expand = 8;
-  int l = t.expandTree(expand);
-
-  cout << "expand = " << expand << " new len= " << l << endl;
-  t.print();
-  t.expandTree(9);
-  t.print();
-
+  test_assign();
   return 0;
+}
+
+void test_assign()
+{
+  OVSFTree tree;
+  tree.assign(3,1,100);
+  tree.print();
+  tree.assign(1,1,200);
+  tree.print();
+
+  WHCode c1;
+  tree.peek(3,1,c1);
+  WHCode c2;
+  tree.peek(1,1,c2);
+
+  cout << "c1 = ";
+  c1.print();
+  cout << endl;
+  cout << "c2 = ";
+  c2.print();
+  cout << endl;
+
+  tree.release(1,1);
+  tree.print();
+
+  tree.release(3,1);
+  tree.print();
 }
