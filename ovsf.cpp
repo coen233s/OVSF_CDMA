@@ -524,11 +524,11 @@ void test_assign();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int main()
-{
-  test_assign();
-  return 0;
-}
+//int main()
+//{
+//  test_assign();
+//  return 0;
+//}
 
 void test_assign()
 {
