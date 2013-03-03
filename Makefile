@@ -5,12 +5,17 @@ TESTS += \
 
 SRCS += \
 	ovsf.cpp \
+	Configuration.cpp \
 	dat/BitInQueue.cpp \
 	dat/BitOutQueue.cpp \
 	phy/Receiver.cpp \
 	phy/RxTxBase.cpp \
 	phy/SimplePhyChannel.cpp \
 	phy/Transmitter.cpp \
+	dev/DeviceBase.cpp \
+	dev/BaseStation.cpp \
+	dev/MobileStation.cpp \
+	dev/protocol/ControlProtocol.cpp \
 
 BINDIR := bin
 INCLUDES += -I.

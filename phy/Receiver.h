@@ -13,10 +13,11 @@
 #include <ovsf.h>
 #include <phy/RxTxBase.h>
 #include <dat/BitInQueue.h>
+#include <dat/UpdateListener.h>
 
 using namespace std;
 
-class Receiver : public RxTxBase {
+class Receiver : public RxTxBase, UpdateListener {
 private:
 	// Last received chip
 	int m_LastChip;
@@ -33,8 +34,11 @@ private:
 	// Data queue
 	BitInQueue m_BitQueue;
 
+	// Update listener
+	UpdateListener *m_updateListener;
+
 public:
-	Receiver(string &name);
+	Receiver(string name, UpdateListener *updateListener = 0);
 	virtual ~Receiver();
 	virtual void onTick();
 
@@ -50,11 +54,9 @@ public:
 	    return !m_BitQueue.empty();
 	}
 
-    unsigned char popData() {
-        char dat = m_BitQueue.front();
-        m_BitQueue.pop();
-        return dat;
-    }
+    unsigned char popData();
+
+    virtual void onUpdate(void *arg);
 };
 
 #endif /* RECEIVER_H_ */

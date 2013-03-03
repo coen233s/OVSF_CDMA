@@ -6,12 +6,15 @@
  */
 
 #include <iostream>
+#include <dat/UpdateListener.h>
 #include "Receiver.h"
 
 using namespace std;
 
-Receiver::Receiver(string &name)
+Receiver::Receiver(string name, UpdateListener *updateListener)
 : RxTxBase(name)
+, m_BitQueue(this)
+, m_updateListener(updateListener)
 {
 }
 
@@ -24,6 +27,12 @@ void Receiver::setWalshCode(vector<WHCode *> newCodes) {
 	m_WalshIdx.resize(newCodes.size(), 0);
 	m_WalshDotProd.clear();
 	m_WalshDotProd.resize(newCodes.size(), 0);
+}
+
+unsigned char Receiver::popData() {
+    char dat = m_BitQueue.front();
+    m_BitQueue.pop_front();
+    return dat;
 }
 
 void Receiver::onTick() {
@@ -51,4 +60,10 @@ void Receiver::onTick() {
 			m_WalshDotProd[i] = 0;
 		}
 	}
+}
+
+void Receiver::onUpdate(void *arg)
+{
+	if (m_updateListener)
+		m_updateListener->onUpdate(this);
 }

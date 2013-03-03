@@ -10,8 +10,9 @@
 
 using namespace std;
 
-BitInQueue::BitInQueue()
-: m_bitMask(1)
+BitInQueue::BitInQueue(UpdateListener *updateListener)
+: m_updateListener(updateListener)
+, m_bitMask(1)
 , m_dataByte(0)
 {
 }
@@ -26,8 +27,10 @@ void BitInQueue::pushBit(char bit) {
 	// byte boundary
 	if (m_bitMask & 0x80) {
 		m_bitMask = 1;
-		push(m_dataByte);
+		push_back(m_dataByte);
 		m_dataByte = 0;
+		if (m_updateListener)
+			m_updateListener->onUpdate(this);
 	} else {
 		m_bitMask <<= 1;
 	}

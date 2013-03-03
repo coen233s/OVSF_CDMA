@@ -14,7 +14,7 @@ using namespace std;
 
 class RxTxBase {
 protected:
-    string &name;
+    string name;
 public:
 	RxTxBase(string &name);
 	virtual ~RxTxBase();

@@ -27,7 +27,7 @@ int main()
 
     while (!inq.empty()) {
         cout << "Pop data: " << (int) inq.front() << endl;
-        inq.pop();
+        inq.pop_front();
     }
 
     cout << "OutQueue" << endl;

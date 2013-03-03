@@ -10,17 +10,19 @@
 #ifndef BITINQUEUE_H_
 #define BITINQUEUE_H_
 
-#include <queue>
+#include <deque>
+#include "UpdateListener.h"
 
 using namespace std;
 
-class BitInQueue: public queue<unsigned char> {
+class BitInQueue: public deque<unsigned char> {
 private:
+	UpdateListener *m_updateListener;
 	unsigned char m_bitMask;
 	unsigned char m_dataByte;
 
 public:
-	BitInQueue();
+	BitInQueue(UpdateListener *updateListener = 0);
 	virtual ~BitInQueue();
 
 	void pushBit(char bit);
