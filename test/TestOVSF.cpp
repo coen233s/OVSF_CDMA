@@ -8,11 +8,17 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 
 void test_assign();
+void test_2();
 
 int main()
 {
-  test_assign();
+  test_2();
   return 0;
+}
+
+void test_2()
+{
+  cout << "Test 2" << endl;
 }
 
 void test_assign()
