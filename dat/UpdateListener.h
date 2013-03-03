@@ -10,7 +10,7 @@
 
 class UpdateListener {
 public:
-	virtual void onUpdate(void *arg);
+	virtual void onUpdate(void *arg) = 0;
 };
 
 #endif /* UPDATELISTENER_H_ */
