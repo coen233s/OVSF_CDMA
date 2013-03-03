@@ -8,7 +8,6 @@ SRCS += \
 	Configuration.cpp \
 	dat/BitInQueue.cpp \
 	dat/BitOutQueue.cpp \
-	dat/UpdateListener.cpp \
 	phy/Receiver.cpp \
 	phy/RxTxBase.cpp \
 	phy/SimplePhyChannel.cpp \

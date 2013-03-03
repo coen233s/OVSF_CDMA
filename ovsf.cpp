@@ -12,8 +12,6 @@
 #include <queue>
 #include <map>
 #include <assert.h>
-#include <pthread.h>
-#include <unistd.h>
 #include "ovsf.h"
 
 ///////////////////////////////////////////////////////////////////////////////
