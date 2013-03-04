@@ -407,6 +407,11 @@ int OVSFTree::blockCodeCount() const
   return s;
 }
 
+bool OVSFTree::isPowerOfTwo(unsigned int v) const
+{
+  return ((v > 0) && ((v & (v-1)) == 0));
+}
+
 unsigned int OVSFTree::log2(unsigned int v) const
 {
   unsigned int shift = 0;
@@ -539,24 +544,85 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
   if (codeLens <= 0) 
     return std::make_pair(false,WHCode());
 
-  int level = codeLens - 1;
-  int numTries = 1 << level;
-  for (int n=0; n<numTries; n++) {
-    bool success = tree.assign(level, n, userId);
-    if (success) {
+  if (!tree.isPowerOfTwo(codeLens))
+    return std::make_pair(false,WHCode());
+
+  if (codeLens < 2)
+    return std::make_pair(false,WHCode());
+
+  // check if the request code length is available
+  if (calcShortestFreeCode(codeLens) != codeLens) 
+    return std::make_pair(false,WHCode());
+
+  // look for the non-full bucket that has the least capacity
+  int lastNode = tree.codeCount();
+  unsigned int level = tree.log2(lastNode - 1);
+ 
+  // count capacity for each group
+  int count = 0;
+  int beginNode = 1 << level;
+  int nodeCount = 1 << level;
+  int nodePerGroup = nodeCount / 4;
+  int capacity[4] = {0,0,0,0};
+  for (int n=0; n<4; n++) {
+    int offset = n * nodePerGroup;
+    for (int k=0; k<nodePerGroup; k++) {
+      int nodeId = beginNode + offset + k;
+      if (tree.nodes[nodeId].isFreeCode()) {
+	capacity[n]++;
+      }
+    }
+  }
+
+  // find the least non-zero capacity
+  int bucket = -1;
+  int minCapacity = 10000;
+  for (int n=0; n<4; n++) {
+    if (capacity[n] == 0)
+      continue;
+
+    if (capacity[n] < minCapacity) {
+      bucket = n;
+      minCapacity = capacity[n];
+    }
+  }
+  if (bucket == -1) {
+    // not enough capacity
+    return std::make_pair(false,WHCode());
+  }
+  assert(bucket >= 0 && bucket < 4);
+  
+  // assign userId to that bucket
+  int assignLevel = tree.log2(codeLens);
+  beginNode = 1 << assignLevel;
+  nodeCount = 1 << assignLevel;
+  nodePerGroup = nodeCount / 4;
+  int offset = bucket * nodePerGroup; 
+  for (int k=0; k<nodePerGroup; k++) {
+    int nodeId = beginNode + offset + k;
+    if (tree.nodes[nodeId].isFreeCode()) {
+      bool status = tree.assign(assignLevel,offset+k,userId);
+      assert(status);
+
       WHCode code;
-      tree.peek(level, n, code);
+      tree.peek(assignLevel,offset+k,code);
       return std::make_pair(true,code);
     }
   }
+  // somehow it fails
+  assert(false);
   return std::make_pair(false,WHCode());
 }
 
-std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(std::vector<std::pair<int,int> > requestInfo)
+std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(const std::vector<int>& userId,
+							     const std::vector<int>& codeLens)
 {
   std::vector<std::pair<bool,WHCode> > codes;
-  for (unsigned int k=0; k<requestInfo.size(); k++) {
-    codes.push_back(assignUserId(requestInfo[k].first,requestInfo[k].second));
+  if (userId.size() != codeLens.size())
+    return codes;
+
+  for (unsigned int k=0; k<userId.size(); k++) {
+    codes.push_back(assignUserId(userId[k],codeLens[k]));
   }
   return codes;
 }
@@ -574,6 +640,81 @@ void Assigner::releaseAll()
 std::vector<std::pair<int, WHCode> > Assigner::listUsedCode() const
 {
   return tree.listUsedCode();
+}
+
+int Assigner::calcShortestFreeCode(int requestLen) const 
+{ 
+  assert(tree.isPowerOfTwo(requestLen));
+  if (!tree.isPowerOfTwo(requestLen)) 
+    return 0;
+
+  int lastNode = tree.codeCount();
+  unsigned int lastLevel = tree.log2(lastNode - 1);
+  for (unsigned int lv = 2; lv <= lastLevel; lv++) {
+    int codeLen = 1 << lv;
+
+    cout << "codeLen = " << codeLen << endl;
+
+    if (codeLen < requestLen)
+      continue;
+
+    int beginNode = 1 << lv;
+    int nodeCount = 1 << lv;
+    
+    cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount << endl;
+
+    for (int k=0; k<nodeCount; k++) {
+      if (tree.nodes[beginNode+k].isFreeCode()) {
+	return codeLen;
+      }
+    }
+  }
+  return 0; 
+}
+
+double Assigner::calcCurrentCapacity() const 
+{ 
+  int lastNode = tree.codeCount();
+  unsigned int level = tree.log2(lastNode - 1);
+  cout << "level=" << level << endl;
+
+  int count = 0;
+  int beginNode = 1 << level;
+  for (int k=beginNode; k<=lastNode; k++) {
+    if (tree.nodes[k].isFreeCode()) {
+      count++;
+    }
+  }
+  cout << "count = " << count << endl;
+  cout << "number = " << lastNode - beginNode + 1 << endl;
+  return static_cast<double>(count) / 
+         static_cast<double>(lastNode - beginNode + 1);
+}
+
+void Assigner::print() const
+{
+  tree.print();
+}
+
+bool Assigner::hasExceedCapacity(const std::vector<int>& codeLength)
+{
+  // Consider a binary partition, we can treat each capacity as a sum of
+  // the smallest capacity in this system. If the sum of capacity is <= 1
+  // then we can find this configuration by performing code compacting algorithm.
+  // However, we are not assigning anyone a capacity of 1 and 1/2.
+  
+  // if there is any capacity of 1 and 1/2 ( code length of 1 and 2 ).
+  // if there is any, reject this request.
+  for (size_t k=0; k<codeLength.size(); k++) {
+    if (codeLength[k] <= 2) 
+      return false;
+  }
+
+  double sum = 0.0;
+  for (size_t k=0; k<codeLength.size(); k++) {
+    sum += (1.0/(double)codeLength[k]);
+  }
+  return (sum <= 1.0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

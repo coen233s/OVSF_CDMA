@@ -75,6 +75,9 @@ public:
 
     bool isUsedCode() const { return userId != 0; }
     bool isBlockCode() const { return !blockNodeId.empty(); }
+    bool isFreeCode() const {
+      return (!isUsedCode() && !isBlockCode());
+    }
 
     // Data
     int userId; // the userId that is using this node
@@ -100,14 +103,14 @@ public:
   int usedCodeCount() const;
   int freeCodeCount() const;
   int blockCodeCount() const;
-
+ 
   std::vector<std::pair<int,WHCode> > listUsedCode() const;
 
-protected:
   int expandTree(unsigned int size);
 
-private:
+  // Utils
   unsigned int log2(unsigned int v) const;
+  bool isPowerOfTwo(unsigned int v) const;
   int convertToNodeId(int level, int id) const;
   bool validate(int level, int id) const;
   bool isAncestorFreeCode(int nodeId) const;
@@ -127,17 +130,36 @@ public:
   Assigner();
   virtual ~Assigner();
 
+  // Use Compact coding assignment algorithm.
+  // This method will reject any codeLen <= 2
   std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
-  std::vector<std::pair<bool,WHCode> > assignUserIds(std::vector<std::pair<int,int> > requestInfo);
+
+  std::vector<std::pair<bool,WHCode> > assignUserIds(const std::vector<int>& userId,
+						     const std::vector<int>& codeLens);
 
   void releaseUserId(int userId);
   void releaseAll();
 
+  // list all used code and its userId
   std::vector<std::pair<int, WHCode> > listUsedCode() const;
+
+  // requestLen : target code length (must be a power of two)
+  // return the code length >= requestLen
+  // or zero when there is no code available
+  int calcShortestFreeCode(int requestLen) const;
+
+  // query the current capacity of the OVSF Tree. The capacity is 
+  // a fraction between [0,1.0]. 1.0 means 100% free capacity. 
+  double calcCurrentCapacity() const;
+
+  void print() const;
+
+  // check if the given requested code length is valid. Meaning,
+  // there exists some configuration that satisfy this capacity requirement.
+  static bool hasExceedCapacity(const std::vector<int>& codeLength);
 
 protected:
   OVSFTree tree;
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////
