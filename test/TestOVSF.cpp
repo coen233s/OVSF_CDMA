@@ -9,11 +9,68 @@ using namespace std;
 
 void test_assign();
 void test_capacity();
+void greedy_server_test();
 
 int main()
 {
-  test_capacity();
+  //test_capacity();
+  greedy_server_test();
   return 0;
+}
+
+void greedy_server_test()
+{
+  Assigner assigner;
+  // we will assign the 3 users in the following requests:
+  // user 1 wants 1/8 rate = code len = 8
+  // user 2 wants 1/4 rate = code len = 4
+  // user 3 wants 1/4 rate = code len = 4
+
+  std::pair<bool,WHCode> result = assigner.assignUserId(100,8);
+  if (result.first) {
+    cout << "user 100's WHCode = ";
+    result.second.print();
+    cout << endl;
+  }
+  else {
+    cout << "fail: user 100 got nothing back." << endl;
+  }
+  //assigner.print();
+
+  std::pair<bool,WHCode> result2 = assigner.assignUserId(200,4);
+  if (result2.first) {
+    cout << "user 200's WHCode = ";
+    result2.second.print();
+    cout << endl;
+  }
+  else {
+    cout << "fail: user 200 got nothing back." << endl;
+  }
+  //assigner.print();
+
+  std::pair<bool,WHCode> result3 = assigner.assignUserId(300,4);
+  if (result3.first) {
+    cout << "user 300's WHCode = ";
+    result3.second.print();
+    cout << endl;
+  }
+  else {
+    cout << "fail: user 300 got nothing back." << endl;
+  }
+
+  cout << "Check if the assignment are correct..." << endl;
+  std::vector<std::pair<int,WHCode> > codes = assigner.listUsedCode();
+  for (int k=0; k<codes.size(); k++) {
+    cout << "User " << codes[k].first << " has WHCode of ";
+    codes[k].second.print();
+    cout << endl;
+  }
+
+  cout << "Current capacity = " << assigner.calcCurrentCapacity() << endl;
+  cout << "shortest code you can get is " << assigner.calcShortestFreeCode(2) << endl;
+
+  assigner.print();
+  
 }
 
 void test_capacity()
@@ -32,6 +89,16 @@ void test_capacity()
   cout <<" codeLen = " << codeLen << endl;
 
   std::pair<bool,WHCode> result = assigner.assignUserId(200,4);
+  if (result.first) {
+    cout << "WHCode is ";
+    result.second.print();
+    cout << endl;
+  }
+  else {
+    cout << "unsuccessful assign this user to WHCode of length 4." << endl;
+  }
+
+  result = assigner.assignUserId(300,4);
   if (result.first) {
     cout << "WHCode is ";
     result.second.print();

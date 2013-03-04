@@ -574,11 +574,19 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
     }
   }
 
+  //for (int n=0; n<4; n++) {
+  //  cout << "C[" << n << "]=" << capacity[n] << endl;
+  //}
+
+  int assignLevel = tree.log2(codeLens);
+  int assignCost = 1 << (level - assignLevel);
+  //cout << "assignCost = " << assignCost << endl;
+
   // find the least non-zero capacity
   int bucket = -1;
   int minCapacity = 10000;
   for (int n=0; n<4; n++) {
-    if (capacity[n] == 0)
+    if (capacity[n] < assignCost)
       continue;
 
     if (capacity[n] < minCapacity) {
@@ -591,15 +599,18 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
     return std::make_pair(false,WHCode());
   }
   assert(bucket >= 0 && bucket < 4);
-  
+  //cout << "bucket = " << bucket << endl;
+
   // assign userId to that bucket
-  int assignLevel = tree.log2(codeLens);
   beginNode = 1 << assignLevel;
   nodeCount = 1 << assignLevel;
   nodePerGroup = nodeCount / 4;
+  //cout << assignLevel << ":" << nodePerGroup << endl;
+
   int offset = bucket * nodePerGroup; 
   for (int k=0; k<nodePerGroup; k++) {
     int nodeId = beginNode + offset + k;
+    // cout << "-> nodeId is " << nodeId << endl;
     if (tree.nodes[nodeId].isFreeCode()) {
       bool status = tree.assign(assignLevel,offset+k,userId);
       assert(status);
@@ -653,7 +664,7 @@ int Assigner::calcShortestFreeCode(int requestLen) const
   for (unsigned int lv = 2; lv <= lastLevel; lv++) {
     int codeLen = 1 << lv;
 
-    cout << "codeLen = " << codeLen << endl;
+    //cout << "codeLen = " << codeLen << endl;
 
     if (codeLen < requestLen)
       continue;
@@ -661,7 +672,7 @@ int Assigner::calcShortestFreeCode(int requestLen) const
     int beginNode = 1 << lv;
     int nodeCount = 1 << lv;
     
-    cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount << endl;
+    //cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount - 1 << endl;
 
     for (int k=0; k<nodeCount; k++) {
       if (tree.nodes[beginNode+k].isFreeCode()) {
@@ -676,7 +687,7 @@ double Assigner::calcCurrentCapacity() const
 { 
   int lastNode = tree.codeCount();
   unsigned int level = tree.log2(lastNode - 1);
-  cout << "level=" << level << endl;
+  //cout << "level=" << level << endl;
 
   int count = 0;
   int beginNode = 1 << level;
@@ -685,8 +696,8 @@ double Assigner::calcCurrentCapacity() const
       count++;
     }
   }
-  cout << "count = " << count << endl;
-  cout << "number = " << lastNode - beginNode + 1 << endl;
+  //cout << "count = " << count << endl;
+  //cout << "number = " << lastNode - beginNode + 1 << endl;
   return static_cast<double>(count) / 
          static_cast<double>(lastNode - beginNode + 1);
 }
