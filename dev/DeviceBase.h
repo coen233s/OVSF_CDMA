@@ -18,6 +18,10 @@ private:
 public:
 	DeviceBase(string &deviceId);
 	virtual ~DeviceBase();
+
+	string &getDeviceId() {
+		return deviceId;
+	}
 };
 
 #endif /* DEVICEBASE_H_ */

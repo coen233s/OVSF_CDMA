@@ -12,20 +12,14 @@
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
 #include <phy/SimplePhyChannel.h>
+#include <sim/Simulator.h>
 
 using namespace std;
 
-int g_time;
-int g_maxTime;
-
-bool testStopCond()
-{
-    g_time++;
-    return g_time > g_maxTime;
-}
-
 int main()
 {
+	Simulator sim;
+
     string txName("tx");
     string rxName("rx");
 
@@ -57,9 +51,8 @@ int main()
         tx.pushData(i);
     }
 
-    g_time = 0;
-    g_maxTime = 10 * 8 * 2;
-    pch.run(testStopCond);
+    sim.addObject(&pch);
+    sim.run(10 * 8 * 2);
 
     while (rx.hasData())
         cout << "Recv data: " << (int)rx.popData() << endl;

@@ -7,6 +7,7 @@
 
 #include <Configuration.h>
 #include "BaseStation.h"
+#include "protocol/ControlProtocol.h"
 
 Agent::Agent(string name)
 : DeviceBase(name)
@@ -15,12 +16,12 @@ Agent::Agent(string name)
 {
 }
 
-BaseStation::BaseStation(string &name, AbsPhyChannel &pch)
+BaseStation::BaseStation(string name, AbsPhyChannel &pch)
 : DeviceBase(name)
 , m_phy(pch)
-, m_protCtrl()
-, m_rxCtrl(name + ".rx", &m_protCtrl)
 , m_txCtrl(name + ".tx")
+, m_protCtrl(m_txCtrl, this)
+, m_rxCtrl(name + ".rx", &m_protCtrl)
 {
 	Configuration &conf(Configuration::getInstance());
 	m_txCtrl.setWalshCode(&conf.wcCtrl);
@@ -34,4 +35,10 @@ BaseStation::BaseStation(string &name, AbsPhyChannel &pch)
 }
 
 BaseStation::~BaseStation() {
+}
+
+void BaseStation::onUpdate(void *arg)
+{
+	ControlFrame &cframe(*(ControlFrame *)arg);
+	cout << getDeviceId() << " recv control frame [" << cframe << "]" << endl;
 }

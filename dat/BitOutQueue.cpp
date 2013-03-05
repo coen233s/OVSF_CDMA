@@ -7,8 +7,12 @@
  *      Author: Danke
  */
 
+#include <debug.h>
+#include <iostream>
 #include <stdexcept>
 #include "BitOutQueue.h"
+
+using namespace std;
 
 BitOutQueue::BitOutQueue()
 : m_hasDataInByteBuffer(false)
@@ -35,6 +39,7 @@ char BitOutQueue::popBit()
 			m_dataByte = front();
 			pop();
 			m_bitMask = 1;
+			dout("Recv: " << hex << showbase << (int)m_dataByte << dec << endl);
 		}
 	}
 

@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <debug.h>
 #include <iostream>
 #include "BitInQueue.h"
 
@@ -31,6 +32,7 @@ void BitInQueue::pushBit(char bit) {
 		m_dataByte = 0;
 		if (m_updateListener)
 			m_updateListener->onUpdate(this);
+		dout("Send: " << hex << showbase << (int)m_dataByte << dec << endl);
 	} else {
 		m_bitMask <<= 1;
 	}

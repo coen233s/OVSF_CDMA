@@ -1,5 +1,13 @@
 This is README
-
 ==================================================================
 
-Hello, World!
+Build
+=======
+Make normal build:
+$ make clean
+$ make
+
+Make debug build:
+$ make clean
+$ make DEBUG=1
+

@@ -18,7 +18,6 @@ class SimplePhyChannel : public AbsPhyChannel {
 private:
 	vector<Transmitter *> m_Tx;
 	vector<Receiver *> m_Rx;
-	int tick;
 public:
 	SimplePhyChannel();
 	virtual ~SimplePhyChannel();
@@ -32,10 +31,7 @@ public:
 	virtual void attachTransmitter(Transmitter *tx);
 
 	// Simulate one time step
-	virtual void onTick();
-
-	// Run until shouldStop() returns true
-	virtual void run(bool (*shouldStop)());
+	virtual void onTick(int time);
 };
 
 #endif /* SIMPLEPHYCHANNEL_H_ */

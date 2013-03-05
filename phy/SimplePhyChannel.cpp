@@ -11,7 +11,6 @@
 using namespace std;
 
 SimplePhyChannel::SimplePhyChannel()
-: tick(0)
 {
 }
 
@@ -27,7 +26,7 @@ void SimplePhyChannel::attachTransmitter(Transmitter *tx) {
 	m_Tx.push_back(tx);
 }
 
-void SimplePhyChannel::onTick() {
+void SimplePhyChannel::onTick(int time) {
 	int chipSum = 0;
 
 	for (vector<Transmitter *>::iterator it = m_Tx.begin();
@@ -40,14 +39,5 @@ void SimplePhyChannel::onTick() {
 				it != m_Rx.end(); ++it) {
 		(*it)->setChip(chipSum);
 		(*it)->onTick();
-	}
-}
-
-// Run until shouldStop() returns true
-void SimplePhyChannel::run(bool (*shouldStop)()) {
-	tick = 0;
-	while (!shouldStop()) {
-		onTick();
-		tick++;
 	}
 }

@@ -13,6 +13,7 @@
 #include <phy/AbsPhyChannel.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
+#include <sim/SimObject.h>
 #include "protocol/ControlProtocol.h"
 #include "DeviceBase.h"
 
@@ -26,16 +27,24 @@ public:
 	Agent(string name);
 };
 
-class BaseStation : public DeviceBase {
+class BaseStation : public DeviceBase,
+					public UpdateListener,
+					public SimObject
+{
 private:
 	AbsPhyChannel &m_phy;			// physical medium
+	Transmitter m_txCtrl;			// control channel transmitter
 	ControlProtocol m_protCtrl;		// control protocol processor
 	Receiver m_rxCtrl;				// control channel receiver
-	Transmitter m_txCtrl;			// control channel transmitter
 
 public:
-	BaseStation(string &name, AbsPhyChannel &pch);
+	BaseStation(string name, AbsPhyChannel &pch);
 	virtual ~BaseStation();
+
+	// control frame listerner, arg = &ControlFrame
+	virtual void onUpdate(void *arg);
+
+	virtual void onTick(int time) {};
 };
 
 #endif /* BASESTATION_H_ */

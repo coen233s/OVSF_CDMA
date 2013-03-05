@@ -14,16 +14,14 @@
 #ifndef ABSPHYCHANNEL_H_
 #define ABSPHYCHANNEL_H_
 
+#include <sim/SimObject.h>
 #include "Receiver.h"
 #include "Transmitter.h"
 
-class AbsPhyChannel {
+class AbsPhyChannel : public SimObject {
 public:
 	virtual void attachReceiver(Receiver *rx) = 0;
 	virtual void attachTransmitter(Transmitter *rx) = 0;
-	virtual void onTick() = 0;
-	// Run until shouldStop() returns true
-	virtual void run(bool (*shouldStop)()) = 0;
 };
 
 #endif /* ABSPHYCHANNEL_H_ */

@@ -21,6 +21,10 @@ public:
 
 	// Simulate one time step (one chip period).
 	void onTick();
+
+	string &getName() {
+		return name;
+	}
 };
 
 #endif /* RXTXBASE_H_ */

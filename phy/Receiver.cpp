@@ -30,9 +30,16 @@ void Receiver::setWalshCode(vector<WHCode *> newCodes) {
 }
 
 unsigned char Receiver::popData() {
-    char dat = m_BitQueue.front();
+	unsigned char dat = m_BitQueue.front();
     m_BitQueue.pop_front();
     return dat;
+}
+
+int Receiver::peekData(int idx) {
+	if (idx < m_BitQueue.size())
+		return m_BitQueue.at(idx);
+	else
+		return -1;
 }
 
 void Receiver::onTick() {

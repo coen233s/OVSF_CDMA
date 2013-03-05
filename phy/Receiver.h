@@ -54,7 +54,12 @@ public:
 	    return !m_BitQueue.empty();
 	}
 
+    int getDataSize() {
+    	return m_BitQueue.size();
+    }
+
     unsigned char popData();
+    int peekData(int idx);
 
     virtual void onUpdate(void *arg);
 };
