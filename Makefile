@@ -3,6 +3,7 @@ TESTS += \
 	test/TestBitQueue.cpp \
 	test/TestOVSF.cpp \
 	test/TestBaseStation.cpp \
+	test/TestCdma.cpp \
 
 SRCS += \
 	ovsf.cpp \
