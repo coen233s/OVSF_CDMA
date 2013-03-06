@@ -12,7 +12,7 @@
 
 using namespace std;
 
-MobileStation::MobileStation(string name, AbsPhyChannel &pch, int uid)
+MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid)
 : DeviceBase(name)
 , m_phy(pch)
 , m_txCtrl(name + ".tx")

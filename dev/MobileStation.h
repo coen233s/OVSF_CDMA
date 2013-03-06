@@ -30,7 +30,7 @@ private:
 	bool m_attached;				// ms has attached to bs
 
 public:
-	MobileStation(string name, AbsPhyChannel &pch, int uid);
+	MobileStation(const string& name, AbsPhyChannel &pch, int uid);
 	virtual ~MobileStation();
 
 	virtual void onTick(int time);

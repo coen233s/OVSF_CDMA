@@ -9,8 +9,8 @@
 
 using namespace std;
 
-RxTxBase::RxTxBase(string &name)
-: name(name)
+RxTxBase::RxTxBase(const string &name)
+: m_name(name)
 {
 }
 
