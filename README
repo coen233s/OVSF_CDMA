@@ -11,3 +11,10 @@ Make debug build:
 $ make clean
 $ make DEBUG=1
 
+
+Run Tests
+=========
+bin/TestBaseStation
+bin/TestBitQueue
+bin/TestOVSF
+bin/TestTransmit
