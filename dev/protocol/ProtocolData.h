@@ -25,6 +25,10 @@ enum {
 
 #define CF_DATA_MAX	256
 
+#ifdef WIN32
+#pragma pack(push)
+#pragma pack(2)
+#endif
 struct ControlFrame {
 	uint8_t			magic1;
 	uint8_t			magic2;
@@ -34,16 +38,30 @@ struct ControlFrame {
 	uint16_t		uid;		// user id
 	uint8_t			data_size;	// data size (starting from next byte)
 	uint8_t			data[CF_DATA_MAX];
-} __attribute__((packed));
+} 
+#ifdef WIN32
+;
+#else
+__attribute__((packed));
+#endif
 
 struct RateRequest {
 	uint8_t			min_rate;	// data rate (min)
 	uint8_t			max_rate;	// data rate (max)
-} __attribute__((packed));
+} 
+#ifdef WIN32
+;
+#else
+__attribute__((packed));
+#endif
 
 struct CodeAssignment {
 	// TODO
 };
+
+#ifdef WIN32
+#pragma pack(pop)
+#endif
 
 ostream& operator<<(ostream& os, struct ControlFrame &cf);
 

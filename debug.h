@@ -4,7 +4,7 @@
 #ifdef DEBUG
 #define dout(x...) cout << x
 #else
-#define dout(x...)
+#define dout(...)
 #endif
 
 #endif /* DEBUG_H_ */
