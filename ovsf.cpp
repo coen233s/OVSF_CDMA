@@ -1,4 +1,4 @@
-.h///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // OVSF module
 // - WHCode
 // - OVSFTree
@@ -206,8 +206,9 @@ OVSFTree::NodeInfo::NodeInfo(): userId(0), nodeId(0) {
 }
     
 OVSFTree::NodeInfo::NodeInfo(const NodeInfo& other): nodeId(other.nodeId),
-					   userId(other.userId),
-					   blockNodeId(other.blockNodeId) 
+						     userId(other.userId),
+						     blockNodeId(other.blockNodeId),
+						     code(other.code)
 {
 }
 
@@ -417,6 +418,11 @@ unsigned int OVSFTree::log2(unsigned int v) const
   return shift;
 }
 
+int OVSFTree::expandTreeByLevel(unsigned int level)
+{
+  return expandTree(1 << level);
+}
+
 int OVSFTree::expandTree(unsigned int size)
 {
   // convert size to a multiple of 2
@@ -426,13 +432,13 @@ int OVSFTree::expandTree(unsigned int size)
     return codeCount();
 
   int lastNode = codeCount();
-
+  
   // allocate more space for expanding
   unsigned extraspace = upperbound - codeCount() - 1;
   for (unsigned int i=0; i<extraspace; i++) {
     nodes.push_back(NodeInfo());
   }
- 
+  
   // construct new WHCode for the expanding nodes
   queue<int> q;
   q.push(1);
@@ -529,6 +535,11 @@ std::vector<std::pair<int,WHCode> > OVSFTree::listUsedCode() const
   return usedCode;
 }
 
+unsigned int OVSFTree::getTreeLevel() const
+{
+  return log2(codeCount() - 1);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 Assigner::Assigner()
 {
@@ -536,6 +547,56 @@ Assigner::Assigner()
 
 Assigner::~Assigner()
 {
+}
+
+int Assigner::calcGroupCapacity(int groupNumber)
+{
+  assert(groupNumber >= 0 && groupNumber < 4);
+  if (groupNumber < 0 || groupNumber >= 4)
+    return -1;
+
+  unsigned int level = tree.getTreeLevel();
+
+  // count capacity for each group
+  int beginNode = 1 << level;
+  int nodeCount = 1 << level;
+  int nodePerGroup = nodeCount / 4;
+  int capacity = 0;
+  int offset = groupNumber * nodePerGroup;
+  for (int k=0; k<nodePerGroup; k++) {
+    int nodeId = beginNode + offset + k;
+    if (tree.nodes[nodeId].isFreeCode()) {
+      capacity++;
+    }
+  }
+  return capacity;
+}
+
+int Assigner::findMinBucket(int assignCost)
+{
+  // count capacity for each group
+  int capacity[4];
+  for (int n=0; n<4; n++) {
+    capacity[n] = calcGroupCapacity(n);
+  }
+  for (int n=0; n<4; n++) {
+    cout << "C[" << n << "]=" << capacity[n] << endl;
+  }
+
+  // find the least non-zero capacity
+  int bucket = -1;
+  int minCapacity = 10000;
+  for (int n=0; n<4; n++) {
+    if (capacity[n] < assignCost)
+      continue;
+
+    if (capacity[n] < minCapacity) {
+      bucket = n;
+      minCapacity = capacity[n];
+    }
+  }
+  assert(bucket == -1 || (bucket >= 0 && bucket < 4));
+  return bucket;
 }
 
 std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
@@ -550,60 +611,35 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
     return std::make_pair(false,WHCode());
 
   // check if the request code length is available
-  if (calcShortestFreeCode(codeLens) != codeLens) 
+  if (codeLens < calcShortestFreeCode(codeLens)) 
     return std::make_pair(false,WHCode());
 
   // look for the non-full bucket that has the least capacity
-  int lastNode = tree.codeCount();
-  unsigned int level = tree.log2(lastNode - 1);
- 
-  // count capacity for each group
-  int count = 0;
-  int beginNode = 1 << level;
-  int nodeCount = 1 << level;
-  int nodePerGroup = nodeCount / 4;
-  int capacity[4] = {0,0,0,0};
-  for (int n=0; n<4; n++) {
-    int offset = n * nodePerGroup;
-    for (int k=0; k<nodePerGroup; k++) {
-      int nodeId = beginNode + offset + k;
-      if (tree.nodes[nodeId].isFreeCode()) {
-	capacity[n]++;
-      }
-    }
-  }
-
-  //for (int n=0; n<4; n++) {
-  //  cout << "C[" << n << "]=" << capacity[n] << endl;
-  //}
+  unsigned int level = tree.getTreeLevel();
+  cout << "level = " << level << endl;
 
   int assignLevel = tree.log2(codeLens);
+  if (assignLevel > level) {
+    // there is not enough nodes
+    tree.expandTreeByLevel(assignLevel);
+    level = tree.getTreeLevel();
+    cout << " need to expand tree" << endl;
+    cout << " new level = " << level << endl;
+  }
+
+  assert(assignLevel <= level);
   int assignCost = 1 << (level - assignLevel);
-  //cout << "assignCost = " << assignCost << endl;
+  cout << "assignLevel = " << assignLevel << endl;
+  cout << "assignCost = " << assignCost << endl;
 
-  // find the least non-zero capacity
-  int bucket = -1;
-  int minCapacity = 10000;
-  for (int n=0; n<4; n++) {
-    if (capacity[n] < assignCost)
-      continue;
-
-    if (capacity[n] < minCapacity) {
-      bucket = n;
-      minCapacity = capacity[n];
-    }
-  }
+  int bucket = findMinBucket(assignCost);
   if (bucket == -1) {
-    // not enough capacity
-    return std::make_pair(false,WHCode());
+    return std::make_pair(false,WHCode());  // not enough capacity
   }
-  assert(bucket >= 0 && bucket < 4);
-  //cout << "bucket = " << bucket << endl;
-
   // assign userId to that bucket
-  beginNode = 1 << assignLevel;
-  nodeCount = 1 << assignLevel;
-  nodePerGroup = nodeCount / 4;
+  int beginNode = 1 << assignLevel;
+  int nodeCount = 1 << assignLevel;
+  int nodePerGroup = nodeCount / 4;
   //cout << assignLevel << ":" << nodePerGroup << endl;
 
   int offset = bucket * nodePerGroup; 
@@ -663,15 +699,13 @@ int Assigner::calcShortestFreeCode(int requestLen) const
   for (unsigned int lv = 2; lv <= lastLevel; lv++) {
     int codeLen = 1 << lv;
 
-    //cout << "codeLen = " << codeLen << endl;
-
     if (codeLen < requestLen)
       continue;
 
     int beginNode = 1 << lv;
     int nodeCount = 1 << lv;
     
-    //cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount - 1 << endl;
+    cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount - 1 << endl;
 
     for (int k=0; k<nodeCount; k++) {
       if (tree.nodes[beginNode+k].isFreeCode()) {

@@ -106,7 +106,9 @@ public:
  
   std::vector<std::pair<int,WHCode> > listUsedCode() const;
 
+  int expandTreeByLevel(unsigned int level);
   int expandTree(unsigned int size);
+  unsigned int getTreeLevel() const;
 
   // Utils
   unsigned int log2(unsigned int v) const;
@@ -159,6 +161,9 @@ public:
   static bool hasExceedCapacity(const std::vector<int>& codeLength);
 
 protected:
+  int findMinBucket(int assignCost);
+  int calcGroupCapacity(int groupNumber);
+
   OVSFTree tree;
 };
 
