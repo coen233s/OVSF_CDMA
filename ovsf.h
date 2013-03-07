@@ -169,4 +169,11 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// generate a set of nunUsers CDMA chip sequence of length numUsers bits
+// Z2: The CDMA generator algorithm is using OVSFTree ... so the 
+// chip sequence len is not optimal.
+std::vector<WHCode> CDMA_GenerateCode(int numUsers);
+
+///////////////////////////////////////////////////////////////////////////////
+
 #endif // _OVSF_H_

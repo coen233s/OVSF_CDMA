@@ -579,9 +579,9 @@ int Assigner::findMinBucket(int assignCost)
   for (int n=0; n<4; n++) {
     capacity[n] = calcGroupCapacity(n);
   }
-  for (int n=0; n<4; n++) {
-    cout << "C[" << n << "]=" << capacity[n] << endl;
-  }
+  //for (int n=0; n<4; n++) {
+  //  cout << "C[" << n << "]=" << capacity[n] << endl;
+  //}
 
   // find the least non-zero capacity
   int bucket = -1;
@@ -601,6 +601,8 @@ int Assigner::findMinBucket(int assignCost)
 
 std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 {
+  assert(userId > 0); // userId must > 0
+
   if (codeLens <= 0) 
     return std::make_pair(false,WHCode());
 
@@ -616,22 +618,15 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 
   // look for the non-full bucket that has the least capacity
   unsigned int level = tree.getTreeLevel();
-  cout << "level = " << level << endl;
-
   int assignLevel = tree.log2(codeLens);
   if (assignLevel > level) {
     // there is not enough nodes
     tree.expandTreeByLevel(assignLevel);
     level = tree.getTreeLevel();
-    cout << " need to expand tree" << endl;
-    cout << " new level = " << level << endl;
   }
 
   assert(assignLevel <= level);
   int assignCost = 1 << (level - assignLevel);
-  cout << "assignLevel = " << assignLevel << endl;
-  cout << "assignCost = " << assignCost << endl;
-
   int bucket = findMinBucket(assignCost);
   if (bucket == -1) {
     return std::make_pair(false,WHCode());  // not enough capacity
@@ -705,7 +700,7 @@ int Assigner::calcShortestFreeCode(int requestLen) const
     int beginNode = 1 << lv;
     int nodeCount = 1 << lv;
     
-    cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount - 1 << endl;
+    //cout << "beginNode = " << beginNode << " endingNode=" << beginNode + nodeCount - 1 << endl;
 
     for (int k=0; k<nodeCount; k++) {
       if (tree.nodes[beginNode+k].isFreeCode()) {
@@ -761,6 +756,21 @@ bool Assigner::hasExceedCapacity(const std::vector<int>& codeLength)
   return (sum <= 1.0);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<WHCode> CDMA_GenerateCode(int numUsers)
+{
+  std::vector<WHCode> codes;
+
+  Assigner assigner;
+  int codeLen = numUsers; // Z2: this is not optimal length. The optimal length is numUsers / 2
+  for (int n=1; n<=numUsers; n++) {
+    std::pair<bool,WHCode> result = assigner.assignUserId(n,codeLen);
+    assert(result.first);
+    codes.push_back(result.second);
+  }
+  return codes;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
