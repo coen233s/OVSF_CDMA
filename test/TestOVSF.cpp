@@ -10,12 +10,31 @@ using namespace std;
 void test_assign();
 void test_capacity();
 void greedy_server_test();
+void test_256bit_code();
 
 int main()
 {
   //test_capacity();
-  greedy_server_test();
+  //greedy_server_test();
+  test_256bit_code();
   return 0;
+}
+
+void test_256bit_code()
+{
+  Assigner assigner;
+  
+  std::pair<bool,WHCode> result = assigner.assignUserId(100,256);
+  if (result.first) {
+    cout << "user 100's WHCode = ";
+    result.second.print();
+    cout << endl;
+    cout << "code Len = " << result.second.length() << endl;
+  }
+  else {
+    cout << "fail: user 100 got nothing back." << endl;
+  }
+
 }
 
 void greedy_server_test()
