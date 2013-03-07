@@ -16,6 +16,7 @@
 #include <queue>
 #include <map>
 #include <algorithm>
+#include <string>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,8 @@ public:
 
   int getChipBit(unsigned int index) const;
   void print() const;
+  std::string toHexString() const;
+  std::string toByteArray() const;
 
 protected:
   std::vector<int> bits;

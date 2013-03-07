@@ -142,6 +142,73 @@ int WHCode::dot(const WHCode& rhs) const
   return sum;
 }
 
+std::string WHCode::toByteArray() const
+{
+  // WH code is always a power of 2.
+  if (bits.size() >= 8) {
+    std::string charArray = "";
+
+    for(size_t i=0; i<bits.size(); i+=8) {
+      int sum = 0;
+      for (size_t j=0; j<8; j++) {
+	sum = sum * 2;
+	if (bits[i+j] > 0)
+	  sum++;
+      }
+      assert(sum >= 0 && sum < 16);
+      charArray += ((char)sum); 
+    }
+    return charArray;
+  }
+  else {
+    int sum = 0;
+    for (size_t j=0; j<bits.size(); j++) {
+      sum = sum * 2;
+      if (bits[j] > 0)
+	sum++;
+    }
+    char c = (char)sum;
+    return std::string(1,c);
+  }
+}
+
+std::string WHCode::toHexString() const 
+{
+  static char hexChar[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+  // WH code is always a power of 2.
+  if (bits.size() >= 4) {
+    std::string hex = "";
+
+    for(size_t i=0; i<bits.size(); i+=4) {
+      int sum = 0;
+      for (size_t j=0; j<4; j++) {
+	sum = sum * 2;
+	if (bits[i+j] > 0)
+	  sum++;
+      }
+      assert(sum >= 0 && sum < 16);
+      hex += hexChar[sum];
+    }
+    return hex;
+  }
+  else if (bits.size() == 2) {
+    int s1 = (bits[0] > 0) ? 2: 0;
+    int s2 = (bits[1] > 0) ? 1: 0;
+    int sum = s1 + s2;
+    switch(sum) {
+    case 0: return "0";
+    case 1: return "4";
+    case 2: return "8";
+    case 3: return "C";
+    }
+  }
+  else if (bits.size() == 1) {
+    return (bits[0] > 0)? "8" : "0";
+  }
+  return "0";
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // OVSFTree
