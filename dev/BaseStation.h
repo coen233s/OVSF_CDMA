@@ -24,7 +24,7 @@ public:
 	Transmitter tx;
 	Receiver rx;
 
-	Agent(string name);
+	Agent(const string& name);
 };
 
 class BaseStation : public DeviceBase,
@@ -38,7 +38,7 @@ private:
 	Receiver m_rxCtrl;				// control channel receiver
 
 public:
-	BaseStation(string name, AbsPhyChannel &pch);
+	BaseStation(const string& name, AbsPhyChannel &pch);
 	virtual ~BaseStation();
 
 	// control frame listerner, arg = &ControlFrame

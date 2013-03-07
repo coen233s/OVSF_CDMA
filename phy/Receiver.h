@@ -38,7 +38,7 @@ private:
 	UpdateListener *m_updateListener;
 
 public:
-	Receiver(string name, UpdateListener *updateListener = 0);
+	Receiver(const string& name, UpdateListener *updateListener = 0);
 	virtual ~Receiver();
 	virtual void onTick();
 

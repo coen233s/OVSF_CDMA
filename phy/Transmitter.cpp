@@ -10,7 +10,7 @@
 
 using namespace std;
 
-Transmitter::Transmitter(string name)
+Transmitter::Transmitter(const string& name)
 : RxTxBase(name)
 , m_pWalshCode(0)
 {

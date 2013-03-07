@@ -24,7 +24,7 @@ private:
     BitOutQueue m_BitQueue;
 
 public:
-	Transmitter(string name);
+	Transmitter(const string& name);
 	virtual ~Transmitter();
 	virtual void onTick();
 

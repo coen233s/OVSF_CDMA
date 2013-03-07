@@ -11,7 +11,7 @@
 
 using namespace std;
 
-Receiver::Receiver(string name, UpdateListener *updateListener)
+Receiver::Receiver(const string& name, UpdateListener *updateListener)
 : RxTxBase(name)
 , m_BitQueue(this)
 , m_updateListener(updateListener)
