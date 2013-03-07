@@ -1,9 +1,3 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <ovsf.h>
-#include <phy/Receiver.h>
-#include <phy/Transmitter.h>
 #include <phy/SimplePhyChannel.h>
 #include <dev/BaseStation.h>
 #include <dev/MobileStation.h>
