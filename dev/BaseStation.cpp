@@ -40,5 +40,32 @@ BaseStation::~BaseStation() {
 void BaseStation::onUpdate(void *arg)
 {
 	ControlFrame &cframe(*(ControlFrame *)arg);
-	cout << getDeviceId() << " recv control frame [" << cframe << "]" << endl;
+
+    if (cframe.c2s)
+    {
+        cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
+
+#if 1 // Faking the code assignment
+        ControlFrame frameOut;
+        frameOut.uid = cframe.uid;
+        frameOut.c2s = 0;
+        frameOut.tr = cframe.tr;
+        CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&frameOut.data);
+
+        enum { ARBITRARY_LEN = 4 };
+        memset(pCa->code, 0xAB, ARBITRARY_LEN);
+        pCa->length = ARBITRARY_LEN;
+        pCa->code[ARBITRARY_LEN - 1] = 0xCD;
+        frameOut.data_size = ARBITRARY_LEN + 1;
+        char *pframe = reinterpret_cast<char *>(&frameOut);
+
+        const uint16_t size = frameOut.size();
+        cout << getDeviceId() << " send code assignment\n";
+
+        for (uint16_t i = 0; i < size; i++)
+        {
+            m_txCtrl.pushData(pframe[i]);
+        }
+#endif
+    }
 }

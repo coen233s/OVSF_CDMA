@@ -48,5 +48,8 @@ void MobileStation::onTick(int time) {
 void MobileStation::onUpdate(void *arg)
 {
 	ControlFrame &cframe(*(ControlFrame *)arg);
-	cout << getDeviceId() << " recv control frame [" << cframe << "]" << endl;
+    if (!cframe.c2s)
+    {
+    	cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
+    }
 }

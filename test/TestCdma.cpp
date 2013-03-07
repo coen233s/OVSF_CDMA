@@ -24,7 +24,7 @@ int main()
     sim.addObject(&ms);
     sim.addObject(&pch);
 
-    const int timeSteps = 1000;
+    const int timeSteps = 5000;
     sim.run(timeSteps);
 
     return 0;
