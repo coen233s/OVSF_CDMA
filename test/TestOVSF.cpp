@@ -1,7 +1,9 @@
 #include <iostream>
+#include <assert.h>
 #include <ovsf.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
+
 
 using namespace std;
 
@@ -10,12 +12,62 @@ using namespace std;
 void test_assign();
 void test_capacity();
 void greedy_server_test();
+void test_256bit_code();
+void test_generate_CDMACode();
 
 int main()
 {
   //test_capacity();
-  greedy_server_test();
+  //greedy_server_test();
+  //test_256bit_code();
+  test_generate_CDMACode();
   return 0;
+}
+
+void test_generate_CDMACode()
+{
+  cout << "Generate CDMA chip sequence 8-bit" << endl;
+  std::vector<WHCode> codes = CDMA_GenerateCode(8);
+  for (size_t i=0; i<codes.size(); i++) {
+    cout << i << " : ";
+    codes[i].print();
+    cout << endl;
+  }
+ 
+  cout << endl << endl;
+  cout << "Generate CDMA chip sequence 256-bit" << endl;
+  codes = CDMA_GenerateCode(256);
+  cout << "successfully generate 256 256-bit chip sequence." << endl;
+  cout << endl;
+  cout << "Test Orthogonal..." << endl;
+  for (size_t i=0; i<codes.size(); i++) {
+    for (size_t j=0; j<codes.size(); j++) {
+      if (i != j) {
+	int v = codes[i].dot(codes[j]);
+	if (v != 0) {
+	  cout << "code:" << i << " is not orthogonal to code: " << j << endl;
+	}
+      }
+    }
+  }
+  cout << "all codes are orthogonal." << endl;
+}
+
+void test_256bit_code()
+{
+  Assigner assigner;
+  
+  std::pair<bool,WHCode> result = assigner.assignUserId(100,256);
+  if (result.first) {
+    cout << "user 100's WHCode = ";
+    result.second.print();
+    cout << endl;
+    cout << "code Len = " << result.second.length() << endl;
+  }
+  else {
+    cout << "fail: user 100 got nothing back." << endl;
+  }
+
 }
 
 void greedy_server_test()

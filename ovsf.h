@@ -16,6 +16,7 @@
 #include <queue>
 #include <map>
 #include <algorithm>
+#include <string>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,8 @@ public:
 
   int getChipBit(unsigned int index) const;
   void print() const;
+  std::string toHexString() const;
+  std::string toByteArray() const;
 
 protected:
   std::vector<int> bits;
@@ -106,7 +109,9 @@ public:
  
   std::vector<std::pair<int,WHCode> > listUsedCode() const;
 
+  int expandTreeByLevel(unsigned int level);
   int expandTree(unsigned int size);
+  unsigned int getTreeLevel() const;
 
   // Utils
   unsigned int log2(unsigned int v) const;
@@ -159,8 +164,18 @@ public:
   static bool hasExceedCapacity(const std::vector<int>& codeLength);
 
 protected:
+  int findMinBucket(int assignCost);
+  int calcGroupCapacity(int groupNumber);
+
   OVSFTree tree;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+// generate a set of nunUsers CDMA chip sequence of length numUsers bits
+// Z2: The CDMA generator algorithm is using OVSFTree ... so the 
+// chip sequence len is not optimal.
+std::vector<WHCode> CDMA_GenerateCode(int numUsers);
 
 ///////////////////////////////////////////////////////////////////////////////
 

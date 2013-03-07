@@ -22,7 +22,12 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
 		os << " min_rate:" << (int)pReq->min_rate
 		   << " max_rate:" << (int)pReq->max_rate;
 	} else {
-		// TODO server-to-client code assignment
+		CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cf.data);
+        os << " code: ";
+        for (uint32_t i = 0; i < pCa->length; ++i)
+        {
+    		os << (int)pCa->code[i] << " ";
+        }
 	}
     return os;
 }

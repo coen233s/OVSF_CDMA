@@ -90,9 +90,8 @@ void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax) {
 
 	m_frameOut.data_size = sizeof(*pDat);
 
-	int msgSize = sizeof(m_frameOut) - sizeof(m_frameOut.data) + m_frameOut.data_size;
 	char *pframe = reinterpret_cast<char *>(&m_frameOut);
 
-	for (int i = 0; i < msgSize; i++)
+	for (int i = 0; i < m_frameOut.size(); i++)
 		m_tx.pushData(pframe[i]);
 }
