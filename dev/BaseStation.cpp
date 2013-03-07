@@ -6,6 +6,7 @@
  */
 
 #include <Configuration.h>
+#include <string.h>
 #include "BaseStation.h"
 #include "protocol/ControlProtocol.h"
 
