@@ -24,4 +24,5 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
 	} else {
 		// TODO server-to-client code assignment
 	}
+    return os;
 }

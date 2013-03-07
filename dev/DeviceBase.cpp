@@ -8,8 +8,8 @@
 #include <string>
 #include "DeviceBase.h"
 
-DeviceBase::DeviceBase(string &deviceId)
-: deviceId(deviceId)
+DeviceBase::DeviceBase(const string &deviceId)
+: m_deviceId(deviceId)
 {
 }
 

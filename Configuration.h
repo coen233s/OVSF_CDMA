@@ -18,11 +18,8 @@ private:
 public:
 	WHCode wcCtrl;
 	static Configuration& getInstance() {
-		static Configuration *inst;
-		if (inst)
-			return *inst;
-		inst = new Configuration();
-		return *inst;
+		static Configuration inst;
+		return inst;
 	}
 };
 

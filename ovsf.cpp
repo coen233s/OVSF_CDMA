@@ -285,7 +285,7 @@ bool OVSFTree::assign(int level, int id, int userId)
 
 void OVSFTree::releaseAll()
 {
-  for (unsigned int k=1; k<=codeCount(); k++) {
+  for (int k=1; k<=codeCount(); k++) {
     nodes[k].unsetUserId();
     nodes[k].unsetAllBlockNodeId();
   }
@@ -294,7 +294,7 @@ void OVSFTree::releaseAll()
 bool OVSFTree::releaseUserId(int userId) 
 {
   bool bRelease = false;
-  for (unsigned int k=1; k<=codeCount(); k++) {
+  for (int k=1; k<=codeCount(); k++) {
     if (nodes[k].getUserId() == userId) {
       nodes[k].unsetUserId();
       assert(nodes[k].isBlockCode() == false);
@@ -355,7 +355,7 @@ void OVSFTree::print() const
     nodes[nodeId].getWHCode().print();
     
     cout << "Block(";
-    for (int k=0; k<nodes[nodeId].blockNodeId.size(); k++) {
+    for (size_t k=0; k<nodes[nodeId].blockNodeId.size(); k++) {
       cout << nodes[nodeId].blockNodeId[k] << ",";
     }
     if(nodes[nodeId].blockNodeId.empty()) {
@@ -420,7 +420,7 @@ unsigned int OVSFTree::log2(unsigned int v) const
 int OVSFTree::expandTree(unsigned int size)
 {
   // convert size to a multiple of 2
-  unsigned int upperbound = 1 << (log2(size)+1);
+  int upperbound = 1 << (log2(size)+1);
   
   if (codeCount() >= upperbound)
     return codeCount();
@@ -487,6 +487,7 @@ int OVSFTree::setAncestorBlockNode(int nodeId, bool isBlock)
       nodes[parentNodeId].unsetBlockNodeId(nodeId);
     parentNodeId /= 2;
   }
+  return 0;
 }
 
 int OVSFTree::setDescendantBlockNode(int nodeId, bool isBlock)
@@ -513,12 +514,13 @@ int OVSFTree::setDescendantBlockNode(int nodeId, bool isBlock)
     else
       nodes[childId].unsetBlockNodeId(nodeId);
   }
+  return 0;
 }
 
 std::vector<std::pair<int,WHCode> > OVSFTree::listUsedCode() const
 {
   std::vector<std::pair<int,WHCode> > usedCode;
-  for (unsigned int k=1; k<=codeCount(); k++) {
+  for (int k=1; k<=codeCount(); k++) {
     if (nodes[k].isUsedCode()) {
       usedCode.push_back(std::make_pair(nodes[k].getUserId(),
 					nodes[k].getWHCode()));

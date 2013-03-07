@@ -14,13 +14,13 @@ using namespace std;
 
 class DeviceBase {
 private:
-	string deviceId;
+	string m_deviceId;
 public:
-	DeviceBase(string &deviceId);
+	DeviceBase(const string &deviceId);
 	virtual ~DeviceBase();
 
 	string &getDeviceId() {
-		return deviceId;
+		return m_deviceId;
 	}
 };
 

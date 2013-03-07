@@ -14,16 +14,16 @@ using namespace std;
 
 class RxTxBase {
 protected:
-    string name;
+    string m_name;
 public:
-	RxTxBase(string &name);
+	RxTxBase(const string &name);
 	virtual ~RxTxBase();
 
 	// Simulate one time step (one chip period).
 	void onTick();
 
 	string &getName() {
-		return name;
+		return m_name;
 	}
 };
 

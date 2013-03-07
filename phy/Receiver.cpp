@@ -36,7 +36,7 @@ unsigned char Receiver::popData() {
 }
 
 int Receiver::peekData(int idx) {
-	if (idx < m_BitQueue.size())
+	if (idx < (int)m_BitQueue.size())
 		return m_BitQueue.at(idx);
 	else
 		return -1;
@@ -57,7 +57,7 @@ void Receiver::onTick() {
 			else if (m_WalshDotProd[i] == -codeLen)
 				m_BitQueue.pushBit(0); // received 0
 			else if (m_WalshDotProd[i] != 0) {
-				cerr << "Warning: " << "Receiver [" << name <<
+				cerr << "Warning: " << "Receiver [" << m_name <<
 						"] got unexpected dot product " << m_WalshDotProd[i] <<
 						" codeLen: " << codeLen << endl;
 			}
