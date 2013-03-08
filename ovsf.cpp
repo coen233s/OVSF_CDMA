@@ -155,7 +155,7 @@ std::string WHCode::toByteArray() const
 	if (bits[i+j] > 0)
 	  sum++;
       }
-      assert(sum >= 0 && sum < 16);
+      assert(sum >= 0 && sum < 256);
       charArray += ((char)sum); 
     }
     return charArray;

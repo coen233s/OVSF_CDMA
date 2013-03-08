@@ -14,14 +14,27 @@ void test_capacity();
 void greedy_server_test();
 void test_256bit_code();
 void test_generate_CDMACode();
+void test_hex();
 
 int main()
 {
   //test_capacity();
   //greedy_server_test();
   //test_256bit_code();
-  test_generate_CDMACode();
+  //test_generate_CDMACode();
+  test_hex();
   return 0;
+}
+
+void test_hex()
+{
+  std::vector<WHCode> codes = CDMA_GenerateCode(8);
+  for (size_t i=0; i<codes.size(); i++) {
+    cout << i << " : ";
+    codes[i].print();
+    cout << "=" << codes[i].toByteArray().c_str();
+    cout << endl;
+  }
 }
 
 void test_generate_CDMACode()
@@ -31,12 +44,19 @@ void test_generate_CDMACode()
   for (size_t i=0; i<codes.size(); i++) {
     cout << i << " : ";
     codes[i].print();
+    cout << "=" << codes[i].toHexString().c_str();
     cout << endl;
   }
  
   cout << endl << endl;
   cout << "Generate CDMA chip sequence 256-bit" << endl;
   codes = CDMA_GenerateCode(256);
+  for (size_t i=0; i<codes.size(); i++) {
+    cout << i << " : ";
+    codes[i].print();
+    cout << "=" << codes[i].toHexString().c_str();
+    cout << endl;
+  }
   cout << "successfully generate 256 256-bit chip sequence." << endl;
   cout << endl;
   cout << "Test Orthogonal..." << endl;
