@@ -71,7 +71,10 @@ void BaseStation::onUpdate(void *arg)
         Assigner assigner;
         std::pair<bool,WHCode> result = assigner.assignUserId(frameOut.uid, 8);
         std::string byteArray = result.second.toByteArray();
-        for (uint16_t i = 0; i < byteArray.size(); ++i)
+        pCa->length = byteArray.size();
+        m_txCtrl.pushData(pCa->length);
+
+        for (uint16_t i = 0; i < pCa->length; ++i)
         {
             m_txCtrl.pushData(byteArray[i]);
         }
