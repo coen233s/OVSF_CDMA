@@ -46,13 +46,14 @@ void BaseStation::onUpdate(void *arg)
     {
         cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
 
-#if 1 // Faking the code assignment
         ControlFrame frameOut;
         frameOut.uid = cframe.uid;
         frameOut.c2s = 0;
         frameOut.tr = cframe.tr;
         CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&frameOut.data);
+        cout << getDeviceId() << " send code assignment\n";
 
+#if 1 // Faking the code assignment
         enum { ARBITRARY_LEN = 4 };
         memset(pCa->code, 0xAB, ARBITRARY_LEN);
         pCa->length = ARBITRARY_LEN;
@@ -61,11 +62,18 @@ void BaseStation::onUpdate(void *arg)
         char *pframe = reinterpret_cast<char *>(&frameOut);
 
         const uint16_t size = frameOut.size();
-        cout << getDeviceId() << " send code assignment\n";
 
         for (uint16_t i = 0; i < size; i++)
         {
             m_txCtrl.pushData(pframe[i]);
+        }
+#else 
+        Assigner assigner;
+        std::pair<bool,WHCode> result = assigner.assignUserId(frameOut.uid, 8);
+        std::string byteArray = result.second.toByteArray();
+        for (uint16_t i = 0; i < byteArray.size(); ++i)
+        {
+            m_txCtrl.pushData(byteArray[i]);
         }
 #endif
     }
