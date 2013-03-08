@@ -73,7 +73,7 @@ __attribute__((packed));
 
 struct CodeAssignment {
     uint8_t length;
-	uint8_t code[0];
+	uint8_t code[1];
     CodeAssignment() : length(0) {}
 };
 

@@ -10,14 +10,14 @@
 #include "BaseStation.h"
 #include "protocol/ControlProtocol.h"
 
-Agent::Agent(string name)
+Agent::Agent(const string& name)
 : DeviceBase(name)
 , tx(name + ".tx")
 , rx(name + ".rx")
 {
 }
 
-BaseStation::BaseStation(string name, AbsPhyChannel &pch)
+BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 : DeviceBase(name)
 , m_phy(pch)
 , m_txCtrl(name + ".tx")

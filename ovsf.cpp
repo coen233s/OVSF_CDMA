@@ -685,7 +685,7 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 
   // look for the non-full bucket that has the least capacity
   unsigned int level = tree.getTreeLevel();
-  int assignLevel = tree.log2(codeLens);
+  unsigned int assignLevel = tree.log2(codeLens);
   if (assignLevel > level) {
     // there is not enough nodes
     tree.expandTreeByLevel(assignLevel);
