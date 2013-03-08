@@ -36,7 +36,7 @@ private:
 	Transmitter m_txCtrl;			// control channel transmitter
 	ControlProtocol m_protCtrl;		// control protocol processor
 	Receiver m_rxCtrl;				// control channel receiver
-
+	Assigner m_assigner; // OVSF Code assigner
 public:
 	BaseStation(const string& name, AbsPhyChannel &pch);
 	virtual ~BaseStation();

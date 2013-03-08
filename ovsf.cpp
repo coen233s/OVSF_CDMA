@@ -429,7 +429,7 @@ void OVSFTree::print() const
     if(nodes[nodeId].blockNodeId.empty()) {
       cout << "0";
     }
-    cout << ")UserId(" << nodes[nodeId].userId << ")";
+    cout << ")UserId(" << nodes[nodeId].getUserId() << ")";
     cout << endl;
   }
   cout << "FreeCode = " << freeCodeCount() << endl;
@@ -666,17 +666,39 @@ int Assigner::findMinBucket(int assignCost)
   return bucket;
 }
 
+std::vector<WHCode> Assigner::getWHCodeByUserId(int userId) const
+{
+  std::vector<WHCode> usedCode;
+  for (int nodeId = 1; nodeId <= tree.codeCount(); nodeId++) {
+    if (tree.nodes[nodeId].isUsedCode() && 
+	tree.nodes[nodeId].getUserId() == userId) {
+      usedCode.push_back(tree.nodes[nodeId].getWHCode());
+    }
+  }
+  return usedCode;
+}
+
+bool Assigner::hasUserId(int userId) const
+{
+  for (int nodeId = 1; nodeId <= tree.codeCount(); nodeId++) {
+    if (tree.nodes[nodeId].isUsedCode() && 
+	tree.nodes[nodeId].getUserId() == userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Assigner::validateRequestCodeLength(int codeLen) const
+{
+  return (codeLen > 2 && tree.isPowerOfTwo(codeLen));
+}
+
 std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 {
   assert(userId > 0); // userId must > 0
 
-  if (codeLens <= 0) 
-    return std::make_pair(false,WHCode());
-
-  if (!tree.isPowerOfTwo(codeLens))
-    return std::make_pair(false,WHCode());
-
-  if (codeLens < 2)
+  if (!validateRequestCodeLength(codeLens))
     return std::make_pair(false,WHCode());
 
   // check if the request code length is available

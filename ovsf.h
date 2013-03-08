@@ -3,7 +3,7 @@
 // - WHCode
 // - OVSFTree
 //
-// Author: COEN233-S
+// Author: COEN233-S (Z2)
 // Feb 2013
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -82,10 +82,12 @@ public:
       return (!isUsedCode() && !isBlockCode());
     }
 
+    std::vector<int> blockNodeId; // the nodeId that blocks this node
+  
+  private:
     // Data
     int userId; // the userId that is using this node
     int nodeId; // the nodeId of this node
-    std::vector<int> blockNodeId; // the nodeId that blocks this node
     WHCode code;
   };
 
@@ -145,8 +147,17 @@ public:
   void releaseUserId(int userId);
   void releaseAll();
 
+  // check if the request code length is valid. It must be >= 4 and a power of two.
+  bool validateRequestCodeLength(int codeLen) const;
+
   // list all used code and its userId
   std::vector<std::pair<int, WHCode> > listUsedCode() const;
+
+  // return all codes that are assigned to the given userId
+  std::vector<WHCode> getWHCodeByUserId(int userId) const;
+
+  // query if the given userId has assigned some WHCode
+  bool hasUserId(int userId) const;
 
   // requestLen : target code length (must be a power of two)
   // return the code length >= requestLen
