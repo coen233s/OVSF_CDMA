@@ -715,7 +715,7 @@ bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
   std::map<int,int> counter;
   for (size_t i=0; i<tmp.size(); i++) {
     if (counter.find(tmp[i]) == counter.end()) {
-      counter[tmp[i]] = 0;
+      counter[tmp[i]] = 1;
     }
     else {
       counter[tmp[i]] = counter[tmp[i]] + 1;
@@ -725,7 +725,7 @@ bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
   // each code length group should not have member more than group #
   std::map<int,int>::iterator it;
   for (it=counter.begin(); it != counter.end(); it++) {
-    cout << it->first << ":" << it->second << endl;
+    //cout << it->first << ":" << it->second << endl;
     int memberCount = it->second;
     int memberMax = it->first;
     if (memberCount > memberMax)
@@ -796,11 +796,10 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int minLen, int maxLen
   return std::make_pair(false,WHCode());
 }
 
-// This method does not allow a duplicate userid
-std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(const std::vector<int>& userId,
-							     const std::vector<int>& codeLens)
+std::vector<std::pair<int,WHCode> > Assigner::assignUserIds(const std::vector<int>& userId,
+							    const std::vector<int>& codeLens)
 {
-  std::vector<std::pair<bool,WHCode> > codes;
+  std::vector<std::pair<int,WHCode> > codes;
   if (userId.size() != codeLens.size())
     return codes;
 
@@ -808,19 +807,30 @@ std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(const std::vector<i
     return codes;
   }
 
-  std::map<int,int> requests;
+  std::map<int,std::vector<int> > requests;
   for (size_t k=0; k<userId.size(); k++) {
-    requests[userId[k]] = codeLens[k];
+    if (requests.find(codeLens[k]) == requests.end()) {
+      std::vector<int> ids;
+      ids.push_back(userId[k]);
+      requests[codeLens[k]] = ids;
+    }
+    else {
+      requests[codeLens[k]].push_back(userId[k]);
+    }
   }
 
   // We want to assign the code from the largest code to the smallest code
-  std::map<int,int>::reverse_iterator rit;
+  std::map<int,std::vector<int> >::reverse_iterator rit;
   for (rit = requests.rbegin(); rit != requests.rend(); ++rit) {
-    cout << "request code len of " << rit->second 
-	 << " for userId of " << rit->first << endl;
-    std::pair<bool,WHCode> code = assignUserId(rit->first, rit->second);
-    assert(code.first); 
-    codes.push_back(code);
+    std::vector<int>::iterator it;
+    for (it = rit->second.begin(); it != rit->second.end(); ++it) {
+      cout << "request code len of " << rit->first 
+	   << " for userId of " << *it 
+	   << endl;
+      std::pair<bool,WHCode> code = assignUserId(*it, rit->first);
+      assert(code.first); 
+      codes.push_back(std::make_pair(*it,code.second));  
+    }
   }
   return codes;
 }

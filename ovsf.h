@@ -143,8 +143,8 @@ public:
 
   std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen);
 
-  std::vector<std::pair<bool,WHCode> > assignUserIds(const std::vector<int>& userId,
-						     const std::vector<int>& codeLens);
+  std::vector<std::pair<int,WHCode> > assignUserIds(const std::vector<int>& userId,
+						    const std::vector<int>& codeLens);
 
   void releaseUserId(int userId);
   void releaseAll();
