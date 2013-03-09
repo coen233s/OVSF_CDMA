@@ -41,17 +41,24 @@ public:
 	// control frame listerner, arg = &ControlFrame
 	virtual void onUpdate(void *arg);
 
+<<<<<<< HEAD
 	virtual void onTick(int time) {};
 
 protected:
 	std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);
 	void transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut);
+
+=======
+	virtual void onTick(int time) {}
+
+private:
 	// uid - user, tr - transmit/receiver (data channel type), minRate/maxRate in bps
 	void addUser(int uid, int tr, int minRate, int maxRate);
 	void removeUser(int uid, int tr);
 	void addChannel(int uid, int tr, WHCode &code);
 	void removeChannel(int uid, int tr);
 	int rateToCodeLength(int dataRate);
+>>>>>>> b23c84a... Add data channel
 };
 
 #endif /* BASESTATION_H_ */

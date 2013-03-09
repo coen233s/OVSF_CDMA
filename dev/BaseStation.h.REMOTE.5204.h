@@ -41,11 +41,9 @@ public:
 	// control frame listerner, arg = &ControlFrame
 	virtual void onUpdate(void *arg);
 
-	virtual void onTick(int time) {};
+	virtual void onTick(int time) {}
 
-protected:
-	std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);
-	void transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut);
+private:
 	// uid - user, tr - transmit/receiver (data channel type), minRate/maxRate in bps
 	void addUser(int uid, int tr, int minRate, int maxRate);
 	void removeUser(int uid, int tr);

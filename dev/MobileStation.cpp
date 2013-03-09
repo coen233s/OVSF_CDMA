@@ -19,15 +19,15 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid)
 , m_protCtrl(m_txCtrl, this)
 , m_rxCtrl(name + ".rx", &m_protCtrl)
 , m_uid(uid)
-, m_minRate(DR_LOW)
-, m_maxRate(DR_HIGH)
+, m_minRate(RATE_MIN)
+, m_maxRate(RATE_MAX)
 , m_attached(false)
 {
 	Configuration &conf(Configuration::getInstance());
-	m_txCtrl.setWalshCode(&conf.wcCtrl);
+	m_txCtrl.setWalshCode(conf.wcCtrl);
 
-	vector<WHCode *> ctrlCodeSet;
-	ctrlCodeSet.push_back(&conf.wcCtrl);
+	vector<WHCode> ctrlCodeSet;
+	ctrlCodeSet.push_back(conf.wcCtrl);
 	m_rxCtrl.setWalshCode(ctrlCodeSet);
 
 	m_phy.attachReceiver(&m_rxCtrl);
@@ -51,5 +51,6 @@ void MobileStation::onUpdate(void *arg)
     if (!cframe.c2s)
     {
     	cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
+    	// TODO create a Data Channel when receiving Walsh Code
     }
 }

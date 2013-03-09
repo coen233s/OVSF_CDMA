@@ -10,8 +10,11 @@
 
 using namespace std;
 
-SimplePhyChannel::SimplePhyChannel()
+SimplePhyChannel::SimplePhyChannel(int chipRate)
+: m_chipRate(chipRate)
 {
+	cout << "Physical channel is up, chip rate: " <<
+			chipRate << "cps" << endl;
 }
 
 SimplePhyChannel::~SimplePhyChannel()
@@ -26,18 +29,30 @@ void SimplePhyChannel::attachTransmitter(Transmitter *tx) {
 	m_Tx.push_back(tx);
 }
 
+void SimplePhyChannel::detachReceiver(Receiver *rx) {
+	m_Rx.erase(std::remove(m_Rx.begin(), m_Rx.end(),
+			rx), m_Rx.end());
+}
+
+void SimplePhyChannel::detachTransmitter(Transmitter *tx) {
+	m_Tx.erase(std::remove(m_Tx.begin(), m_Tx.end(),
+			tx), m_Tx.end());
+}
+
 void SimplePhyChannel::onTick(int time) {
 	int chipSum = 0;
 
-	for (vector<Transmitter *>::iterator it = m_Tx.begin();
-			it != m_Tx.end(); ++it) {
-	    (*it)->onTick();
-	    chipSum += (*it)->getChip();
+	// the vector m_Tx may be updated during iteratation
+	for (vector<Transmitter *>::size_type i = 0;
+			i < m_Tx.size(); ++i) {
+	    m_Tx[i]->onTick(time);
+	    chipSum += m_Tx[i]->getChip();
 	}
 
-	for (vector<Receiver *>::iterator it = m_Rx.begin();
-				it != m_Rx.end(); ++it) {
-		(*it)->setChip(chipSum);
-		(*it)->onTick();
+	// the vector m_Rx may be updated during iteratation
+	for (vector<Transmitter *>::size_type i = 0;
+			i < m_Rx.size(); ++i) {
+		m_Rx[i]->setChip(chipSum);
+		m_Rx[i]->onTick(time);
 	}
 }

@@ -28,8 +28,8 @@ int main()
     codeVec.push_back(1);
 
     WHCode code(codeVec);
-    vector<WHCode *> codeSet;
-    codeSet.push_back(&code);
+    vector<WHCode> codeSet;
+    codeSet.push_back(code);
 
     cout << "Walsh code: ";
     code.print();
@@ -39,7 +39,7 @@ int main()
     Transmitter tx(txName);
     Receiver rx(rxName);
 
-    tx.setWalshCode(&code);
+    tx.setWalshCode(code);
     rx.setWalshCode(codeSet);
 
     pch.attachTransmitter(&tx);

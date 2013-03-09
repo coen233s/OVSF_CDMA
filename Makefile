@@ -17,12 +17,14 @@ SRCS += \
 	dev/DeviceBase.cpp \
 	dev/BaseStation.cpp \
 	dev/MobileStation.cpp \
+	dev/DataChannel.cpp \
 	dev/protocol/ControlProtocol.cpp \
 	dev/protocol/ProtocolData.cpp \
 	sim/Simulator.cpp \
 
 BINDIR := bin
 INCLUDES += -I.
+CPPFLAGS += -std=c++0x
 
 ifneq ($(DEBUG),)
 CPPFLAGS += -g -O0 -DDEBUG

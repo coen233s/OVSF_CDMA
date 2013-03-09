@@ -36,6 +36,10 @@ public:
 
 	// For clients
 	void sendHandshake(int uid, int rateMin, int rateMax);
+	void sendTearDown(int uid);
+
+private:
+	void sendControl(int uid, int rateMin, int rateMax, bool request);
 };
 
 #endif /* CONTROLPROTOCOL_H_ */

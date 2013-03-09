@@ -23,7 +23,7 @@ private:
 	int m_LastChip;
 
 	// Set of Walsh codes
-	vector<WHCode *> m_WalshCode;
+	vector<WHCode> m_WalshCode;
 
 	// Walsh code index
 	vector<int> m_WalshIdx;
@@ -38,11 +38,15 @@ private:
 	UpdateListener *m_updateListener;
 
 public:
-	Receiver(const string& name, UpdateListener *updateListener = 0);
+	Receiver(const string name, UpdateListener *updateListener = 0);
 	virtual ~Receiver();
-	virtual void onTick();
+	virtual void onTick(int time);
 
-	void setWalshCode(vector<WHCode *> newCodes);
+	void setWalshCode(vector<WHCode> newCodes);
+
+	void clearWalshCode() {
+		m_WalshCode.clear();
+	}
 
 	// Called before onTick(). Sets the chip value.
 	// Chip value can be negative, 0, or positive
