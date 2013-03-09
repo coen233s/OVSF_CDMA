@@ -6,6 +6,7 @@
  */
 
 #include <Configuration.h>
+#include <ovsf.h>
 #include <string.h>
 #include <assert.h>
 #include "BaseStation.h"
@@ -78,30 +79,45 @@ void BaseStation::onUpdate(void *arg)
         if (!result.first) 
         {
             // If this happens, it means there is not enough 8-bits code. 
-
             // Capacity - if it is closed too 0.0, it means there is not much space left
             double capacity = m_assigner.calcCurrentCapacity(); 
-            cout << "Current Capacity is " << capacity << endl; 
-
-            int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
-            cout << "The shortest code length can be assigned without reassigning everything is "
-                << newCodeLength
-                << endl;
-
-            // investigate the code tree.
-            m_assigner.print();
-
-            // Fix suggestion # 1: - just give that possible shortest code
-            result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
-            assert(result.first); 
-            // It should not assert because this code length is always available.
-            // If it asserts, there might be a potential race condition.
-
-            // Fix suggestion # 2: Reassigning new code for everybody in the channel. 
-            // This is a search problem. You need to slowly increase some users bandwidth until
-            // the assignment is accepted. -- We will discuss about this one offline.
-
-            // Fix suggestion # 3: Just block this new user.
+	    if (capacity <= 0.0) {
+	      // everybody will equally get the same rate.
+	      std::vector<std::pair<int,WHCode> > snapshots = m_assigner.listUsedCode();
+	      
+	      m_assigner.releaseAll();
+	      
+	      int numberUsers = snapshots.size();
+	      int avgCodeLength = 1 << (Math_Log2(numberUsers) + 1);
+	      std::vector<int> userIds;
+	      std::vector<int> codeLens;
+	      for (size_t k=0; k<snapshots.size(); k++) {
+		userIds.push_back(snapshots[k].first);
+		codeLens.push_back(avgCodeLength);
+	      }
+	      userIds.push_back(frameOut.uid);
+	      codeLens.push_back(avgCodeLength);
+	      
+	      std::vector<std::pair<int,WHCode> > r = m_assigner.assignUserIds(userIds,codeLens);
+	      assert(!r.empty());
+	      // We just assign the new code to all users
+	      for (size_t k=0; k<r.size(); k++) {
+		if (r[k].first == frameOut.uid) {
+		  result.first = true;
+		  result.second = r[k].second;
+		  break;
+		}
+	      }
+	    }
+	    else {
+	      // we will just give a lowest rate to the new guys
+	      int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
+	      cout << "The shortest code length can be assigned without reassigning everything is "
+		   << newCodeLength
+		   << endl;
+	      result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
+	      assert(result.first); 
+	    }
         }
 
         // Transmit the code

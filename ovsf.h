@@ -178,7 +178,7 @@ public:
   // check if the given requested code length is valid. Meaning,
   // there exists some configuration that satisfy this capacity requirement.
   static bool hasExceedCapacity(const std::vector<int>& codeLength);
-
+  
 protected:
   int findMinBucket(int assignCost);
   int calcGroupCapacity(int groupNumber);
@@ -192,6 +192,10 @@ protected:
 // Z2: The CDMA generator algorithm is using OVSFTree ... so the 
 // chip sequence len is not optimal.
 std::vector<WHCode> CDMA_GenerateCode(int numUsers);
+
+// Math utils
+unsigned int Math_Log2(unsigned int v);
+bool Math_IsPowerOfTwo(unsigned int v);
 
 ///////////////////////////////////////////////////////////////////////////////
 

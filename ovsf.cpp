@@ -939,6 +939,19 @@ std::vector<WHCode> CDMA_GenerateCode(int numUsers)
   return codes;
 }
 
+unsigned int Math_Log2(unsigned int v)
+{
+  unsigned int shift = 0;
+  while (v >>= 1) 
+    shift++;
+  return shift;
+}
+
+bool Math_IsPowerOfTwo(unsigned int v)
+{
+  return ((v > 0) && ((v & (v-1)) == 0));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
