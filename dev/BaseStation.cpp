@@ -59,7 +59,61 @@ void BaseStation::onUpdate(void *arg)
         memset(pCa->code, 0xAB, ARBITRARY_LEN);
         pCa->length = ARBITRARY_LEN;
         pCa->code[ARBITRARY_LEN - 1] = 0xCD;
-        frameOut.data_size = ARBITRARY_LEN + 1;
+#else 
+        if (m_assigner.hasUserId(frameOut.uid)) 
+        {
+            cout << "UserId " << frameOut.uid << " already has WHCode." << endl;
+            cout << "Do you want to give him a new code and discard the old one?" << endl;
+            return;
+        }
+
+        int requestCodeLength = 8; // the shorter code, the higher bit rate.
+        if (!m_assigner.validateRequestCodeLength(requestCodeLength)) 
+        {
+            cout << "Error: Request the code length that > 2 and a power of 2." << endl;
+            return;
+        }
+
+        std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
+        if (!result.first) 
+        {
+            // If this happens, it means there is not enough 8-bits code. 
+
+            // Capacity - if it is closed too 0.0, it means there is not much space left
+            double capacity = m_assigner.calcCurrentCapacity(); 
+            cout << "Current Capacity is " << capacity << endl; 
+
+            int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
+            cout << "The shortest code length can be assigned without reassigning everything is "
+                << newCodeLength
+                << endl;
+
+            // investigate the code tree.
+            m_assigner.print();
+
+            // Fix suggestion # 1: - just give that possible shortest code
+            result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
+            assert(result.first); 
+            // It should not assert because this code length is always available.
+            // If it asserts, there might be a potential race condition.
+
+            // Fix suggestion # 2: Reassigning new code for everybody in the channel. 
+            // This is a search problem. You need to slowly increase some users bandwidth until
+            // the assignment is accepted. -- We will discuss about this one offline.
+
+            // Fix suggestion # 3: Just block this new user.
+        }
+
+        // Transmit the code
+        std::string byteArray = result.second.toByteArray();
+        pCa->length = byteArray.size();
+
+        for (uint16_t i = 0; i < pCa->length; ++i)
+        {
+            pCa->code[i] = byteArray[i];
+        }
+#endif
+        frameOut.data_size = pCa->length + sizeof(pCa->length);
         char *pframe = reinterpret_cast<char *>(&frameOut);
 
         const uint16_t size = frameOut.size();
@@ -68,60 +122,5 @@ void BaseStation::onUpdate(void *arg)
         {
             m_txCtrl.pushData(pframe[i]);
         }
-#else 
-        if (m_assigner.hasUserId(frameOut.uid)) 
-        {
-	  cout << "UserId " << frameOut.uid << " already has WHCode." << endl;
-	  cout << "Do you want to give him a new code and discard the old one?" << endl;
-	  return;
-	}
-
-	int requestCodeLength = 8; // the shorter code, the higher bit rate.
-	if (!m_assigner.validateRequestCodeLength(requestCodeLength)) 
-	{
-	  cout << "Error: Request the code length that > 2 and a power of 2." << endl;
-	  return;
-	}
-
-        std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
-	if (!result.first) 
-	{
-	  // If this happens, it means there is not enough 8-bits code. 
-	  
-	  // Capacity - if it is closed too 0.0, it means there is not much space left
-	  double capacity = m_assigner.calcCurrentCapacity(); 
-       	  cout << "Current Capacity is " << capacity << endl; 
-
-	  int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
-	  cout << "The shortest code length can be assigned without reassigning everything is "
-	       << newCodeLength
-	       << endl;
-	  
-	  // investigate the code tree.
-	  m_assigner.print();
-
-	  // Fix suggestion # 1: - just give that possible shortest code
-	  result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
-	  assert(result.first); 
-	  // It should not assert because this code length is always available.
-	  // If it asserts, there might be a potential race condition.
-
-	  // Fix suggestion # 2: Reassigning new code for everybody in the channel. 
-	  // This is a search problem. You need to slowly increase some users bandwidth until
-	  // the assignment is accepted. -- We will discuss about this one offline.
-
-	  // Fix suggestion # 3: Just block this new user.
-	}
-
-	// Transmit the code
-	std::string byteArray = result.second.toByteArray();
-	pCa->length = byteArray.size();
-	m_txCtrl.pushData(pCa->length);
-
-	for (uint16_t i = 0; i < pCa->length; ++i)
-	{
-	  m_txCtrl.pushData(byteArray[i]);
-	}
-#endif
     }
 }
