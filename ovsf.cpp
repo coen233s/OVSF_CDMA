@@ -694,6 +694,47 @@ bool Assigner::validateRequestCodeLength(int codeLen) const
   return (codeLen > 2 && tree.isPowerOfTwo(codeLen));
 }
 
+bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
+{
+  for (size_t i=0; i<codeLen.size(); i++) {
+    // all request length has to be a power of two and greater than 2
+    if (codeLen[i] <= 2) 
+      return false;
+
+    if (!tree.isPowerOfTwo(codeLen[i]))
+      return false;
+  }
+  
+  if (hasExceedCapacity(codeLen)) 
+    return false;
+
+  std::vector<int> tmp = codeLen;
+  std::sort(tmp.begin(), tmp.end());
+ 
+  // counter # of each code length
+  std::map<int,int> counter;
+  for (size_t i=0; i<tmp.size(); i++) {
+    if (counter.find(tmp[i]) == counter.end()) {
+      counter[tmp[i]] = 0;
+    }
+    else {
+      counter[tmp[i]] = counter[tmp[i]] + 1;
+    }
+  }
+
+  // each code length group should not have member more than group #
+  std::map<int,int>::iterator it;
+  for (it=counter.begin(); it != counter.end(); it++) {
+    cout << it->first << ":" << it->second << endl;
+    int memberCount = it->second;
+    int memberMax = it->first;
+    if (memberCount > memberMax)
+      return false;
+  }
+  
+  return true;
+}
+
 std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 {
   assert(userId > 0); // userId must > 0
@@ -744,6 +785,18 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
   return std::make_pair(false,WHCode());
 }
 
+std::pair<bool,WHCode> Assigner::assignUserId(int userId, int minLen, int maxLen) 
+{
+  std::pair<bool,WHCode> result;
+  for (int len = minLen; len <= maxLen; len*=2) {
+    result = assignUserId(userId,len);
+    if (result.first) 
+      return result;
+  }
+  return std::make_pair(false,WHCode());
+}
+
+// This method does not allow a duplicate userid
 std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(const std::vector<int>& userId,
 							     const std::vector<int>& codeLens)
 {
@@ -751,8 +804,23 @@ std::vector<std::pair<bool,WHCode> > Assigner::assignUserIds(const std::vector<i
   if (userId.size() != codeLens.size())
     return codes;
 
-  for (unsigned int k=0; k<userId.size(); k++) {
-    codes.push_back(assignUserId(userId[k],codeLens[k]));
+  if (!validateRequestCodeLength(codeLens)) {
+    return codes;
+  }
+
+  std::map<int,int> requests;
+  for (size_t k=0; k<userId.size(); k++) {
+    requests[userId[k]] = codeLens[k];
+  }
+
+  // We want to assign the code from the largest code to the smallest code
+  std::map<int,int>::reverse_iterator rit;
+  for (rit = requests.rbegin(); rit != requests.rend(); ++rit) {
+    cout << "request code len of " << rit->second 
+	 << " for userId of " << rit->first << endl;
+    std::pair<bool,WHCode> code = assignUserId(rit->first, rit->second);
+    assert(code.first); 
+    codes.push_back(code);
   }
   return codes;
 }
@@ -842,7 +910,7 @@ bool Assigner::hasExceedCapacity(const std::vector<int>& codeLength)
   for (size_t k=0; k<codeLength.size(); k++) {
     sum += (1.0/(double)codeLength[k]);
   }
-  return (sum <= 1.0);
+  return (sum >= 1.0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

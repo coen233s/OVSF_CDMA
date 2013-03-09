@@ -141,6 +141,8 @@ public:
   // This method will reject any codeLen <= 2
   std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
 
+  std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen);
+
   std::vector<std::pair<bool,WHCode> > assignUserIds(const std::vector<int>& userId,
 						     const std::vector<int>& codeLens);
 
@@ -149,6 +151,9 @@ public:
 
   // check if the request code length is valid. It must be >= 4 and a power of two.
   bool validateRequestCodeLength(int codeLen) const;
+
+  // check if the given request code lengths can be found on OVSF Tree.
+  bool validateRequestCodeLength(const std::vector<int>& codeLen) const;
 
   // list all used code and its userId
   std::vector<std::pair<int, WHCode> > listUsedCode() const;
