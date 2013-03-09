@@ -24,7 +24,8 @@ SRCS += \
 
 BINDIR := bin
 INCLUDES += -I.
-CPPFLAGS += -std=c++0x
+
+CPPFLAGS += -std=c++0x -Wall
 
 ifneq ($(DEBUG),)
 CPPFLAGS += -g -O0 -DDEBUG
@@ -45,6 +46,6 @@ $(BINDIR)/%:test/%.cpp $(OBJS)
 all: $(TARGETS)
 
 clean:
-	rm -rf $(TARGETS) $(OBJS) *.h~ *.cpp~
+	rm -rf $(TARGETS) $(OBJS) *.h~ *.cpp~ *.stackdump
 	rm -rf $(BINDIR)
 
