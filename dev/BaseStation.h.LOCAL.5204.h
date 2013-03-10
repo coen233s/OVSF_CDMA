@@ -10,8 +10,6 @@
 
 #include <vector>
 #include <ovsf.h>
-#include <unordered_map>
-#include <dev/DataChannel.h>
 #include <phy/AbsPhyChannel.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
@@ -21,19 +19,24 @@
 
 using namespace std;
 
+class Agent : public DeviceBase {
+public:
+	Transmitter tx;
+	Receiver rx;
+
+	Agent(const string& name);
+};
+
 class BaseStation : public DeviceBase,
 					public UpdateListener,
 					public SimObject
 {
 private:
-	typedef map<int, DataChannel *> DataChannelMap;
-
 	AbsPhyChannel &m_phy;			// physical medium
 	Transmitter m_txCtrl;			// control channel transmitter
 	ControlProtocol m_protCtrl;		// control protocol processor
 	Receiver m_rxCtrl;				// control channel receiver
-	Assigner m_assigner;			// OVSF Code assigner
-	DataChannelMap m_dataChannel;	// Data channels to talk to MobileStations
+	Assigner m_assigner; // OVSF Code assigner
 public:
 	BaseStation(const string& name, AbsPhyChannel &pch);
 	virtual ~BaseStation();
@@ -46,12 +49,7 @@ public:
 protected:
 	std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);
 	void transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut);
-	// uid - user, tr - transmit/receiver (data channel type), minRate/maxRate in bps
-	void addUser(int uid, int tr, int minRate, int maxRate);
-	void removeUser(int uid, int tr);
-	void addChannel(int uid, int tr, WHCode &code);
-	void removeChannel(int uid, int tr);
-	int rateToCodeLength(int dataRate);
+
 };
 
 #endif /* BASESTATION_H_ */

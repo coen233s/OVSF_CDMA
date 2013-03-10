@@ -10,7 +10,7 @@
 using namespace std;
 
 RxTxBase::RxTxBase(const string &name)
-: m_name(name)
+: NamedObject(name)
 {
 }
 

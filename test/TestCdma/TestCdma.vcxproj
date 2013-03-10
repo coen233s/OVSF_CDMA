@@ -54,8 +54,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader />
@@ -91,6 +91,7 @@
     <ClCompile Include="..\..\dat\BitInQueue.cpp" />
     <ClCompile Include="..\..\dat\BitOutQueue.cpp" />
     <ClCompile Include="..\..\dev\BaseStation.cpp" />
+    <ClCompile Include="..\..\dev\DataChannel.cpp" />
     <ClCompile Include="..\..\dev\DeviceBase.cpp" />
     <ClCompile Include="..\..\dev\MobileStation.cpp" />
     <ClCompile Include="..\..\dev\protocol\ControlProtocol.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="..\..\dat\UpdateListener.h" />
     <ClInclude Include="..\..\debug.h" />
     <ClInclude Include="..\..\dev\BaseStation.h" />
+    <ClInclude Include="..\..\dev\DataChannel.h" />
     <ClInclude Include="..\..\dev\DeviceBase.h" />
     <ClInclude Include="..\..\dev\MobileStation.h" />
     <ClInclude Include="..\..\dev\protocol\ControlProtocol.h" />

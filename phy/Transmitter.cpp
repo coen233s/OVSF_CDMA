@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <debug.h>
 #include <iostream>
 #include "Transmitter.h"
 
@@ -12,20 +13,29 @@ using namespace std;
 
 Transmitter::Transmitter(const string& name)
 : RxTxBase(name)
-, m_pWalshCode(0)
+, m_BitQueue(name)
+, m_walshIdx(0)
 {
 }
 
 Transmitter::~Transmitter() {
 }
 
-void Transmitter::onTick() {
-	if (!m_pWalshCode) {
+void Transmitter::onTick(int time) {
+	vout(getName() << ": time:" << time << " idx:" << m_walshIdx
+			<< " walshlen:" << m_walshCode.length()
+			<< endl);
+
+	if (m_walshCode.length() == 0) {
 		m_nextChip = 0;
 		return;
 	}
 
-	char walshChip = m_pWalshCode->getChipBit(m_walshIdx);
+	// Sync time to multiple of code length
+	if (m_walshIdx == 0 && time % m_walshCode.length())
+		return;
+
+	char walshChip = m_walshCode.getChipBit(m_walshIdx);
 
 	if (m_walshIdx == 0) {
 	    m_currentBit = m_BitQueue.hasData() ?
@@ -34,7 +44,7 @@ void Transmitter::onTick() {
 
 	m_nextChip = m_currentBit * walshChip;
 
-	if (++m_walshIdx >= m_pWalshCode->length()) {
+	if (++m_walshIdx >= m_walshCode.length()) {
 		m_walshIdx = 0;
 	}
 }

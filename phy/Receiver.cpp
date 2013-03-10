@@ -5,15 +5,16 @@
  *      Author: Danke
  */
 
+#include <debug.h>
 #include <iostream>
 #include <dat/UpdateListener.h>
 #include "Receiver.h"
 
 using namespace std;
 
-Receiver::Receiver(const string& name, UpdateListener *updateListener)
+Receiver::Receiver(const string name, UpdateListener *updateListener)
 : RxTxBase(name)
-, m_BitQueue(this)
+, m_BitQueue(name, this)
 , m_updateListener(updateListener)
 {
 }
@@ -21,7 +22,8 @@ Receiver::Receiver(const string& name, UpdateListener *updateListener)
 Receiver::~Receiver() {
 }
 
-void Receiver::setWalshCode(vector<WHCode *> newCodes) {
+void Receiver::setWalshCode(vector<WHCode> newCodes) {
+	// copy vector
 	m_WalshCode = newCodes;
 	m_WalshIdx.clear();
 	m_WalshIdx.resize(newCodes.size(), 0);
@@ -42,13 +44,19 @@ int Receiver::peekData(int idx) {
 		return -1;
 }
 
-void Receiver::onTick() {
+void Receiver::onTick(int time) {
+	vout(getName() << ": " << time << endl);
+
 	size_t i;
 	for (i = 0; i < m_WalshCode.size(); i++) {
-		int codeLen = m_WalshCode[i]->length();
+		int codeLen = m_WalshCode[i].length();
+
+		// Sync time to multiple of code length
+		if (m_WalshIdx[i] == 0 && time % codeLen)
+			continue;
 
 		m_WalshDotProd[i] += m_LastChip *
-				m_WalshCode[i]->getChipBit(m_WalshIdx[i]);
+				m_WalshCode[i].getChipBit(m_WalshIdx[i]);
 
 		// Received one bit
 		if (++m_WalshIdx[i] >= codeLen) {
@@ -57,7 +65,7 @@ void Receiver::onTick() {
 			else if (m_WalshDotProd[i] == -codeLen)
 				m_BitQueue.pushBit(0); // received 0
 			else if (m_WalshDotProd[i] != 0) {
-				cerr << "Warning: " << "Receiver [" << m_name <<
+				cout << "Warning: " << "Receiver [" << getName() <<
 						"] got unexpected dot product " << m_WalshDotProd[i] <<
 						" codeLen: " << codeLen << endl;
 			}

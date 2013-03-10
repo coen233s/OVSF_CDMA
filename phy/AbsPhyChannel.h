@@ -20,8 +20,11 @@
 
 class AbsPhyChannel : public SimObject {
 public:
+	virtual int getChipRate() = 0;
 	virtual void attachReceiver(Receiver *rx) = 0;
-	virtual void attachTransmitter(Transmitter *rx) = 0;
+	virtual void attachTransmitter(Transmitter *tx) = 0;
+	virtual void detachReceiver(Receiver *rx) = 0;
+	virtual void detachTransmitter(Transmitter *tx) = 0;
 };
 
 #endif /* ABSPHYCHANNEL_H_ */

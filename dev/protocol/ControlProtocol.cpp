@@ -52,7 +52,7 @@ void ControlProtocol::onUpdate(void *arg) {
 			for (int i = 0; i < headerSize; i++)
 				pframe[i + 2] = rx.popData(); // + 2 for magic number
 			if (m_frameIn.data_size > CF_DATA_MAX) {
-				cerr << "Error: " << rx.getName() << " control frame data too larger"
+				cerr << "Error: " << rx.getName() << " control frame data too large"
 				     << endl;
 				m_state = WAIT_FOR_MAGIC1;
 			} else {
@@ -76,11 +76,13 @@ void ControlProtocol::onUpdate(void *arg) {
 	}
 }
 
-void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax) {
+void ControlProtocol::sendControl(int uid, int rateMin, int rateMax, bool request)
+{
 	m_frameOut.magic1 = CF_MAGIC1;
 	m_frameOut.magic2 = CF_MAGIC2;
 	m_frameOut.c2s = 1;
 	m_frameOut.ack = 0;
+	m_frameOut.req = request ? 1 : 0;
 	m_frameOut.tr = 1;
 	m_frameOut.uid = uid;
 
@@ -94,4 +96,12 @@ void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax) {
 
 	for (int i = 0; i < m_frameOut.size(); i++)
 		m_tx.pushData(pframe[i]);
+}
+
+void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax) {
+	sendControl(uid, rateMin, rateMax, true);
+}
+
+void ControlProtocol::sendTearDown(int uid) {
+	sendControl(uid, 0, 0, false);
 }

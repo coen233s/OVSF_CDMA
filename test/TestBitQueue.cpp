@@ -15,8 +15,8 @@ using namespace std;
 
 int main()
 {
-    BitInQueue inq;
-    BitOutQueue outq;
+    BitInQueue inq("BitInQueue");
+    BitOutQueue outq("BitOutQueue");
 
     cout << "InQueue" << endl;
 

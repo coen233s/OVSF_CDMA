@@ -14,8 +14,9 @@
 
 using namespace std;
 
-BitOutQueue::BitOutQueue()
-: m_hasDataInByteBuffer(false)
+BitOutQueue::BitOutQueue(const string &name)
+: NamedObject(name)
+, m_hasDataInByteBuffer(false)
 , m_bitMask(1)
 , m_dataByte(0)
 {
@@ -39,7 +40,8 @@ char BitOutQueue::popBit()
 			m_dataByte = front();
 			pop();
 			m_bitMask = 1;
-			dout("Recv: " << hex << showbase << (int)m_dataByte << dec << endl);
+			dout(getName() << " send: " << hex << showbase <<
+					(int)m_dataByte << dec << endl);
 		}
 	}
 

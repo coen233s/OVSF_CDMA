@@ -32,3 +32,15 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
     }
     return os;
 }
+
+ostream& operator<<(ostream& os, struct DataFrame &df)
+{
+	 os << "len:" << df.length;
+
+	 for (int i = 0; i < df.length; i++)
+	 {
+		 os << std::hex << (int)df.data[i] << " ";
+	 }
+
+	 return os;
+}

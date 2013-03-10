@@ -8,6 +8,7 @@ TESTS += \
 SRCS += \
 	ovsf.cpp \
 	Configuration.cpp \
+	NamedObject.cpp \
 	dat/BitInQueue.cpp \
 	dat/BitOutQueue.cpp \
 	phy/Receiver.cpp \
@@ -17,6 +18,7 @@ SRCS += \
 	dev/DeviceBase.cpp \
 	dev/BaseStation.cpp \
 	dev/MobileStation.cpp \
+	dev/DataChannel.cpp \
 	dev/protocol/ControlProtocol.cpp \
 	dev/protocol/ProtocolData.cpp \
 	sim/Simulator.cpp \
@@ -24,10 +26,16 @@ SRCS += \
 BINDIR := bin
 INCLUDES += -I.
 
+CPPFLAGS += -std=c++0x -Wall
+
 ifneq ($(DEBUG),)
-CPPFLAGS += -g -O0 -DDEBUG
+  CPPFLAGS += -g -O0 -DDEBUG
+  VERBOSE_MODE := $(shell [ $(DEBUG) -ge 2 ] && echo true)
+  ifeq ($(VERBOSE_MODE),true)
+    CPPFLAGS += -DVERBOSE
+  endif
 else
-CPPFLAGS += -O3
+  CPPFLAGS += -O3
 endif
 
 TARGETS := $(addprefix $(BINDIR)/,$(patsubst test/%.cpp,%,$(TESTS)))
@@ -43,6 +51,6 @@ $(BINDIR)/%:test/%.cpp $(OBJS)
 all: $(TARGETS)
 
 clean:
-	rm -rf $(TARGETS) $(OBJS) *.h~ *.cpp~
+	rm -rf $(TARGETS) $(OBJS) *.h~ *.cpp~ *.stackdump
 	rm -rf $(BINDIR)
 
