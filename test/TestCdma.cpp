@@ -8,6 +8,7 @@
 using namespace std;
 
 #define UID_1	0x01
+#define UID_2	0x02
 
 /*-----------------------------------------------------------------------------
 Read a line from stdin
@@ -191,12 +192,16 @@ int main(int argc, char* argv[])
 #if 1
     MobileStation ms(string("Mobile Station #1"), pch, UID_1);
     sim.addObject(&ms);
+#if 1
+    MobileStation ms2(string("Mobile Station #2"), pch, UID_2);
+    sim.addObject(&ms2);
+#endif
 #else // Add user from stdin by test file
     addUser(sim, pch);
 #endif
     sim.addObject(&pch);
 
-    const int timeSteps = 5000;
+    const int timeSteps = 100000;
     sim.run(timeSteps);
 
     return 0;

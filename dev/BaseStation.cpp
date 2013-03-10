@@ -32,6 +32,8 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 
 	m_phy.attachReceiver(&m_rxCtrl);
 	m_phy.attachTransmitter(&m_txCtrl);
+
+	m_txCtrl.setCSMA(&m_rxCtrl, 1); // priority 1
 }
 
 BaseStation::~BaseStation() {

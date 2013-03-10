@@ -13,8 +13,10 @@ using namespace std;
 
 Transmitter::Transmitter(const string& name)
 : RxTxBase(name)
-, m_BitQueue(name)
 , m_walshIdx(0)
+, m_BitQueue(name)
+, m_pCoupledReceiver(0)
+, m_CSMADelay(0)
 {
 }
 
@@ -34,6 +36,12 @@ void Transmitter::onTick(int time) {
 	// Sync time to multiple of code length
 	if (m_walshIdx == 0 && time % m_walshCode.length())
 		return;
+
+	// Collision detection (check if channel is busy)
+	if (m_pCoupledReceiver) {
+		if (m_pCoupledReceiver->getIdleCount() < m_CSMADelay)
+			return;
+	}
 
 	char walshChip = m_walshCode.getChipBit(m_walshIdx);
 
