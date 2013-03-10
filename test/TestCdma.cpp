@@ -13,6 +13,8 @@ int main(int argc, char* argv)
     SimplePhyChannel pch;
     BaseStation bs(string("BaseStation"), pch);
     MobileStation ms(string("Mobile Station #1"), pch, UID_1);
+
+    SimplePhyChannel pch;
     MobileStation ms2(string("Mobile Station #2"), pch, 2);
 
     sim.addObject(&bs);
