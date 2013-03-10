@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-	Simulator sim;
+    Simulator sim;
     SimplePhyChannel pch;
     BaseStation bs(string("BaseStation"), pch);
     MobileStation ms(string("Mobile Station #1"), pch, UID_1);
