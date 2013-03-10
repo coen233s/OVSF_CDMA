@@ -32,6 +32,9 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid)
 
 	m_phy.attachReceiver(&m_rxCtrl);
 	m_phy.attachTransmitter(&m_txCtrl);
+
+	// priority = uid + 1
+	m_txCtrl.setCSMA(&m_rxCtrl, m_uid + 1);
 }
 
 MobileStation::~MobileStation() {
@@ -48,7 +51,7 @@ void MobileStation::onTick(int time) {
 void MobileStation::onUpdate(void *arg)
 {
 	ControlFrame &cframe(*(ControlFrame *)arg);
-    if (!cframe.c2s)
+    if (!cframe.c2s && cframe.uid == m_uid)
     {
     	cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
     	// TODO create a Data Channel when receiving Walsh Code

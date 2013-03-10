@@ -41,7 +41,7 @@ public:
 	// control frame listerner, arg = &ControlFrame
 	virtual void onUpdate(void *arg);
 
-	virtual void onTick(int time) {};
+	virtual void onTick(int time) {}
 
 protected:
 	std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);

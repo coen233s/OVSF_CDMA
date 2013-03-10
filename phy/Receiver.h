@@ -22,6 +22,9 @@ private:
 	// Last received chip
 	int m_LastChip;
 
+	// Idle count -- channel has been quiet for this number of bits
+	int m_idleCount;
+
 	// Set of Walsh codes
 	vector<WHCode> m_WalshCode;
 
@@ -60,6 +63,11 @@ public:
 
     int getDataSize() {
     	return m_BitQueue.size();
+    }
+
+    // Gets the number of bits for which the channel is quiet
+    int getIdleCount() {
+    	return m_idleCount;
     }
 
     unsigned char popData();

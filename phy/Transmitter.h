@@ -11,6 +11,7 @@
 #include <ovsf.h>
 #include <phy/RxTxBase.h>
 #include <dat/BitOutQueue.h>
+#include "Receiver.h"
 
 class Transmitter : public RxTxBase {
 private:
@@ -22,6 +23,12 @@ private:
 
     // Data queue
     BitOutQueue m_BitQueue;
+
+    // Coupled receiver
+    Receiver *m_pCoupledReceiver;
+
+    // Collision Sensing delay (at least 1)
+    int m_CSMADelay;
 
 public:
 	Transmitter(const string& name);
@@ -46,6 +53,11 @@ public:
 
 	void pushData(unsigned char ch) {
 	    m_BitQueue.push(ch);
+	}
+
+	void setCSMA(Receiver *pCoupledRx, int delay) {
+		m_pCoupledReceiver = pCoupledRx;
+		m_CSMADelay = delay;
 	}
 };
 

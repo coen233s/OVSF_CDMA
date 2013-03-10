@@ -8,6 +8,7 @@
 #ifndef CONTROLPROTOCOL_H_
 #define CONTROLPROTOCOL_H_
 
+#include <queue>
 #include <dat/UpdateListener.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>

@@ -14,6 +14,7 @@ using namespace std;
 
 Receiver::Receiver(const string name, UpdateListener *updateListener)
 : RxTxBase(name)
+, m_idleCount(0)
 , m_BitQueue(name, this)
 , m_updateListener(updateListener)
 {
@@ -60,14 +61,23 @@ void Receiver::onTick(int time) {
 
 		// Received one bit
 		if (++m_WalshIdx[i] >= codeLen) {
-			if (m_WalshDotProd[i] == codeLen)
+			if (m_WalshDotProd[i] == codeLen) {
 				m_BitQueue.pushBit(1); // received 1
-			else if (m_WalshDotProd[i] == -codeLen)
+				m_idleCount = 0;
+			} else if (m_WalshDotProd[i] == -codeLen) {
 				m_BitQueue.pushBit(0); // received 0
-			else if (m_WalshDotProd[i] != 0) {
+				m_idleCount = 0;
+			} else if (m_WalshDotProd[i] != 0) {
+				/* this is not a real issue - just means someone else is talking
+				 * on the channel */
+				/*
 				cout << "Warning: " << "Receiver [" << getName() <<
 						"] got unexpected dot product " << m_WalshDotProd[i] <<
 						" codeLen: " << codeLen << endl;
+				 */
+			} else {
+				// Channel is quiet
+				m_idleCount++;
 			}
 
 			// clear idx & dot product
