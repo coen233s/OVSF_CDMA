@@ -115,24 +115,23 @@ void BaseStation::onUpdate(void *arg)
         std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
         if (!result.first) 
         {
-	  // Capacity - if it is closed too 0.0, it means there is not much space left
+	  // if the capacity is closed too 0.0, it means there is not much space left
 	  double capacity = m_assigner.calcCurrentCapacity(); 
 	  if (capacity <= 0.0) {
 	    std::vector<std::pair<int,WHCode> > r = assignAvgCodeLength(frameOut.uid);
 	    assert(!r.empty());
 
-	    // need to transmit the new code to everybody
+	    // transmit the new code to everybody
 	    for (size_t k=0; k<r.size(); k++) {
 	      transmit(pCa,r[k].second,frameOut);
 	    }
+	    return;
 	  }
-	  else {
-	    // we will just give a lowest rate to the new guys
-	    int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
-	    result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
-	    assert(result.first); 
-	  }
-        }
+	  // we will just give the lowest rate to the new guys
+	  int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
+	  result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
+	  assert(result.first); 
+	}
 	transmit(pCa,result.second,frameOut);
     }
 }
