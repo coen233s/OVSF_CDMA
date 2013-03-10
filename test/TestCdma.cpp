@@ -3,6 +3,7 @@
 #include <dev/MobileStation.h>
 #include <sim/Simulator.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
@@ -177,7 +178,7 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
         }
     }
 }
-int main(int argc, char* argv)
+int main(int argc, char* argv[])
 {
 	Simulator sim;
     SimplePhyChannel pch;
