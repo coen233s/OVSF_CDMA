@@ -45,6 +45,11 @@ public:
 	virtual void onUpdate(void *arg);
 
 	virtual void onTick(int time) {};
+
+protected:
+	std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);
+	void transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut);
+
 };
 
 #endif /* BASESTATION_H_ */
