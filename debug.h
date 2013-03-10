@@ -7,4 +7,10 @@
 #define dout(...)
 #endif
 
+#ifdef VERBOSE
+#define vout(x...) cout << x
+#else
+#define vout(...)
+#endif
+
 #endif /* DEBUG_H_ */

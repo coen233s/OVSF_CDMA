@@ -14,7 +14,7 @@ using namespace std;
 
 Receiver::Receiver(const string name, UpdateListener *updateListener)
 : RxTxBase(name)
-, m_BitQueue(this)
+, m_BitQueue(name, this)
 , m_updateListener(updateListener)
 {
 }
@@ -45,11 +45,15 @@ int Receiver::peekData(int idx) {
 }
 
 void Receiver::onTick(int time) {
-	dout(getName() << ": " << time << endl);
+	vout(getName() << ": " << time << endl);
 
 	size_t i;
 	for (i = 0; i < m_WalshCode.size(); i++) {
 		int codeLen = m_WalshCode[i].length();
+
+		// Sync time to multiple of code length
+		if (m_WalshIdx[i] == 0 && time % codeLen)
+			continue;
 
 		m_WalshDotProd[i] += m_LastChip *
 				m_WalshCode[i].getChipBit(m_WalshIdx[i]);
@@ -61,7 +65,7 @@ void Receiver::onTick(int time) {
 			else if (m_WalshDotProd[i] == -codeLen)
 				m_BitQueue.pushBit(0); // received 0
 			else if (m_WalshDotProd[i] != 0) {
-				cerr << "Warning: " << "Receiver [" << m_name <<
+				cout << "Warning: " << "Receiver [" << getName() <<
 						"] got unexpected dot product " << m_WalshDotProd[i] <<
 						" codeLen: " << codeLen << endl;
 			}

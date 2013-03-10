@@ -11,8 +11,9 @@
 
 using namespace std;
 
-BitInQueue::BitInQueue(UpdateListener *updateListener)
-: m_updateListener(updateListener)
+BitInQueue::BitInQueue(const string &name, UpdateListener *updateListener)
+: NamedObject(name)
+, m_updateListener(updateListener)
 , m_bitMask(1)
 , m_dataByte(0)
 {
@@ -29,10 +30,13 @@ void BitInQueue::pushBit(char bit) {
 	if (m_bitMask & 0x80) {
 		m_bitMask = 1;
 		push_back(m_dataByte);
+
+		dout(getName() << " recv: " << hex << showbase <<
+				(int)m_dataByte << dec << endl);
+
 		m_dataByte = 0;
 		if (m_updateListener)
 			m_updateListener->onUpdate(this);
-		dout("Send: " << hex << showbase << (int)m_dataByte << dec << endl);
 	} else {
 		m_bitMask <<= 1;
 	}

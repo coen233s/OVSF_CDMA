@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <debug.h>
 #include <Configuration.h>
 #include <ovsf.h>
 #include <sstream>
@@ -12,6 +13,8 @@
 #include <assert.h>
 #include "BaseStation.h"
 #include "protocol/ControlProtocol.h"
+
+using namespace std;
 
 BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 : DeviceBase(name)
@@ -72,10 +75,15 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
   char *pframe = reinterpret_cast<char *>(&frameOut);
 
   const uint16_t size = frameOut.size();
+  dout(getName() << ": transmit len=" << (int)size << hex);
+
   for (uint16_t i = 0; i < size; i++)
   {
     m_txCtrl.pushData(pframe[i]);
+    dout(" " << (unsigned)(0xFF & pframe[i]));
   }
+
+  dout(dec << endl);
 }
 
 int BaseStation::rateToCodeLength(int dataRate)
@@ -152,12 +160,20 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     pCa->length = ARBITRARY_LEN;
     pCa->code[ARBITRARY_LEN - 1] = 0xCD;
 #endif
-    if (m_assigner.hasUserId(frameOut.uid))
+    if (m_assigner.hasUserId(frameOut.uid)) {
+    	cerr << "Error: " << getDeviceId() << ": user has already connected" <<
+    			"uid: " << (int)frameOut.uid << endl;
     	return;
+    }
 
-    int requestCodeLength = m_assigner.calcShortestFreeCode(maxCodeLen);
-    if (!m_assigner.validateRequestCodeLength(requestCodeLength))
+    //int requestCodeLength = m_assigner.calcShortestFreeCode(4);
+    int requestCodeLength = maxCodeLen;
+    if (!m_assigner.validateRequestCodeLength(requestCodeLength)) {
+    	cerr << "Error: " << getDeviceId() << ": valiate request code length failed," <<
+    			" maxCodeLen: " << maxCodeLen <<
+    			" requestCodeLength: " << requestCodeLength << endl;
     	return;
+    }
 
     std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
     if (!result.first)
@@ -172,6 +188,10 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     		for (size_t k=0; k<r.size(); k++) {
     			transmit(pCa,r[k].second,frameOut);
     		}
+
+    		// TODO
+    		cout << "TODO: BaseStation to update codes of existing clients" << endl;
+
     		return;
     	}
     	// we will just give the lowest rate to the new guys

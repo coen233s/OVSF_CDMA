@@ -9,17 +9,20 @@
 #define BITOUTQUEUE_H_
 
 #include <queue>
+#include <NamedObject.h>
 
 using namespace std;
 
-class BitOutQueue : public queue<unsigned char> {
+class BitOutQueue : public queue<unsigned char>,
+					public NamedObject
+{
 private:
 	bool m_hasDataInByteBuffer;
 	unsigned char m_bitMask;
 	unsigned char m_dataByte;
 
 public:
-	BitOutQueue();
+	BitOutQueue(const string &name);
 	virtual ~BitOutQueue();
 
 	bool hasData();

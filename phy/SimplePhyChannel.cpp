@@ -42,14 +42,14 @@ void SimplePhyChannel::detachTransmitter(Transmitter *tx) {
 void SimplePhyChannel::onTick(int time) {
 	int chipSum = 0;
 
-	// the vector m_Tx may be updated during iteratation
+	// the vector m_Tx may be updated during iteration
 	for (vector<Transmitter *>::size_type i = 0;
 			i < m_Tx.size(); ++i) {
 	    m_Tx[i]->onTick(time);
 	    chipSum += m_Tx[i]->getChip();
 	}
 
-	// the vector m_Rx may be updated during iteratation
+	// the vector m_Rx may be updated during iteration
 	for (vector<Transmitter *>::size_type i = 0;
 			i < m_Rx.size(); ++i) {
 		m_Rx[i]->setChip(chipSum);

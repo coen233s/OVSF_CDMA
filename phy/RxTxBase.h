@@ -9,22 +9,17 @@
 #define RXTXBASE_H_
 
 #include <string>
+#include <NamedObject.h>
 
 using namespace std;
 
-class RxTxBase {
-protected:
-    string m_name;
+class RxTxBase : public NamedObject {
 public:
 	RxTxBase(const string &name);
 	virtual ~RxTxBase();
 
 	// Simulate one time step (one chip period).
 	void onTick();
-
-	string &getName() {
-		return m_name;
-	}
 };
 
 #endif /* RXTXBASE_H_ */

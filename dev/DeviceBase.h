@@ -9,18 +9,17 @@
 #define DEVICEBASE_H_
 
 #include <string>
+#include <NamedObject.h>
 
 using namespace std;
 
-class DeviceBase {
-private:
-	string m_deviceId;
+class DeviceBase : public NamedObject {
 public:
 	DeviceBase(const string &deviceId);
 	virtual ~DeviceBase();
 
 	string &getDeviceId() {
-		return m_deviceId;
+		return getName();
 	}
 };
 

@@ -9,7 +9,7 @@
 #include "DeviceBase.h"
 
 DeviceBase::DeviceBase(const string &deviceId)
-: m_deviceId(deviceId)
+: NamedObject(deviceId)
 {
 }
 

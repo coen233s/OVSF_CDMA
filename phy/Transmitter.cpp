@@ -13,6 +13,7 @@ using namespace std;
 
 Transmitter::Transmitter(const string& name)
 : RxTxBase(name)
+, m_BitQueue(name)
 , m_walshIdx(0)
 {
 }
@@ -21,7 +22,7 @@ Transmitter::~Transmitter() {
 }
 
 void Transmitter::onTick(int time) {
-	dout(getName() << ": time:" << time << " idx:" << m_walshIdx
+	vout(getName() << ": time:" << time << " idx:" << m_walshIdx
 			<< " walshlen:" << m_walshCode.length()
 			<< endl);
 
@@ -29,6 +30,10 @@ void Transmitter::onTick(int time) {
 		m_nextChip = 0;
 		return;
 	}
+
+	// Sync time to multiple of code length
+	if (m_walshIdx == 0 && time % m_walshCode.length())
+		return;
 
 	char walshChip = m_walshCode.getChipBit(m_walshIdx);
 
