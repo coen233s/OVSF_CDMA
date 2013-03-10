@@ -18,6 +18,14 @@ Configuration::Configuration() {
 	ctrlCodeVec.push_back(1);
 	ctrlCodeVec.push_back(1);
 	ctrlCodeVec.push_back(-1);
+	ctrlCodeVec.push_back(1);
+	ctrlCodeVec.push_back(-1);
+	ctrlCodeVec.push_back(-1);
+	ctrlCodeVec.push_back(1);
+	ctrlCodeVec.push_back(-1);
+	ctrlCodeVec.push_back(1);
+	ctrlCodeVec.push_back(1);
+	ctrlCodeVec.push_back(-1);
 
 	wcCtrl = WHCode(ctrlCodeVec);
 }
