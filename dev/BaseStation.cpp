@@ -16,6 +16,9 @@
 
 using namespace std;
 
+const int BaseStation::CTRL_USERID = 100;
+const int BaseStation::CTRL_CODELEN = 16; // 16-bit fixed-Walshcode
+
 BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 : DeviceBase(name)
 , m_phy(pch)
@@ -23,7 +26,10 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 , m_protCtrl(m_txCtrl, this)
 , m_rxCtrl(name + ".rx", &m_protCtrl)
 {
-	Configuration &conf(Configuration::getInstance());
+  WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
+  Configuration &conf(Configuration::getInstance());
+  conf.setControlChannelCode(ctrlCode);
+
 	m_txCtrl.setWalshCode(conf.wcCtrl);
 
 	vector<WHCode> ctrlCodeSet;
@@ -37,6 +43,19 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
 }
 
 BaseStation::~BaseStation() {
+}
+
+WHCode BaseStation::initControlChannelWalshCode(const int id, const int codelen)
+{
+  // These constraits must be satisfied before we are running the basestation
+  assert(m_assigner.validateRequestCodeLength(codelen));
+  assert(id > 0);
+  assert(m_assigner.calcCurrentCapacity() == 1.0);
+  assert(m_assigner.calcShortestFreeCode(codelen) <= codelen);
+  
+  std::pair<bool,WHCode> rval = m_assigner.assignUserId(id,codelen);
+  assert(rval.first);
+  return rval.second;
 }
 
 // Calculate the new code length for everybody. This method will give the same code length to everybody.
@@ -168,7 +187,6 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     	return;
     }
 
-    //int requestCodeLength = m_assigner.calcShortestFreeCode(4);
     int requestCodeLength = maxCodeLen;
     if (!m_assigner.validateRequestCodeLength(requestCodeLength)) {
     	cerr << "Error: " << getDeviceId() << ": valiate request code length failed," <<

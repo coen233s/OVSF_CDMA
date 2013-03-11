@@ -34,6 +34,9 @@ private:
 	Receiver m_rxCtrl;				// control channel receiver
 	Assigner m_assigner;			// OVSF Code assigner
 	DataChannelMap m_dataChannel;	// Data channels to talk to MobileStations
+	static const int CTRL_USERID;     // ID for the control channel - to distinguish from other users
+	static const int CTRL_CODELEN; // # of bits of control channel's Walsh code
+
 public:
 	BaseStation(const string& name, AbsPhyChannel &pch);
 	virtual ~BaseStation();
@@ -52,6 +55,8 @@ protected:
 	void addChannel(int uid, int tr, WHCode &code);
 	void removeChannel(int uid, int tr);
 	int rateToCodeLength(int dataRate);
+
+	WHCode initControlChannelWalshCode(const int id, const int codelen);
 };
 
 #endif /* BASESTATION_H_ */

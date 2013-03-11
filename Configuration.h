@@ -21,6 +21,8 @@ public:
 		static Configuration inst;
 		return inst;
 	}
+
+	void setControlChannelCode(const WHCode& code);
 };
 
 #endif /* CONFIGURATION_H_ */

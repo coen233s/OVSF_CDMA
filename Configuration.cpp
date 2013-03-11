@@ -6,26 +6,18 @@
  */
 
 #include <vector>
+#include <iostream>
 #include "Configuration.h"
 
-Configuration::Configuration() {
-	vector<int> ctrlCodeVec;
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(1);
-	ctrlCodeVec.push_back(-1);
+using namespace std;
 
-	wcCtrl = WHCode(ctrlCodeVec);
+Configuration::Configuration() {
+}
+
+void Configuration::setControlChannelCode(const WHCode& code)
+{
+  wcCtrl = code;
+  cout << "setChannelCode:";
+  wcCtrl.print();
+  cout << endl;
 }

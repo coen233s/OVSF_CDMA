@@ -7,8 +7,8 @@
 
 using namespace std;
 
-#define UID_1	0x01
-#define UID_2	0x02
+#define UID_1	0x02
+#define UID_2	0x03
 
 /*-----------------------------------------------------------------------------
 Read a line from stdin
@@ -184,9 +184,6 @@ int main(int argc, char* argv[])
     Simulator sim;
     SimplePhyChannel pch;
     BaseStation bs(string("BaseStation"), pch);
-    MobileStation ms(string("Mobile Station #1"), pch, UID_1);
-    MobileStation ms2(string("Mobile Station #2"), pch, 2);
-
     sim.addObject(&bs);
 
 #if 1
