@@ -260,22 +260,24 @@ OVSFTree::NodeInfo& OVSFTree::NodeInfo::unsetAllBlockNodeId()
   return *this;
 }
 
-OVSFTree::NodeInfo::NodeInfo(const WHCode& wh_code, int id): code(wh_code), 
-							     nodeId(id), 
-							     userId(0) 
+OVSFTree::NodeInfo::NodeInfo(const WHCode& wh_code, int id): 
+  userId(0),  
+  nodeId(id), 
+  code(wh_code)
 {
 }
 
-OVSFTree::NodeInfo::NodeInfo(int id): nodeId(id), userId(0) {
+OVSFTree::NodeInfo::NodeInfo(int id): userId(0), nodeId(id) {
 }
 
 OVSFTree::NodeInfo::NodeInfo(): userId(0), nodeId(0) {
 }
     
-OVSFTree::NodeInfo::NodeInfo(const NodeInfo& other): nodeId(other.nodeId),
-						     userId(other.userId),
-						     blockNodeId(other.blockNodeId),
-						     code(other.code)
+OVSFTree::NodeInfo::NodeInfo(const NodeInfo& other): 
+blockNodeId(other.blockNodeId),
+userId(other.userId),
+nodeId(other.nodeId),
+code(other.code)
 {
 }
 

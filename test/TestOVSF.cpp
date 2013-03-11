@@ -262,7 +262,7 @@ void greedy_server_test()
 
   cout << "Check if the assignment are correct..." << endl;
   std::vector<std::pair<int,WHCode> > codes = assigner.listUsedCode();
-  for (int k=0; k<codes.size(); k++) {
+  for (size_t k=0; k<codes.size(); k++) {
     cout << "User " << codes[k].first << " has WHCode of ";
     codes[k].second.print();
     cout << endl;
