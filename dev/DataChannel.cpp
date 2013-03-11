@@ -5,8 +5,11 @@
  *      Author: Danke
  */
 
-#include "debug.h"
+#include <debug.h>
+#include <iostream>
 #include "DataChannel.h"
+
+using namespace std;
 
 DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
 : DeviceBase(channelId)
@@ -48,9 +51,13 @@ void DataChannel::removeRx()
 // Process received data frame
 void DataChannel::onUpdate(void *arg)
 {
-	DataFrame dframe(*(DataFrame *)arg);
-	dout("Data channel " << getDeviceId() << " recv" << endl);
-	dout("[" << dframe << "]" << endl);
+    Receiver &rx(*(Receiver *)arg);
+
+    if (rx.getDataSize() == 0)
+            return;
+
+    cout << "Data channel " << getDeviceId() << " recv ";
+    cout << hex << (int)rx.popData() << dec << endl;
 }
 
 DataChannel::~DataChannel()
