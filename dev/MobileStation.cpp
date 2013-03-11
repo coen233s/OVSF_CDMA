@@ -12,7 +12,7 @@
 
 using namespace std;
 
-MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid)
+MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr, int tickDelay)
 : DeviceBase(name)
 , m_phy(pch)
 , m_txCtrl(name + ".tx")
@@ -22,6 +22,8 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid)
 , m_minRate(RATE_MIN)
 , m_maxRate(RATE_MAX)
 , m_attached(false)
+, m_tr(tr)
+, m_tickDelay(tickDelay)
 {
 	Configuration &conf(Configuration::getInstance());
 	m_txCtrl.setWalshCode(conf.wcCtrl);
@@ -41,10 +43,10 @@ MobileStation::~MobileStation() {
 }
 
 void MobileStation::onTick(int time) {
-	if (!m_attached) {
+	if ((!m_attached) && (time >= m_tickDelay)){
 		m_attached = true;
 		cout << getDeviceId() << ": " << "sending handshake" << endl;
-		m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate);
+		m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
 	}
 }
 

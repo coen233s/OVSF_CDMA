@@ -96,6 +96,7 @@
     <ClCompile Include="..\..\dev\MobileStation.cpp" />
     <ClCompile Include="..\..\dev\protocol\ControlProtocol.cpp" />
     <ClCompile Include="..\..\dev\protocol\ProtocolData.cpp" />
+    <ClCompile Include="..\..\NamedObject.cpp" />
     <ClCompile Include="..\..\ovsf.cpp" />
     <ClCompile Include="..\..\phy\Receiver.cpp" />
     <ClCompile Include="..\..\phy\RxTxBase.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="..\..\dev\MobileStation.h" />
     <ClInclude Include="..\..\dev\protocol\ControlProtocol.h" />
     <ClInclude Include="..\..\dev\protocol\ProtocolData.h" />
+    <ClInclude Include="..\..\NamedObject.h" />
     <ClInclude Include="..\..\ovsf.h" />
     <ClInclude Include="..\..\phy\AbsPhyChannel.h" />
     <ClInclude Include="..\..\phy\Receiver.h" />

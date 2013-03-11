@@ -36,11 +36,11 @@ public:
 	virtual void onUpdate(void *arg);	// arg = &Receiver
 
 	// For clients
-	void sendHandshake(int uid, int rateMin, int rateMax);
+	void sendHandshake(int uid, int rateMin, int rateMax, bool tr);
 	void sendTearDown(int uid);
 
 private:
-	void sendControl(int uid, int rateMin, int rateMax, bool request);
+	void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false);
 };
 
 #endif /* CONTROLPROTOCOL_H_ */

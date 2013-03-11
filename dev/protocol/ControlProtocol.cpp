@@ -76,14 +76,14 @@ void ControlProtocol::onUpdate(void *arg) {
 	}
 }
 
-void ControlProtocol::sendControl(int uid, int rateMin, int rateMax, bool request)
+void ControlProtocol::sendControl(int uid, int rateMin, int rateMax, bool request, bool tr)
 {
 	m_frameOut.magic1 = CF_MAGIC1;
 	m_frameOut.magic2 = CF_MAGIC2;
 	m_frameOut.c2s = 1;
 	m_frameOut.ack = 0;
 	m_frameOut.req = request ? 1 : 0;
-	m_frameOut.tr = 1;
+	m_frameOut.tr = tr ? 1 : 0;
 	m_frameOut.uid = uid;
 
 	RateRequest *pDat = reinterpret_cast<RateRequest *>(&m_frameOut.data);
@@ -98,8 +98,8 @@ void ControlProtocol::sendControl(int uid, int rateMin, int rateMax, bool reques
 		m_tx.pushData(pframe[i]);
 }
 
-void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax) {
-	sendControl(uid, rateMin, rateMax, true);
+void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax, bool tr) {
+	sendControl(uid, rateMin, rateMax, true, tr);
 }
 
 void ControlProtocol::sendTearDown(int uid) {

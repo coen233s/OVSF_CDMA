@@ -26,11 +26,13 @@ private:
 	int m_uid;						// user id
 	int m_minRate;
 	int m_maxRate;
+    bool m_tr;
+    int m_tickDelay;
 
 	bool m_attached;				// ms has attached to bs
 
 public:
-	MobileStation(const string& name, AbsPhyChannel &pch, int uid);
+	MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);
 	virtual ~MobileStation();
 
 	virtual void onTick(int time);

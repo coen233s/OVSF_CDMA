@@ -187,10 +187,10 @@ int main(int argc, char* argv[])
     sim.addObject(&bs);
 
 #if 1
-    MobileStation ms(string("Mobile Station #1"), pch, UID_1);
+    MobileStation ms(string("Mobile Station #2"), pch, UID_1);
     sim.addObject(&ms);
 #if 1
-    MobileStation ms2(string("Mobile Station #2"), pch, UID_2);
+    MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
     sim.addObject(&ms2);
 #endif
 #else // Add user from stdin by test file
