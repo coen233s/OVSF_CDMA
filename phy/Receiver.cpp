@@ -46,7 +46,7 @@ int Receiver::peekData(int idx) {
 }
 
 void Receiver::onTick(int time) {
-	vout(getName() << ": " << time << endl);
+	vout(getName() << ": " << time << " idle: " << m_idleCount << endl);
 
 	size_t i;
 	for (i = 0; i < m_WalshCode.size(); i++) {
@@ -58,6 +58,10 @@ void Receiver::onTick(int time) {
 
 		m_WalshDotProd[i] += m_LastChip *
 				m_WalshCode[i].getChipBit(m_WalshIdx[i]);
+
+		vout(getName() << " lastChip: " << m_LastChip <<
+				" walsh idx: " << (int)m_WalshCode[i].getChipBit(m_WalshIdx[i]) <<
+				" dot prod: " << (int)m_WalshDotProd[i] << endl);
 
 		// Received one bit
 		if (++m_WalshIdx[i] >= codeLen) {

@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <debug.h>
 #include <iostream>
 #include "SimplePhyChannel.h"
 
@@ -48,6 +49,8 @@ void SimplePhyChannel::onTick(int time) {
 	    m_Tx[i]->onTick(time);
 	    chipSum += m_Tx[i]->getChip();
 	}
+
+	vout("time:" << time << " chipSum:" << chipSum << endl);
 
 	// the vector m_Rx may be updated during iteration
 	for (vector<Transmitter *>::size_type i = 0;

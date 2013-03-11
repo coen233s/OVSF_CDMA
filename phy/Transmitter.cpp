@@ -28,10 +28,10 @@ void Transmitter::onTick(int time) {
 			<< " walshlen:" << m_walshCode.length()
 			<< endl);
 
-	if (m_walshCode.length() == 0) {
-		m_nextChip = 0;
+	m_nextChip = 0;
+
+	if (m_walshCode.length() == 0)
 		return;
-	}
 
 	// Sync time to multiple of code length
 	if (m_walshIdx == 0 && time % m_walshCode.length())

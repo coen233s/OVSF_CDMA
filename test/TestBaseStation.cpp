@@ -11,7 +11,8 @@
 
 using namespace std;
 
-#define UID_1	0x01
+// Min UID is 2 (UID 1 is reserved for BaseStation)
+#define UID_1	0x02
 
 int main()
 {
@@ -24,7 +25,7 @@ int main()
     sim.addObject(&ms);
     sim.addObject(&pch);
 
-    const int timeSteps = 5000;
+    const int timeSteps = 50000;
     sim.run(timeSteps);
 
     return 0;
