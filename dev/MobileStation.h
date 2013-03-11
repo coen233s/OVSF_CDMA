@@ -10,6 +10,7 @@
 
 #include <phy/AbsPhyChannel.h>
 #include <sim/SimObject.h>
+#include <dev/DataChannel.h>
 #include "DeviceBase.h"
 #include "protocol/ControlProtocol.h"
 
@@ -30,6 +31,7 @@ private:
     int m_tickDelay;
 
 	bool m_attached;				// ms has attached to bs
+    DataChannel* m_pDataChannel;
 
 public:
 	MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);

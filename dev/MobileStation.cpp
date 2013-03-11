@@ -7,6 +7,7 @@
 
 #include <debug.h>
 #include <iostream>
+#include <sstream>
 #include <Configuration.h>
 #include "MobileStation.h"
 
@@ -21,9 +22,10 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 , m_uid(uid)
 , m_minRate(RATE_MIN)
 , m_maxRate(RATE_MAX)
-, m_attached(false)
 , m_tr(tr)
 , m_tickDelay(tickDelay)
+, m_attached(false)
+, m_pDataChannel(0)
 {
 	Configuration &conf(Configuration::getInstance());
 	m_txCtrl.setWalshCode(conf.wcCtrl);
@@ -40,6 +42,10 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 }
 
 MobileStation::~MobileStation() {
+    if (0 != m_pDataChannel)
+    {
+        delete m_pDataChannel;
+    }
 }
 
 void MobileStation::onTick(int time) {
@@ -52,10 +58,24 @@ void MobileStation::onTick(int time) {
 
 void MobileStation::onUpdate(void *arg)
 {
-	ControlFrame &cframe(*(ControlFrame *)arg);
+    ControlFrame &cframe(*(ControlFrame *)arg);
     if (!cframe.c2s && cframe.uid == m_uid)
     {
-    	cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
-    	// TODO create a Data Channel when receiving Walsh Code
+        cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
+        ostringstream convertId;
+        convertId << getDeviceId() << "." << m_uid;
+        string chanstr = convertId.str();
+        m_pDataChannel = new DataChannel(chanstr, m_phy);
+        WHCode code; // TODO: Construct code from cframe
+        if (m_tr)
+        {
+            m_pDataChannel->setRxWalshCode(code);
+            // TODO: start sending data
+        }
+        else
+        {
+            m_pDataChannel->setTxWalshCode(code);
+            // TODO: start receiving data
+        }
     }
 }
