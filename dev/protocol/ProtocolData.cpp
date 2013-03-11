@@ -29,6 +29,7 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
         {
             os << std::hex << (int)pCa->code[i] << " ";
         }
+        os << std::dec;
     }
     return os;
 }
@@ -41,6 +42,7 @@ ostream& operator<<(ostream& os, struct DataFrame &df)
 	 {
 		 os << std::hex << (int)df.data[i] << " ";
 	 }
+	 os << std::dec;
 
 	 return os;
 }
