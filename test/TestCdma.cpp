@@ -1,6 +1,7 @@
 #include <phy/SimplePhyChannel.h>
 #include <dev/BaseStation.h>
 #include <dev/MobileStation.h>
+#include <dev/protocol/ProtocolData.h>
 #include <sim/Simulator.h>
 #include <stdio.h>
 #include <string.h>
@@ -186,11 +187,15 @@ int main(int argc, char* argv[])
     BaseStation bs(string("BaseStation"), pch);
     sim.addObject(&bs);
 
+    const int testRate = pch.getChipRate() / 8;
+
 #if 1
     MobileStation ms(string("Mobile Station #2"), pch, UID_1);
+    ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
 #if 1
     MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
+    ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
 #endif
 #else // Add user from stdin by test file
