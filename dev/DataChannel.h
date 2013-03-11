@@ -17,37 +17,37 @@
 #include "protocol/ProtocolData.h"
 
 class DataChannel : public DeviceBase,
-					public UpdateListener
+                    public UpdateListener
 {
 public:
-	AbsPhyChannel &m_pch;
-	Transmitter m_tx;
-	Receiver m_rx;
-	bool m_txEnable;
-	bool m_rxEnable;
+    AbsPhyChannel &m_pch;
+    Transmitter m_tx;
+    Receiver m_rx;
+    bool m_txEnable;
+    bool m_rxEnable;
 
-	DataChannel(string &channelId, AbsPhyChannel &pch);
-	~DataChannel();
+    DataChannel(string &channelId, AbsPhyChannel &pch);
+    ~DataChannel();
 
-	// add Tx code
-	void setTxWalshCode(WHCode &code);
+    // add Tx code
+    void setTxWalshCode(WHCode &code);
 
-	// add Rx code
-	void setRxWalshCode(WHCode &code);
+    // add Rx code
+    void setRxWalshCode(WHCode &code);
 
-	// remove Tx code
-	void removeTx();
+    // remove Tx code
+    void removeTx();
 
-	// remove Rx code
-	void removeRx();
+    // remove Rx code
+    void removeRx();
 
-	// check if both tx and rx have been removed
-	bool canFreeChannel() {
-		return !m_txEnable && !m_rxEnable;
-	}
+    // check if both tx and rx have been removed
+    bool canFreeChannel() {
+        return !m_txEnable && !m_rxEnable;
+    }
 
-	// data frame listerner, arg = &DataFrame
-	virtual void onUpdate(void *arg);
+    // data frame listerner, arg = &DataFrame
+    virtual void onUpdate(void *arg);
 };
 
 #endif /* DATACHANNEL_H_ */

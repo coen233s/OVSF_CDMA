@@ -27,31 +27,31 @@ BitOutQueue::~BitOutQueue() {
 
 bool BitOutQueue::hasData()
 {
-	return m_hasDataInByteBuffer || !empty();
+    return m_hasDataInByteBuffer || !empty();
 }
 
 char BitOutQueue::popBit()
 {
-	if (!m_hasDataInByteBuffer) {
-		if (empty()) {
-			throw logic_error("BitOutQueue::popBit: queue empty");
-		} else {
-		    m_hasDataInByteBuffer = true;
-			m_dataByte = front();
-			pop();
-			m_bitMask = 1;
-			dout(getName() << " send: " << hex << showbase <<
-					(int)m_dataByte << dec << endl);
-		}
-	}
+    if (!m_hasDataInByteBuffer) {
+        if (empty()) {
+            throw logic_error("BitOutQueue::popBit: queue empty");
+        } else {
+            m_hasDataInByteBuffer = true;
+            m_dataByte = front();
+            pop();
+            m_bitMask = 1;
+            dout(getName() << " send: " << hex << showbase <<
+                    (int)m_dataByte << dec << endl);
+        }
+    }
 
-	char bitOutput = !!(m_dataByte & m_bitMask);
+    char bitOutput = !!(m_dataByte & m_bitMask);
 
-	// byte boundary
-	if (m_bitMask & 0x80)
-		m_hasDataInByteBuffer = false;
-	else
-		m_bitMask <<= 1;
+    // byte boundary
+    if (m_bitMask & 0x80)
+        m_hasDataInByteBuffer = false;
+    else
+        m_bitMask <<= 1;
 
-	return bitOutput;
+    return bitOutput;
 }

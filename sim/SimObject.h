@@ -11,7 +11,7 @@
 // The base class for all simualted objects
 class SimObject {
 public:
-	virtual void onTick(int time) = 0;
+    virtual void onTick(int time) = 0;
 };
 
 #endif /* SIMOBJECT_H_ */

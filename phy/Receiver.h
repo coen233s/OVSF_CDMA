@@ -19,55 +19,55 @@ using namespace std;
 
 class Receiver : public RxTxBase, UpdateListener {
 private:
-	// Last received chip
-	int m_LastChip;
+    // Last received chip
+    int m_LastChip;
 
-	// Idle count -- channel has been quiet for this number of bits
-	int m_idleCount;
+    // Idle count -- channel has been quiet for this number of bits
+    int m_idleCount;
 
-	// Set of Walsh codes
-	vector<WHCode> m_WalshCode;
+    // Set of Walsh codes
+    vector<WHCode> m_WalshCode;
 
-	// Walsh code index
-	vector<int> m_WalshIdx;
+    // Walsh code index
+    vector<int> m_WalshIdx;
 
-	// Walsh code inner product
-	vector<int> m_WalshDotProd;
+    // Walsh code inner product
+    vector<int> m_WalshDotProd;
 
-	// Data queue
-	BitInQueue m_BitQueue;
+    // Data queue
+    BitInQueue m_BitQueue;
 
-	// Update listener
-	UpdateListener *m_updateListener;
+    // Update listener
+    UpdateListener *m_updateListener;
 
 public:
-	Receiver(const string name, UpdateListener *updateListener = 0);
-	virtual ~Receiver();
-	virtual void onTick(int time);
+    Receiver(const string name, UpdateListener *updateListener = 0);
+    virtual ~Receiver();
+    virtual void onTick(int time);
 
-	void setWalshCode(vector<WHCode> newCodes);
+    void setWalshCode(vector<WHCode> newCodes);
 
-	void clearWalshCode() {
-		m_WalshCode.clear();
-	}
+    void clearWalshCode() {
+        m_WalshCode.clear();
+    }
 
-	// Called before onTick(). Sets the chip value.
-	// Chip value can be negative, 0, or positive
-	void setChip(int chip) {
-		m_LastChip = chip;
-	}
+    // Called before onTick(). Sets the chip value.
+    // Chip value can be negative, 0, or positive
+    void setChip(int chip) {
+        m_LastChip = chip;
+    }
 
-	bool hasData() {
-	    return !m_BitQueue.empty();
-	}
+    bool hasData() {
+        return !m_BitQueue.empty();
+    }
 
     int getDataSize() {
-    	return m_BitQueue.size();
+        return m_BitQueue.size();
     }
 
     // Gets the number of bits for which the channel is quiet
     int getIdleCount() {
-    	return m_idleCount;
+        return m_idleCount;
     }
 
     unsigned char popData();

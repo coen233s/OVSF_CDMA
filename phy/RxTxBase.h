@@ -15,11 +15,11 @@ using namespace std;
 
 class RxTxBase : public NamedObject {
 public:
-	RxTxBase(const string &name);
-	virtual ~RxTxBase();
+    RxTxBase(const string &name);
+    virtual ~RxTxBase();
 
-	// Simulate one time step (one chip period).
-	void onTick();
+    // Simulate one time step (one chip period).
+    void onTick();
 };
 
 #endif /* RXTXBASE_H_ */

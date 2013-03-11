@@ -17,7 +17,7 @@ Read a line from stdin
 char getLine(char* line, int size)
 {
     char* p = line;
-    
+
     while (((line - p) < size - 1) &&('\n' != (*line = getchar())))
     {
         if (EOF == *line)
@@ -25,10 +25,10 @@ char getLine(char* line, int size)
             *line = '\0';
             return EOF;
         }
-        
+
         line++;
     }
-    
+
     *(++line) = '\0';
 
     return 1;
@@ -66,7 +66,7 @@ char* trimSpace(char* line)
             break;
         }
     }
-    
+
     return line;
 }
 
@@ -168,7 +168,7 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
             {
                 state = PARSE_TICK_DELAY;
                 string name = "Mobile Station #";
-                
+
                 MobileStation ms(string("Mobile Station #1"), pch, uid);
                 ms.setRateRange(dataRate, dataRate);
                 sim.addObject(&ms);

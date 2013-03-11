@@ -27,18 +27,18 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 , m_attached(false)
 , m_pDataChannel(0)
 {
-	Configuration &conf(Configuration::getInstance());
-	m_txCtrl.setWalshCode(conf.wcCtrl);
+    Configuration &conf(Configuration::getInstance());
+    m_txCtrl.setWalshCode(conf.wcCtrl);
 
-	vector<WHCode> ctrlCodeSet;
-	ctrlCodeSet.push_back(conf.wcCtrl);
-	m_rxCtrl.setWalshCode(ctrlCodeSet);
+    vector<WHCode> ctrlCodeSet;
+    ctrlCodeSet.push_back(conf.wcCtrl);
+    m_rxCtrl.setWalshCode(ctrlCodeSet);
 
-	m_phy.attachReceiver(&m_rxCtrl);
-	m_phy.attachTransmitter(&m_txCtrl);
+    m_phy.attachReceiver(&m_rxCtrl);
+    m_phy.attachTransmitter(&m_txCtrl);
 
-	// priority = uid
-	m_txCtrl.setCSMA(&m_rxCtrl, m_uid);
+    // priority = uid
+    m_txCtrl.setCSMA(&m_rxCtrl, m_uid);
 }
 
 MobileStation::~MobileStation() {
@@ -50,11 +50,11 @@ MobileStation::~MobileStation() {
 }
 
 void MobileStation::onTick(int time) {
-	if ((!m_attached) && (time >= m_tickDelay)){
-		m_attached = true;
-		cout << getDeviceId() << ": " << "sending handshake" << endl;
-		m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
-	}
+    if ((!m_attached) && (time >= m_tickDelay)){
+        m_attached = true;
+        cout << getDeviceId() << ": " << "sending handshake" << endl;
+        m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
+    }
 
     if (0 != m_pDataChannel) 
     {
@@ -89,25 +89,25 @@ void MobileStation::onUpdate(void *arg)
         }
 
 
-	CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
-	std::string byteArray = "";
-	for (uint32_t i = 0; i < pCa->length; ++i)
+        CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
+        std::string byteArray = "";
+        for (uint32_t i = 0; i < pCa->length; ++i)
         {
-	  byteArray += ((char)pCa->code[i]);
+            byteArray += ((char)pCa->code[i]);
         }
-	WHCode code(byteArray);
-	cout << getDeviceId() << ": got walshcode (len " << code.length() << "): ";
-	code.print();
-	cout << endl;
+        WHCode code(byteArray);
+        cout << getDeviceId() << ": got walshcode (len " << code.length() << "): ";
+        code.print();
+        cout << endl;
 
         if (m_tr)
         {
-	  m_pDataChannel->setTxWalshCode(code);
+            m_pDataChannel->setTxWalshCode(code);
             // TODO: start sending data
         }
         else
         {
-	  m_pDataChannel->setRxWalshCode(code);
+            m_pDataChannel->setRxWalshCode(code);
             // TODO: start receiving data
         }
     }

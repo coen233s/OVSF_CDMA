@@ -18,30 +18,30 @@ using namespace std;
 
 class SimplePhyChannel : public AbsPhyChannel {
 private:
-	int m_chipRate;
-	vector<Transmitter *> m_Tx;
-	vector<Receiver *> m_Rx;
+    int m_chipRate;
+    vector<Transmitter *> m_Tx;
+    vector<Receiver *> m_Rx;
 public:
-	SimplePhyChannel(int chipRate = DEFAULT_CHIPRATE);
-	virtual ~SimplePhyChannel();
+    SimplePhyChannel(int chipRate = DEFAULT_CHIPRATE);
+    virtual ~SimplePhyChannel();
 
-	virtual int getChipRate() {
-		return m_chipRate;
-	}
+    virtual int getChipRate() {
+        return m_chipRate;
+    }
 
-	// Attach a receiver to the physical channel, so it can get the signal
-	// from the air medium.
-	virtual void attachReceiver(Receiver *rx);
+    // Attach a receiver to the physical channel, so it can get the signal
+    // from the air medium.
+    virtual void attachReceiver(Receiver *rx);
 
-	// Attach a receiver to the physical channel, so it can send signal
-	// to the air medium.
-	virtual void attachTransmitter(Transmitter *tx);
+    // Attach a receiver to the physical channel, so it can send signal
+    // to the air medium.
+    virtual void attachTransmitter(Transmitter *tx);
 
-	virtual void detachReceiver(Receiver *rx);
-	virtual void detachTransmitter(Transmitter *tx);
+    virtual void detachReceiver(Receiver *rx);
+    virtual void detachTransmitter(Transmitter *tx);
 
-	// Simulate one time step (in chips)
-	virtual void onTick(int time);
+    // Simulate one time step (in chips)
+    virtual void onTick(int time);
 };
 
 #endif /* SIMPLEPHYCHANNEL_H_ */

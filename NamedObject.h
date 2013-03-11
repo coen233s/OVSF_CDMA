@@ -14,14 +14,14 @@ using namespace std;
 
 class NamedObject {
 private:
-	string m_name;
+    string m_name;
 public:
-	NamedObject(const string &name);
-	virtual ~NamedObject();
+    NamedObject(const string &name);
+    virtual ~NamedObject();
 
-	string &getName() {
-		return m_name;
-	}
+    string &getName() {
+        return m_name;
+    }
 };
 
 #endif /* NAMEDOBJECT_H_ */

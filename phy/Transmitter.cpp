@@ -24,35 +24,35 @@ Transmitter::~Transmitter() {
 }
 
 void Transmitter::onTick(int time) {
-	vout(getName() << ": time:" << time << " idx:" << m_walshIdx
-			<< " walshlen:" << m_walshCode.length()
-			<< endl);
+    vout(getName() << ": time:" << time << " idx:" << m_walshIdx
+            << " walshlen:" << m_walshCode.length()
+            << endl);
 
-	m_nextChip = 0;
+    m_nextChip = 0;
 
-	if (m_walshCode.length() == 0)
-		return;
+    if (m_walshCode.length() == 0)
+        return;
 
-	// Sync time to multiple of code length
-	if (m_walshIdx == 0 && time % m_walshCode.length())
-		return;
+    // Sync time to multiple of code length
+    if (m_walshIdx == 0 && time % m_walshCode.length())
+        return;
 
-	// Collision detection (check if channel is busy)
-	if (m_pCoupledReceiver) {
-		if (m_pCoupledReceiver->getIdleCount() < m_CSMADelay)
-			return;
-	}
+    // Collision detection (check if channel is busy)
+    if (m_pCoupledReceiver) {
+        if (m_pCoupledReceiver->getIdleCount() < m_CSMADelay)
+            return;
+    }
 
-	char walshChip = m_walshCode.getChipBit(m_walshIdx);
+    char walshChip = m_walshCode.getChipBit(m_walshIdx);
 
-	if (m_walshIdx == 0) {
-	    m_currentBit = m_BitQueue.hasData() ?
-	            (2 * m_BitQueue.popBit() - 1) : 0;
-	}
+    if (m_walshIdx == 0) {
+        m_currentBit = m_BitQueue.hasData() ?
+                (2 * m_BitQueue.popBit() - 1) : 0;
+    }
 
-	m_nextChip = m_currentBit * walshChip;
+    m_nextChip = m_currentBit * walshChip;
 
-	if (++m_walshIdx >= m_walshCode.length()) {
-		m_walshIdx = 0;
-	}
+    if (++m_walshIdx >= m_walshCode.length()) {
+        m_walshIdx = 0;
+    }
 }

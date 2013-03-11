@@ -14,13 +14,13 @@ using namespace std;
 ostream& operator<<(ostream& os, struct ControlFrame &cf)
 {
     os << "c2s:" << (int)cf.c2s << " tr:" << (int)cf.tr
-        << " ack:" << (int)cf.ack << " uid:" << (int)cf.uid
-        << " size:" << (int)cf.data_size;
+       << " ack:" << (int)cf.ack << " uid:" << (int)cf.uid
+       << " size:" << (int)cf.data_size;
 
     if (cf.c2s) {
         RateRequest *pReq = reinterpret_cast<RateRequest *>(&cf.data);
         os << " min_rate:" << (int)pReq->min_rate
-            << " max_rate:" << (int)pReq->max_rate;
+           << " max_rate:" << (int)pReq->max_rate;
     } else {
         CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cf.data);
 
@@ -36,13 +36,13 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
 
 ostream& operator<<(ostream& os, struct DataFrame &df)
 {
-	 os << "len:" << df.length;
+    os << "len:" << df.length;
 
-	 for (int i = 0; i < df.length; i++)
-	 {
-		 os << std::hex << (int)df.data[i] << " ";
-	 }
-	 os << std::dec;
+    for (int i = 0; i < df.length; i++)
+    {
+        os << std::hex << (int)df.data[i] << " ";
+    }
+    os << std::dec;
 
-	 return os;
+    return os;
 }

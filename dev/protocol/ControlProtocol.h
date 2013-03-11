@@ -16,31 +16,31 @@
 
 class ControlProtocol : public UpdateListener {
 private:
-	enum State {
-		WAIT_FOR_MAGIC1,
-		WAIT_FOR_MAGIC2,
-		WAIT_FOR_FRAME,
-		WAIT_FOR_DATA,
-	};
-	Transmitter &m_tx;
-	UpdateListener *m_frameListener;
-	enum State m_state;
-	struct ControlFrame m_frameIn;
-	struct ControlFrame m_frameOut;
-	int m_dataCnt;
+    enum State {
+        WAIT_FOR_MAGIC1,
+        WAIT_FOR_MAGIC2,
+        WAIT_FOR_FRAME,
+        WAIT_FOR_DATA,
+    };
+    Transmitter &m_tx;
+    UpdateListener *m_frameListener;
+    enum State m_state;
+    struct ControlFrame m_frameIn;
+    struct ControlFrame m_frameOut;
+    int m_dataCnt;
 public:
-	ControlProtocol(Transmitter &tx, UpdateListener *frameListener = 0);
-	virtual ~ControlProtocol();
+    ControlProtocol(Transmitter &tx, UpdateListener *frameListener = 0);
+    virtual ~ControlProtocol();
 
-	// Invoked by Receiver when new data is available
-	virtual void onUpdate(void *arg);	// arg = &Receiver
+    // Invoked by Receiver when new data is available
+    virtual void onUpdate(void *arg);	// arg = &Receiver
 
-	// For clients
-	void sendHandshake(int uid, int rateMin, int rateMax, bool tr);
-	void sendTearDown(int uid);
+    // For clients
+    void sendHandshake(int uid, int rateMin, int rateMax, bool tr);
+    void sendTearDown(int uid);
 
 private:
-	void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false);
+    void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false);
 };
 
 #endif /* CONTROLPROTOCOL_H_ */
