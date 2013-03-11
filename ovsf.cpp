@@ -28,6 +28,22 @@ void WHCode::print() const
   }
 }
 
+WHCode::WHCode(const std::string byteArray)
+{
+  std::string::const_reverse_iterator rit;
+  for (rit=byteArray.rbegin(); rit!=byteArray.rend(); ++rit) {
+    int v = *rit;
+    for (int i=0; i<8; i++) {
+      if (v % 2)
+	bits.push_back(1);
+      else
+	bits.push_back(-1);
+      v = v >> 1;
+    }
+  }
+  reverse(bits.begin(),bits.end());
+}
+
 WHCode::WHCode(const WHCode& base, std::vector<int> pattern)
 {
   WHCode negCode = base;

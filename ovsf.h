@@ -24,6 +24,7 @@ class WHCode
 {
 public:
   WHCode();
+  WHCode(const std::string byteArray);
   WHCode(const WHCode& base, std::vector<int> pattern);
   WHCode(const std::vector<int> initBits);
   WHCode(const WHCode& other);

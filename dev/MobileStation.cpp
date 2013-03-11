@@ -66,15 +66,24 @@ void MobileStation::onUpdate(void *arg)
         convertId << getDeviceId() << "." << m_uid;
         string chanstr = convertId.str();
         m_pDataChannel = new DataChannel(chanstr, m_phy);
-        WHCode code; // TODO: Construct code from cframe
+        
+
+	CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
+	std::string byteArray = "";
+	for (uint32_t i = 0; i < pCa->length; ++i)
+        {
+	  byteArray += ((char)pCa->code[i]);
+        }
+	WHCode code(byteArray);
+
         if (m_tr)
         {
-            m_pDataChannel->setRxWalshCode(code);
+	  m_pDataChannel->setRxWalshCode(code);
             // TODO: start sending data
         }
         else
         {
-            m_pDataChannel->setTxWalshCode(code);
+	  m_pDataChannel->setTxWalshCode(code);
             // TODO: start receiving data
         }
     }
