@@ -87,7 +87,7 @@ void MobileStation::onUpdate(void *arg)
         {
             m_pDataChannel = new DataChannel(chanstr, m_phy);
         }
-        
+
 
 	CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
 	std::string byteArray = "";
@@ -96,15 +96,18 @@ void MobileStation::onUpdate(void *arg)
 	  byteArray += ((char)pCa->code[i]);
         }
 	WHCode code(byteArray);
+	cout << getDeviceId() << ": got walshcode (len " << code.length() << "): ";
+	code.print();
+	cout << endl;
 
         if (m_tr)
         {
-	  m_pDataChannel->setRxWalshCode(code);
+	  m_pDataChannel->setTxWalshCode(code);
             // TODO: start sending data
         }
         else
         {
-	  m_pDataChannel->setTxWalshCode(code);
+	  m_pDataChannel->setRxWalshCode(code);
             // TODO: start receiving data
         }
     }
