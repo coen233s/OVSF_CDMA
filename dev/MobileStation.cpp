@@ -45,6 +45,7 @@ MobileStation::~MobileStation() {
     if (0 != m_pDataChannel)
     {
         delete m_pDataChannel;
+        m_pDataChannel = 0;
     }
 }
 
@@ -54,6 +55,23 @@ void MobileStation::onTick(int time) {
 		cout << getDeviceId() << ": " << "sending handshake" << endl;
 		m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
 	}
+
+    if (0 != m_pDataChannel) 
+    {
+        if (m_tr) // Transmit
+        {
+            static char msg[] = "hello";
+            static int i = 0;
+            if (i < sizeof(msg) - 1)
+            {
+                cout << getDeviceId() << ": " << "sending data" << endl;
+                m_pDataChannel->m_tx.pushData(msg[i++]);
+            }
+        }
+        else // Receive
+        {
+        }
+    }
 }
 
 void MobileStation::onUpdate(void *arg)
@@ -65,7 +83,10 @@ void MobileStation::onUpdate(void *arg)
         ostringstream convertId;
         convertId << getDeviceId() << "." << m_uid;
         string chanstr = convertId.str();
-        m_pDataChannel = new DataChannel(chanstr, m_phy);
+        if (0 == m_pDataChannel)
+        {
+            m_pDataChannel = new DataChannel(chanstr, m_phy);
+        }
         
 
 	CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
