@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <algorithm>
 #include "Simulator.h"
 
 Simulator::Simulator() {
