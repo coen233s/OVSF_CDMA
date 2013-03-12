@@ -21,13 +21,6 @@ using namespace std;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-void WHCode::print() const 
-{
-  for (size_t k=0; k<bits.size(); k++) {
-    cout << bits[k] << " ";
-  }
-}
-
 WHCode::WHCode(const std::string byteArray)
 {
   std::string::const_reverse_iterator rit;
@@ -223,6 +216,21 @@ std::string WHCode::toHexString() const
     return (bits[0] > 0)? "8" : "0";
   }
   return "0";
+}
+
+void WHCode::print() const 
+{
+  for (size_t k=0; k<bits.size(); k++) {
+    cout << bits[k] << " ";
+  }
+}
+
+std::ostream& operator<<(std::ostream& os, const WHCode& wc)
+{
+  for (size_t k=0; k<wc.bits.size(); k++) {
+    os << wc.bits[k] << " ";
+  }
+  return os;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -421,40 +429,6 @@ int OVSFTree::convertToNodeId(int level, int id) const
    return (1 << level) + id;
 }
 
-void OVSFTree::print() const
-{
-  int maxNode = codeCount();
-  queue<int> q;
-  q.push(1);
-  while (!q.empty()) {
-    int nodeId = q.front();
-    q.pop();
-    if (nodeId > maxNode)
-      continue;
-    
-    q.push(nodeId*2);
-    q.push(nodeId*2+1);
-
-    cout << "NodeId:" << nodeId 
-	 << ",Level=" << log2(nodeId)
-	 << ",WH = "  ;
-    nodes[nodeId].getWHCode().print();
-    
-    cout << "Block(";
-    for (size_t k=0; k<nodes[nodeId].blockNodeId.size(); k++) {
-      cout << nodes[nodeId].blockNodeId[k] << ",";
-    }
-    if(nodes[nodeId].blockNodeId.empty()) {
-      cout << "0";
-    }
-    cout << ")UserId(" << nodes[nodeId].getUserId() << ")";
-    cout << endl;
-  }
-  cout << "FreeCode = " << freeCodeCount() << endl;
-  cout << "UsedCode = " << usedCodeCount() << endl;
-  cout << "BlkCode  = " << blockCodeCount() << endl;
-}
-
 int OVSFTree::codeCount() const
 {
   return nodes.size() - 1;
@@ -623,6 +597,44 @@ std::vector<std::pair<int,WHCode> > OVSFTree::listUsedCode() const
 unsigned int OVSFTree::getTreeLevel() const
 {
   return log2(codeCount() - 1);
+}
+
+void OVSFTree::print() const
+{
+  cout << *this;
+}
+
+std::ostream& operator<<(std::ostream& os, const OVSFTree& t)
+{
+  int maxNode = t.codeCount();
+  queue<int> q;
+  q.push(1);
+  while (!q.empty()) {
+    int nodeId = q.front();
+    q.pop();
+    if (nodeId > maxNode)
+      continue;
+    
+    q.push(nodeId*2);
+    q.push(nodeId*2+1);
+
+    os << "NodeId:" << nodeId 
+       << ",Level=" << Math_Log2(nodeId)
+       << ",WH = "  << t.nodes[nodeId].getWHCode();
+
+    os << "Block(";
+    for (size_t k=0; k<t.nodes[nodeId].blockNodeId.size(); k++) {
+      os << t.nodes[nodeId].blockNodeId[k] << ",";
+    }
+    if(t.nodes[nodeId].blockNodeId.empty()) {
+      os << "0";
+    }
+    os << ")UserId(" << t.nodes[nodeId].getUserId() << ")" << endl;
+  }
+  os << "FreeCode = " << t.freeCodeCount() << endl;
+  os << "UsedCode = " << t.usedCodeCount() << endl;
+  os << "BlkCode  = " << t.blockCodeCount() << endl;
+  return os;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -17,12 +17,15 @@
 #include <map>
 #include <algorithm>
 #include <string>
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class WHCode
 {
 public:
+  friend std::ostream& operator<<(std::ostream& os, const WHCode& wc);
+
   WHCode();
   WHCode(const std::string byteArray);
   WHCode(const WHCode& base, std::vector<int> pattern);
@@ -50,11 +53,15 @@ protected:
   std::vector<int> bits;
 };
 
+std::ostream& operator<<(std::ostream& os, const WHCode& wc);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class OVSFTree
 {
 public:
+  friend std::ostream& operator<<(std::ostream& os, const OVSFTree& tree);
+
   class NodeInfo {
   public:
     NodeInfo(const WHCode& wh_code, int id);
@@ -129,6 +136,8 @@ public:
   // data
   std::vector<NodeInfo> nodes;
 };
+
+std::ostream& operator<<(std::ostream& os, const OVSFTree& tree);
 
 ///////////////////////////////////////////////////////////////////////////////
 

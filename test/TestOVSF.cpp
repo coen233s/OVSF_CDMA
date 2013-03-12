@@ -63,7 +63,8 @@ void test_multiple_assignment()
     // the new user 400 also want a code len of 4. This is possible.
     std::pair<bool,WHCode> r = asg.assignUserId(400,4);
     assert(r.first);
-    cout << "user(400) has code of " << r.second.toHexString().c_str() << endl;
+    cout << "user(400) has code of " << r.second << endl;
+    //cout << "user(400) has code of " << r.second.toHexString().c_str() << endl;
 
     // another new guys want a code of length 4. Is this possible?
     cout << "current capacity is " << asg.calcCurrentCapacity() << endl;
