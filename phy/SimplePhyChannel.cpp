@@ -50,7 +50,15 @@ void SimplePhyChannel::onTick(int time) {
         chipSum += m_Tx[i]->getChip();
     }
 
-    vout("time:" << time << " chipSum:" << chipSum << endl);
+#ifdef VERBOSE
+    vout("time:" << time << "[ ");
+
+    for (vector<Transmitter *>::size_type i = 0;
+                i < m_Tx.size(); ++i) {
+        vout(m_Tx[i]->getName() << ":" << m_Tx[i]->getChip() << " ");
+    }
+    vout("]" << " chipSum:" << chipSum << endl);
+#endif
 
     // the vector m_Rx may be updated during iteration
     for (vector<Transmitter *>::size_type i = 0;

@@ -194,7 +194,6 @@ int main(int argc, char* argv[])
     MobileStation ms(string("Mobile Station #2"), pch, UID_1);
     sim.addObject(&ms);
     MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
-    ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
 
 #if !TEST_CODE_RANGE
@@ -208,7 +207,7 @@ int main(int argc, char* argv[])
 #endif
     sim.addObject(&pch);
 
-    const int timeSteps = 100000;
+    const int timeSteps = 500000;
     sim.run(timeSteps);
 
     return 0;

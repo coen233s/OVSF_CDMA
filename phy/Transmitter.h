@@ -22,6 +22,7 @@ private:
     int m_walshIdx;
     char m_nextChip;
     char m_currentBit; // -1, 0, +1
+    bool m_isTransmitting;
 
     // Data queue
     BitOutQueue m_BitQueue;

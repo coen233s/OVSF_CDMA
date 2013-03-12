@@ -118,7 +118,10 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
 
 int BaseStation::rateToCodeLength(int dataRate)
 {
-    return m_phy.getChipRate() / dataRate;
+    int len = m_phy.getChipRate() / dataRate;
+    if (len < 4)
+        len = 4;
+    return len;
 }
 
 void BaseStation::addChannel(int uid, int tr, const WHCode &code)
