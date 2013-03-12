@@ -16,7 +16,7 @@
 
 using namespace std;
 
-const int BaseStation::CTRL_USERID = 100;
+const int BaseStation::CTRL_USERID = 1;
 const int BaseStation::CTRL_CODELEN = 16; // 16-bit fixed-Walshcode
 
 BaseStation::BaseStation(const string& name, AbsPhyChannel &pch)
@@ -109,7 +109,7 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
 
 int BaseStation::rateToCodeLength(int dataRate)
 {
-	return m_phy.getChipRate() / dataRate;
+  return m_phy.getChipRate() / dataRate;
 }
 
 void BaseStation::addChannel(int uid, int tr, WHCode &code)
