@@ -58,6 +58,10 @@ public:
         m_BitQueue.push(ch);
     }
 
+    bool hasPendingData() {
+        return m_BitQueue.hasData();
+    }
+
     void setCSMA(Receiver *pCoupledRx, int delay) {
         m_pCoupledReceiver = pCoupledRx;
         m_CSMADelay = delay;

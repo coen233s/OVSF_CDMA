@@ -29,6 +29,10 @@ public:
     virtual ~BitInQueue();
 
     void pushBit(char bit);
+
+    bool hasData() {
+        return size() || m_bitMask != 1;
+    }
 };
 
 #endif /* BITINQUEUE_H_ */

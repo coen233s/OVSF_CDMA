@@ -25,6 +25,7 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 , m_tr(tr)
 , m_tickDelay(tickDelay)
 , m_attached(false)
+, m_terminated(false)
 , m_pDataChannel(0)
 {
     Configuration &conf(Configuration::getInstance());
@@ -56,7 +57,7 @@ void MobileStation::onTick(int time) {
         m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
     }
 
-    if (0 != m_pDataChannel) 
+    if (0 != m_pDataChannel)
     {
         if (m_tr) // Transmit
         {
@@ -120,4 +121,10 @@ void MobileStation::onUpdate(void *arg)
             // TODO: start receiving data
         }
     }
+}
+
+void MobileStation::terminate()
+{
+    cout << getDeviceId() << ": Terminating..." << endl;
+    m_protCtrl.sendTearDown(m_uid, m_tr);
 }

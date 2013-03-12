@@ -33,7 +33,7 @@ public:
     virtual void onTick(int time);
 
     // Run until shouldStop() returns true
-    virtual void run(bool (*shouldStop)());
+    virtual void run(bool (*shouldStop)(int time, void *arg), void *arg);
 
     // Run for timeMax time steps
     virtual void run(int timeMax);

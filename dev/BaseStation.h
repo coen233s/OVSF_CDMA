@@ -58,6 +58,10 @@ public:
 
     virtual void onTick(int time) {}
 
+    int getDataConnections() {
+        return m_dataChannel.size();
+    }
+
 protected:
     std::vector<std::pair<int,WHCode> > assignAvgCodeLength(int newUserId);
     void transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut);

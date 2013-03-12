@@ -35,9 +35,9 @@ void Simulator::onTick(int time) {
 }
 
 // Run until shouldStop() returns true
-void Simulator::run(bool (*shouldStop)()) {
+void Simulator::run(bool (*shouldStop)(int time, void *arg), void *arg) {
     m_time = 0;
-    while (!shouldStop()) {
+    while (!shouldStop(m_time, arg)) {
         onTick(m_time);
         m_time++;
     }

@@ -18,7 +18,7 @@ class MobileStation : public DeviceBase,
                       public UpdateListener,
                       public SimObject
 {
-private:
+protected:
     AbsPhyChannel &m_phy;			// physical medium
     Transmitter m_txCtrl;			// control channel transmitter
     ControlProtocol m_protCtrl;		// control protocol processor
@@ -31,6 +31,7 @@ private:
     int m_tickDelay;
 
     bool m_attached;				// ms has attached to bs
+    bool m_terminated;
     DataChannel* m_pDataChannel;
 
 public:
@@ -39,6 +40,8 @@ public:
 
     virtual void onTick(int time);
     virtual void onUpdate(void *arg);
+
+    void terminate();
 
     void setRateRange(int minRate, int maxRate) {
         m_minRate = minRate;
