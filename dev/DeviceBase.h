@@ -15,12 +15,12 @@ using namespace std;
 
 class DeviceBase : public NamedObject {
 public:
-	DeviceBase(const string &deviceId);
-	virtual ~DeviceBase();
+    DeviceBase(const string &deviceId);
+    virtual ~DeviceBase();
 
-	string &getDeviceId() {
-		return getName();
-	}
+    string &getDeviceId() {
+        return getName();
+    }
 };
 
 #endif /* DEVICEBASE_H_ */

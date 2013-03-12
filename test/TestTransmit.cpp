@@ -18,7 +18,7 @@ using namespace std;
 
 int main()
 {
-	Simulator sim;
+    Simulator sim;
 
     string txName("tx");
     string rxName("rx");

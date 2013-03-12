@@ -14,20 +14,20 @@
 using namespace std;
 
 class BitOutQueue : public queue<unsigned char>,
-					public NamedObject
+                    public NamedObject
 {
 private:
-	bool m_hasDataInByteBuffer;
-	unsigned char m_bitMask;
-	unsigned char m_dataByte;
+    bool m_hasDataInByteBuffer;
+    unsigned char m_bitMask;
+    unsigned char m_dataByte;
 
 public:
-	BitOutQueue(const string &name);
-	virtual ~BitOutQueue();
+    BitOutQueue(const string &name);
+    virtual ~BitOutQueue();
 
-	bool hasData();
-	// returns 0 or 1
-	char popBit();
+    bool hasData();
+    // returns 0 or 1
+    char popBit();
 };
 
 #endif /* BITOUTQUEUE_H_ */

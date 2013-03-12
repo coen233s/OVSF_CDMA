@@ -5,8 +5,11 @@
  *      Author: Danke
  */
 
-#include "debug.h"
+#include <debug.h>
+#include <iostream>
 #include "DataChannel.h"
+
+using namespace std;
 
 DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
 : DeviceBase(channelId)
@@ -14,47 +17,51 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
 , m_tx(channelId + string(".tx"))
 , m_rx(channelId + string(".rx"), this)
 {
-	pch.attachReceiver(&m_rx);
-	pch.attachTransmitter(&m_tx);
+    pch.attachReceiver(&m_rx);
+    pch.attachTransmitter(&m_tx);
 }
 
 void DataChannel::setTxWalshCode(WHCode &code)
 {
-	m_tx.setWalshCode(code);
-	m_txEnable = true;
+    m_tx.setWalshCode(code);
+    m_txEnable = true;
 }
 
 void DataChannel::setRxWalshCode(WHCode &code)
 {
-	// WHCode is passed by value
-	vector<WHCode> codeSet;
-	codeSet.push_back(code);
-	m_rx.setWalshCode(codeSet);
-	m_rxEnable = true;
+    // WHCode is passed by value
+    vector<WHCode> codeSet;
+    codeSet.push_back(code);
+    m_rx.setWalshCode(codeSet);
+    m_rxEnable = true;
 }
 
 void DataChannel::removeTx()
 {
-	m_tx.clearWalshCode();
-	m_txEnable = false;
+    m_tx.clearWalshCode();
+    m_txEnable = false;
 }
 
 void DataChannel::removeRx()
 {
-	m_rx.clearWalshCode();
-	m_rxEnable = false;
+    m_rx.clearWalshCode();
+    m_rxEnable = false;
 }
 
 // Process received data frame
 void DataChannel::onUpdate(void *arg)
 {
-	DataFrame dframe(*(DataFrame *)arg);
-	dout("Data channel " << getDeviceId() << " recv" << endl);
-	dout("[" << dframe << "]" << endl);
+    Receiver &rx(*(Receiver *)arg);
+
+    if (rx.getDataSize() == 0)
+        return;
+
+    cout << "Data channel " << getDeviceId() << " recv ";
+    cout << hex << (int)rx.popData() << dec << endl;
 }
 
 DataChannel::~DataChannel()
 {
-	m_pch.detachReceiver(&m_rx);
-	m_pch.detachTransmitter(&m_tx);
+    m_pch.detachReceiver(&m_rx);
+    m_pch.detachTransmitter(&m_tx);
 }

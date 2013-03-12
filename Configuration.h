@@ -14,15 +14,15 @@ using namespace std;
 
 class Configuration {
 private:
-	Configuration();
+    Configuration();
 public:
-	WHCode wcCtrl;
-	static Configuration& getInstance() {
-		static Configuration inst;
-		return inst;
-	}
+    WHCode wcCtrl;
+    static Configuration& getInstance() {
+        static Configuration inst;
+        return inst;
+    }
 
-	void setControlChannelCode(const WHCode& code);
+    void setControlChannelCode(const WHCode& code);
 };
 
 #endif /* CONFIGURATION_H_ */

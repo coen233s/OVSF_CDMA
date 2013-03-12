@@ -1,6 +1,7 @@
 #include <phy/SimplePhyChannel.h>
 #include <dev/BaseStation.h>
 #include <dev/MobileStation.h>
+#include <dev/protocol/ProtocolData.h>
 #include <sim/Simulator.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,7 +17,7 @@ Read a line from stdin
 char getLine(char* line, int size)
 {
     char* p = line;
-    
+
     while (((line - p) < size - 1) &&('\n' != (*line = getchar())))
     {
         if (EOF == *line)
@@ -24,10 +25,10 @@ char getLine(char* line, int size)
             *line = '\0';
             return EOF;
         }
-        
+
         line++;
     }
-    
+
     *(++line) = '\0';
 
     return 1;
@@ -65,7 +66,7 @@ char* trimSpace(char* line)
             break;
         }
     }
-    
+
     return line;
 }
 
@@ -167,7 +168,7 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
             {
                 state = PARSE_TICK_DELAY;
                 string name = "Mobile Station #";
-                
+
                 MobileStation ms(string("Mobile Station #1"), pch, uid);
                 ms.setRateRange(dataRate, dataRate);
                 sim.addObject(&ms);
@@ -186,11 +187,15 @@ int main(int argc, char* argv[])
     BaseStation bs(string("BaseStation"), pch);
     sim.addObject(&bs);
 
+    const int testRate = pch.getChipRate() / 8;
+
 #if 1
     MobileStation ms(string("Mobile Station #2"), pch, UID_1);
+    ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
 #if 1
     MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
+    ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
 #endif
 #else // Add user from stdin by test file

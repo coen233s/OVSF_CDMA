@@ -16,8 +16,8 @@ Configuration::Configuration() {
 
 void Configuration::setControlChannelCode(const WHCode& code)
 {
-  wcCtrl = code;
-  cout << "setChannelCode: ";
-  wcCtrl.print();
-  cout << endl;
+    wcCtrl = code;
+    cout << "setChannelCode: ";
+    wcCtrl.print();
+    cout << endl;
 }

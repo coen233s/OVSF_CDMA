@@ -17,18 +17,18 @@
 using namespace std;
 
 class BitInQueue: public deque<unsigned char>,
-				  public NamedObject
+                  public NamedObject
 {
 private:
-	UpdateListener *m_updateListener;
-	unsigned char m_bitMask;
-	unsigned char m_dataByte;
+    UpdateListener *m_updateListener;
+    unsigned char m_bitMask;
+    unsigned char m_dataByte;
 
 public:
-	BitInQueue(const string &name, UpdateListener *updateListener = 0);
-	virtual ~BitInQueue();
+    BitInQueue(const string &name, UpdateListener *updateListener = 0);
+    virtual ~BitInQueue();
 
-	void pushBit(char bit);
+    void pushBit(char bit);
 };
 
 #endif /* BITINQUEUE_H_ */

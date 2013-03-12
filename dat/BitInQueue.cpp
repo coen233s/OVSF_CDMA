@@ -23,21 +23,21 @@ BitInQueue::~BitInQueue() {
 }
 
 void BitInQueue::pushBit(char bit) {
-	if (bit)
-		m_dataByte |= m_bitMask;
+    if (bit)
+        m_dataByte |= m_bitMask;
 
-	// byte boundary
-	if (m_bitMask & 0x80) {
-		m_bitMask = 1;
-		push_back(m_dataByte);
+    // byte boundary
+    if (m_bitMask & 0x80) {
+        m_bitMask = 1;
+        push_back(m_dataByte);
 
-		dout(getName() << " recv: " << hex << showbase <<
-				(int)m_dataByte << dec << endl);
+        dout(getName() << " recv: " << hex << showbase <<
+                (int)m_dataByte << dec << endl);
 
-		m_dataByte = 0;
-		if (m_updateListener)
-			m_updateListener->onUpdate(this);
-	} else {
-		m_bitMask <<= 1;
-	}
+        m_dataByte = 0;
+        if (m_updateListener)
+            m_updateListener->onUpdate(this);
+    } else {
+        m_bitMask <<= 1;
+    }
 }
