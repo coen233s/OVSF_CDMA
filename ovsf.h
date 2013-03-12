@@ -41,6 +41,7 @@ public:
   void negate();
 
   WHCode& operator=(const WHCode& rhs);
+  bool operator==(const WHCode& rhs);
 
   std::vector<WHCode> split(int k) const;
 

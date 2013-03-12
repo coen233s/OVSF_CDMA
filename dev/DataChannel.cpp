@@ -21,19 +21,30 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
     pch.attachTransmitter(&m_tx);
 }
 
-void DataChannel::setTxWalshCode(WHCode &code)
+void DataChannel::setTxWalshCode(const WHCode &code)
 {
     m_tx.setWalshCode(code);
     m_txEnable = true;
 }
 
-void DataChannel::setRxWalshCode(WHCode &code)
+void DataChannel::setRxWalshCode(const WHCode &code)
 {
-    // WHCode is passed by value
     vector<WHCode> codeSet;
     codeSet.push_back(code);
     m_rx.setWalshCode(codeSet);
     m_rxEnable = true;
+}
+
+void DataChannel::addRxWalshCode(const WHCode &code)
+{
+    m_rx.addWalshCode(code);
+    m_rxEnable = true;
+}
+
+void DataChannel::removeRxWalshCode(const WHCode &code)
+{
+    m_rx.removeWalshCode(code);
+    m_rxEnable = m_rx.getWalshCode().size() > 0;
 }
 
 void DataChannel::removeTx()

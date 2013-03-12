@@ -13,6 +13,7 @@ using namespace std;
 
 Transmitter::Transmitter(const string& name)
 : RxTxBase(name)
+, m_hasPendingWalsh(false)
 , m_walshIdx(0)
 , m_BitQueue(name)
 , m_pCoupledReceiver(0)
@@ -32,6 +33,12 @@ void Transmitter::onTick(int time) {
 
     if (m_walshCode.length() == 0)
         return;
+
+    // Update Walsh code
+    if (m_walshIdx == 0 && m_hasPendingWalsh) {
+        m_walshCode = m_pendingWalshCode;
+        m_hasPendingWalsh = false;
+    }
 
     // Sync time to multiple of code length
     if (m_walshIdx == 0 && time % m_walshCode.length())

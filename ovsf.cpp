@@ -86,6 +86,11 @@ WHCode& WHCode::operator=(const WHCode& rhs)
   return *this;
 }
 
+bool WHCode::operator==(const WHCode& rhs)
+{
+  return bits == rhs.bits;
+}
+
 int WHCode::getChipBit(unsigned int index) const
 {
   if (index >= bits.size()) {

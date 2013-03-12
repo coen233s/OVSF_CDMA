@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <assert.h>
 #include <debug.h>
 #include <iostream>
 #include <dat/UpdateListener.h>
@@ -23,13 +24,35 @@ Receiver::Receiver(const string name, UpdateListener *updateListener)
 Receiver::~Receiver() {
 }
 
-void Receiver::setWalshCode(vector<WHCode> newCodes) {
+void Receiver::setWalshCode(const vector<WHCode> &newCodes) {
     // copy vector
     m_WalshCode = newCodes;
     m_WalshIdx.clear();
     m_WalshIdx.resize(newCodes.size(), 0);
     m_WalshDotProd.clear();
     m_WalshDotProd.resize(newCodes.size(), 0);
+}
+
+void Receiver::addWalshCode(const WHCode &code) {
+    m_WalshCode.push_back(code);
+    m_WalshIdx.resize(m_WalshCode.size(), 0);
+    m_WalshDotProd.resize(m_WalshCode.size(), 0);
+}
+
+void Receiver::removeWalshCode(const WHCode &code) {
+    for (int i = 0; i < m_WalshCode.size(); i++) {
+        if (m_WalshCode[i] == code) {
+            m_WalshCode.erase(m_WalshCode.begin() + i);
+            m_WalshIdx.erase(m_WalshIdx.begin() + i);
+            m_WalshDotProd.erase(m_WalshDotProd.begin() + i);
+            return;
+        }
+    }
+    assert(false); // cannot find the walsh code to delete
+}
+
+vector<WHCode> &Receiver::getWalshCode() {
+    return m_WalshCode;
 }
 
 unsigned char Receiver::popData() {

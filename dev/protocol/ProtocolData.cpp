@@ -14,6 +14,7 @@ using namespace std;
 ostream& operator<<(ostream& os, struct ControlFrame &cf)
 {
     os << "c2s:" << (int)cf.c2s << " tr:" << (int)cf.tr
+       << " req: " << (int)cf.req
        << " ack:" << (int)cf.ack << " uid:" << (int)cf.uid
        << " size:" << (int)cf.data_size;
 

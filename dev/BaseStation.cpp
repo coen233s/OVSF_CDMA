@@ -85,6 +85,17 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
 {
     assert(pCa);
 
+    // Update UID's walsh code
+    if (frameOut.tr) {
+        // MobileStation is Tx - add new code but do not remove old code until
+        // it has ack'ed
+        m_pendingWalsh[frameOut.uid] = code;
+        addChannel(frameOut.uid, frameOut.tr, code);
+    } else {
+        // MobileStation is Rx - do not change the code until it is ack'ed
+        // do nothing here
+    }
+
     std::string byteArray = code.toByteArray();
     pCa->length = byteArray.size();
 
@@ -113,7 +124,7 @@ int BaseStation::rateToCodeLength(int dataRate)
     return m_phy.getChipRate() / dataRate;
 }
 
-void BaseStation::addChannel(int uid, int tr, WHCode &code)
+void BaseStation::addChannel(int uid, int tr, const WHCode &code)
 {
     DataChannelMap::iterator dc = m_dataChannel.find(uid);
     DataChannel *pdc;
@@ -134,7 +145,7 @@ void BaseStation::addChannel(int uid, int tr, WHCode &code)
     // If tr == 1, BaseStation receives data from MobileStation,
     // If tr == 0, BaseStatoin sends data to MobileStation
     if (tr)
-        pdc->setRxWalshCode(code);
+        pdc->addRxWalshCode(code);
     else
         pdc->setTxWalshCode(code);
 }
@@ -159,6 +170,10 @@ void BaseStation::removeChannel(int uid, int tr)
             delete pdc;
         }
     }
+
+    UserWalshMap::iterator walshIter = m_pendingWalsh.find(uid);
+    if (walshIter != m_pendingWalsh.end())
+        m_pendingWalsh.erase(walshIter);
 }
 
 void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
@@ -177,7 +192,7 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     cout << getDeviceId() << " send code assignment\n";
 
     if (m_assigner.hasUserId(frameOut.uid)) {
-        cerr << "Error: " << getDeviceId() << ": user has already connected" <<
+        cerr << "Error: " << getDeviceId() << ": user has already connected, " <<
                 "uid: " << (int)frameOut.uid << endl;
         return;
     }
@@ -204,9 +219,6 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
                 transmit(pCa,r[k].second,frameOut);
             }
 
-            // TODO
-            cout << "TODO: BaseStation to update codes of existing clients" << endl;
-
             return;
         }
         // we will just give the lowest rate to the new guys
@@ -214,9 +226,6 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
         result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
         assert(result.first);
     }
-
-    // Add the channel to BaseStation
-    addChannel(uid, tr, result.second);
 
     transmit(pCa,result.second,frameOut);
 }
@@ -238,13 +247,31 @@ void BaseStation::onUpdate(void *arg)
     {
         cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
 
-        if (cframe.req) {
-            // process the channel request
-            RateRequest *pReq = reinterpret_cast<RateRequest *>(&cframe.data);
-            addUser(cframe.uid, cframe.tr, pReq->min_rate, pReq->max_rate);
+        if (!cframe.ack) {
+            if (cframe.req) {
+                // process the channel request
+                RateRequest *pReq = reinterpret_cast<RateRequest *>(&cframe.data);
+                // send walsh code to the calling user, or to all users if code
+                // needs reassignment
+                addUser(cframe.uid, cframe.tr, pReq->min_rate, pReq->max_rate);
+            } else {
+                // shutdown the channel
+                removeUser(cframe.uid, cframe.tr);
+            }
         } else {
-            // shutdown the channel
-            removeUser(cframe.uid, cframe.tr);
+            cout << getDeviceId() << " recv ack from uid " << cframe.uid << " tr: "
+                    << (int)cframe.tr << endl;
+
+            if (cframe.tr) {
+                cout << getDeviceId() << " use only new code to recv uid " << cframe.uid
+                     << endl;
+                // Client ack'ed the code, now the old code can be removed
+                m_dataChannel[cframe.uid]->setRxWalshCode(m_pendingWalsh[cframe.uid]);
+            } else {
+                cout << getDeviceId() << " start new code to send to uid " << cframe.uid
+                     << " (drop old code if any)" << endl;
+                addChannel(cframe.uid, cframe.tr, m_pendingWalsh[cframe.uid]);
+            }
         }
     }
 }

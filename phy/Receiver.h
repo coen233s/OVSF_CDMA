@@ -45,7 +45,10 @@ public:
     virtual ~Receiver();
     virtual void onTick(int time);
 
-    void setWalshCode(vector<WHCode> newCodes);
+    void setWalshCode(const vector<WHCode> &newCodes);
+    void addWalshCode(const WHCode &code);
+    void removeWalshCode(const WHCode &code);
+    vector<WHCode> &getWalshCode();
 
     void clearWalshCode() {
         m_WalshCode.clear();

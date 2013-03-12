@@ -88,7 +88,6 @@ void MobileStation::onUpdate(void *arg)
             m_pDataChannel = new DataChannel(chanstr, m_phy);
         }
 
-
         CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
         std::string byteArray = "";
         for (uint32_t i = 0; i < pCa->length; ++i)
@@ -103,11 +102,21 @@ void MobileStation::onUpdate(void *arg)
         if (m_tr)
         {
             m_pDataChannel->setTxWalshCode(code);
+
+            // Acknowledge the new code
+            cout << getDeviceId() << ": ack the walsh code for tx channel" << endl;
+            m_protCtrl.sendCodeAck(m_uid, m_tr);
+
             // TODO: start sending data
         }
         else
         {
             m_pDataChannel->setRxWalshCode(code);
+
+            // Acknowledge the new code
+            cout << getDeviceId() << ": ack the walsh code for rx channel" << endl;
+            m_protCtrl.sendCodeAck(m_uid, m_tr);
+
             // TODO: start receiving data
         }
     }

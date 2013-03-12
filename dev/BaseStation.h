@@ -35,14 +35,17 @@ public:
 
 private:
     typedef map<int, DataChannel *> DataChannelMap;
-    
+    typedef map<int, WHCode> UserWalshMap;
+
     AbsPhyChannel &m_phy;			// physical medium
     Transmitter m_txCtrl;			// control channel transmitter
     ControlProtocol m_protCtrl;		// control protocol processor
     Receiver m_rxCtrl;				// control channel receiver
     Assigner m_assigner;			// OVSF Code assigner
     DataChannelMap m_dataChannel;	// Data channels to talk to MobileStations
+    UserWalshMap m_pendingWalsh;    // Map UID to Walsh Code
     MODE m_mode; // Code Assignment mode
+
     static const int CTRL_USERID;     // ID for the control channel - to distinguish from other users
     static const int CTRL_CODELEN; // # of bits of control channel's Walsh code
 
@@ -61,7 +64,8 @@ protected:
     // uid - user, tr - transmit/receiver (data channel type), minRate/maxRate in bps
     void addUser(int uid, int tr, int minRate, int maxRate);
     void removeUser(int uid, int tr);
-    void addChannel(int uid, int tr, WHCode &code);
+    // Add code to a channel (this method can be invoked to update the code too)
+    void addChannel(int uid, int tr, const WHCode &code);
     void removeChannel(int uid, int tr);
     int rateToCodeLength(int dataRate);
 

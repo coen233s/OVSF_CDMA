@@ -37,10 +37,12 @@ public:
 
     // For clients
     void sendHandshake(int uid, int rateMin, int rateMax, bool tr);
-    void sendTearDown(int uid);
+    void sendTearDown(int uid, bool tr);
+    void sendCodeAck(int uid, bool tr);
 
 private:
-    void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false);
+    void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false,
+         bool ack = false);
 };
 
 #endif /* CONTROLPROTOCOL_H_ */

@@ -30,10 +30,12 @@ public:
     ~DataChannel();
 
     // add Tx code
-    void setTxWalshCode(WHCode &code);
+    void setTxWalshCode(const WHCode &code);
 
-    // add Rx code
-    void setRxWalshCode(WHCode &code);
+    // set/add/remove Rx code
+    void setRxWalshCode(const WHCode &code);
+    void addRxWalshCode(const WHCode &code);
+    void removeRxWalshCode(const WHCode &code);
 
     // remove Tx code
     void removeTx();

@@ -17,6 +17,8 @@ class Transmitter : public RxTxBase {
 private:
     // Walsh code
     WHCode m_walshCode;
+    WHCode m_pendingWalshCode;
+    bool m_hasPendingWalsh;
     int m_walshIdx;
     char m_nextChip;
     char m_currentBit; // -1, 0, +1
@@ -36,14 +38,15 @@ public:
     virtual void onTick(int time);
 
     // Set Walsh code
-    void setWalshCode(WHCode &newCode) {
+    void setWalshCode(const WHCode &newCode) {
         // Walsh code is copied to avoid memleaks
-        m_walshCode = newCode;
-        m_walshIdx = 0;
+        m_hasPendingWalsh = true;
+        m_pendingWalshCode = newCode;
     }
 
     void clearWalshCode() {
         m_walshCode = WHCode();
+        m_hasPendingWalsh = false;
     }
 
     // Called after onTick(). Returns 0, +1 or -1.
