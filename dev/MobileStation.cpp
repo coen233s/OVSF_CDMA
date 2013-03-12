@@ -111,10 +111,10 @@ void MobileStation::onUpdate(void *arg)
         }
         else
         {
-            m_pDataChannel->setRxWalshCode(code);
+            m_pDataChannel->addRxWalshCode(code);
 
             // Acknowledge the new code
-            cout << getDeviceId() << ": ack the walsh code for rx channel" << endl;
+            cout << getDeviceId() << ": ack and add the walsh code for rx channel" << endl;
             m_protCtrl.sendCodeAck(m_uid, m_tr);
 
             // TODO: start receiving data

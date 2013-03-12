@@ -32,10 +32,7 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
     conf.setControlChannelCode(ctrlCode);
 
     m_txCtrl.setWalshCode(conf.wcCtrl);
-
-    vector<WHCode> ctrlCodeSet;
-    ctrlCodeSet.push_back(conf.wcCtrl);
-    m_rxCtrl.setWalshCode(ctrlCodeSet);
+    m_rxCtrl.setWalshCode(conf.wcCtrl);
 
     m_phy.attachReceiver(&m_rxCtrl);
     m_phy.attachTransmitter(&m_txCtrl);

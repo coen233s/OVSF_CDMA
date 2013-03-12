@@ -29,9 +29,7 @@ void DataChannel::setTxWalshCode(const WHCode &code)
 
 void DataChannel::setRxWalshCode(const WHCode &code)
 {
-    vector<WHCode> codeSet;
-    codeSet.push_back(code);
-    m_rx.setWalshCode(codeSet);
+    m_rx.setWalshCode(code);
     m_rxEnable = true;
 }
 

@@ -28,6 +28,12 @@ private:
     // Set of Walsh codes
     vector<WHCode> m_WalshCode;
 
+    // Walsh code to wait
+    WHCode m_WalshCodeToWait;
+
+    // Has walsh code to wait
+    bool m_hasWalshToWait;
+
     // Walsh code index
     vector<int> m_WalshIdx;
 
@@ -46,12 +52,18 @@ public:
     virtual void onTick(int time);
 
     void setWalshCode(const vector<WHCode> &newCodes);
+    void setWalshCode(const WHCode &newCode);
     void addWalshCode(const WHCode &code);
     void removeWalshCode(const WHCode &code);
     vector<WHCode> &getWalshCode();
 
     void clearWalshCode() {
         m_WalshCode.clear();
+    }
+
+    void setWalshCodeToWait(const WHCode &code) {
+        m_WalshCodeToWait = code;
+        m_hasWalshToWait = true;
     }
 
     // Called before onTick(). Sets the chip value.

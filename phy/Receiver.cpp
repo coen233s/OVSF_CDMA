@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <debug.h>
 #include <iostream>
+#include <vector>
 #include <dat/UpdateListener.h>
 #include "Receiver.h"
 
@@ -16,6 +17,7 @@ using namespace std;
 Receiver::Receiver(const string name, UpdateListener *updateListener)
 : RxTxBase(name)
 , m_idleCount(0)
+, m_hasWalshToWait(false)
 , m_BitQueue(name, this)
 , m_updateListener(updateListener)
 {
@@ -31,6 +33,12 @@ void Receiver::setWalshCode(const vector<WHCode> &newCodes) {
     m_WalshIdx.resize(newCodes.size(), 0);
     m_WalshDotProd.clear();
     m_WalshDotProd.resize(newCodes.size(), 0);
+}
+
+void Receiver::setWalshCode(const WHCode &newCode) {
+    vector<WHCode> vec;
+    vec.push_back(newCode);
+    setWalshCode(vec);
 }
 
 void Receiver::addWalshCode(const WHCode &code) {
@@ -72,8 +80,10 @@ void Receiver::onTick(int time) {
     vout(getName() << ": " << time << " idle: " << m_idleCount << endl);
 
     size_t i;
+
     for (i = 0; i < m_WalshCode.size(); i++) {
         int codeLen = m_WalshCode[i].length();
+        bool walshHit = false;
 
         // Sync time to multiple of code length
         if (m_WalshIdx[i] == 0 && time % codeLen)
@@ -91,9 +101,11 @@ void Receiver::onTick(int time) {
             if (m_WalshDotProd[i] == codeLen) {
                 m_BitQueue.pushBit(1); // received 1
                 m_idleCount = 0;
+                walshHit = true;
             } else if (m_WalshDotProd[i] == -codeLen) {
                 m_BitQueue.pushBit(0); // received 0
                 m_idleCount = 0;
+                walshHit = true;
             } else if (m_WalshDotProd[i] != 0) {
                 /* this is not a real issue - just means someone else is talking
                  * on the channel */
@@ -110,6 +122,15 @@ void Receiver::onTick(int time) {
             // clear idx & dot product
             m_WalshIdx[i] = 0;
             m_WalshDotProd[i] = 0;
+
+            // Check walsh to wait (3-way code change protocol)
+            if (m_hasWalshToWait && walshHit && m_WalshCodeToWait == m_WalshCode[i]) {
+                cout << getName() << ": got bit encoded with new Walsh, drop old code (if any)"
+                        << endl;
+                setWalshCode(m_WalshCodeToWait);
+                m_hasWalshToWait = false;
+                break;
+            }
         }
     }
 }
