@@ -16,6 +16,7 @@ using namespace std;
 class Simulator : public SimObject {
 protected:
     vector<SimObject *> m_simObjects;
+    vector<SimObject *> m_removeObjects;
     int m_time;
 public:
     Simulator();
@@ -23,6 +24,10 @@ public:
 
     void addObject(SimObject *obj) {
         m_simObjects.push_back(obj);
+    }
+
+    void removeObject(SimObject *obj) {
+        m_removeObjects.push_back(obj);
     }
 
     virtual void onTick(int time);

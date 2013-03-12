@@ -14,6 +14,17 @@ Simulator::~Simulator() {
 }
 
 void Simulator::onTick(int time) {
+    // Remove deleted objects
+    if (m_removeObjects.size()) {
+        for (vector<SimObject *>::iterator it = m_removeObjects.begin();
+                it != m_removeObjects.end();
+                it++) {
+            m_simObjects.erase(find(m_simObjects.begin(), m_simObjects.end(),
+                    (*it)));
+        }
+        m_removeObjects.clear();
+    }
+
     for (vector<SimObject *>::iterator it = m_simObjects.begin();
             it != m_simObjects.end();
             it++)
