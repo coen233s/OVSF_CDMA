@@ -202,7 +202,14 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
         return;
     }
 
+    // Trying to specify code length range
+#if !TEST_CODE_RANGE
     std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
+#else
+    std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid,
+            minCodeLen, requestCodeLength);
+#endif
+
     if (!result.first)
     {
         // if the capacity is closed too 0.0, it means there is not much space left

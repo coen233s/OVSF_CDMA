@@ -5,6 +5,7 @@
 #include <sim/Simulator.h>
 #include <stdio.h>
 #include <string.h>
+#include <Configuration.h>
 
 using namespace std;
 
@@ -191,13 +192,17 @@ int main(int argc, char* argv[])
 
 #if 1
     MobileStation ms(string("Mobile Station #2"), pch, UID_1);
-    ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
-#if 1
     MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
     ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
+
+#if !TEST_CODE_RANGE
+    // Fix MS data rate if TEST_CODE_RANGE is not set
+    ms.setRateRange(testRate, testRate);
+    ms2.setRateRange(testRate, testRate);
 #endif
+
 #else // Add user from stdin by test file
     addUser(sim, pch);
 #endif
