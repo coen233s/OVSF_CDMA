@@ -223,9 +223,12 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
 
             // transmit the new code to everybody
             for (size_t k=0; k<r.size(); k++) {
-                transmit(pCa,r[k].second,frameOut);
+	        if(r[k].first != 0) {
+		    //int userId = r[k].first;
+		    //WHCode& wcode = r[k].second;
+		    transmit(pCa,r[k].second,frameOut);
+		}
             }
-
             return;
         }
         // we will just give the lowest rate to the new guys
