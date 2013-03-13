@@ -25,6 +25,10 @@ Transmitter::Transmitter(const string& name)
 Transmitter::~Transmitter() {
 }
 
+void Transmitter::postProcessing() {
+    m_isTransmitting = (m_nextChip != 0);
+}
+
 void Transmitter::onTick(int time) {
     char walshChip;
 
@@ -34,9 +38,11 @@ void Transmitter::onTick(int time) {
 
     m_nextChip = 0;
 
-    if (m_walshCode.length() == 0)
-        goto exit;
-
+    if (m_walshCode.length() == 0) {
+        postProcessing();
+	return;
+    }
+    
     // Update Walsh code
     if (m_walshIdx == 0 && m_hasPendingWalsh) {
         m_walshCode = m_pendingWalshCode;
@@ -44,14 +50,18 @@ void Transmitter::onTick(int time) {
     }
 
     // Sync time to multiple of code length
-    if (m_walshIdx == 0 && time % m_walshCode.length())
-        goto exit;
+    if (m_walshIdx == 0 && time % m_walshCode.length()) {
+        postProcessing();
+        return;
+    }
 
     // Collision detection (check if channel is busy)
     if (m_pCoupledReceiver) {
         if (!m_isTransmitting && m_pCoupledReceiver->getIdleCount()
-                < m_CSMADelay)
-            goto exit;
+	    < m_CSMADelay) {
+	    postProcessing();
+	    return;
+	}
     }
 
     walshChip = m_walshCode.getChipBit(m_walshIdx);
@@ -66,7 +76,5 @@ void Transmitter::onTick(int time) {
     if (++m_walshIdx >= m_walshCode.length()) {
         m_walshIdx = 0;
     }
-
-exit:
-    m_isTransmitting = (m_nextChip != 0);
+    postProcessing();
 }

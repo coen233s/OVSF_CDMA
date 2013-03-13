@@ -33,6 +33,8 @@ private:
     // Collision Sensing delay (at least 1)
     int m_CSMADelay;
 
+    void postProcessing();
+
 public:
     Transmitter(const string& name);
     virtual ~Transmitter();
