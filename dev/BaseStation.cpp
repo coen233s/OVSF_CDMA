@@ -62,6 +62,10 @@ std::vector<std::pair<int,WHCode> > BaseStation::assignAvgCodeLength(int newUser
     std::vector<std::pair<int,WHCode> > snapshots = m_assigner.listUsedCode();
 
     m_assigner.releaseAll();
+    // need to preserve the 16-bit 0xffff for control channel
+    WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
+    Configuration &conf(Configuration::getInstance());
+    assert(ctrlCode == conf.wcCtrl);
 
     int numberUsers = snapshots.size() + 1;
     int avgCodeLength = 1 << (Math_Log2(numberUsers) + 1);
