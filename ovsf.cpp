@@ -828,7 +828,7 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int minLen, int maxLen
 
   std::pair<bool,WHCode> result;
   for (int len = adjustedMinLen; len <= adjustedMaxLen; len*=2) {
-    cout << "request len = " << len << endl;
+    //cout << "request len = " << len << endl;
     result = assignUserId(userId,len);
     if (result.first) 
       return result;
