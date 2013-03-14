@@ -48,7 +48,7 @@ void Receiver::addWalshCode(const WHCode &code) {
 }
 
 void Receiver::removeWalshCode(const WHCode &code) {
-    for (int i = 0; i < m_WalshCode.size(); i++) {
+    for (size_t i = 0; i < m_WalshCode.size(); i++) {
         if (m_WalshCode[i] == code) {
             m_WalshCode.erase(m_WalshCode.begin() + i);
             m_WalshIdx.erase(m_WalshIdx.begin() + i);
