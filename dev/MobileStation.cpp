@@ -62,7 +62,7 @@ void MobileStation::onTick(int time) {
         if (m_tr) // Transmit
         {
             static char msg[] = "hello";
-            static int i = 0;
+            static size_t i = 0;
             if (i < sizeof(msg) - 1)
             {
                 cout << getDeviceId() << ": " << "sending data " << hex << showbase << int(msg[i]) << dec << endl;
