@@ -658,6 +658,7 @@ int Assigner::calcGroupCapacity(int groupNumber)
     return -1;
 
   unsigned int level = tree.getTreeLevel();
+  cout <<"calcGroupCapacity=" << level << endl;
 
   // count capacity for each group
   int beginNode = 1 << level;
@@ -805,7 +806,7 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
   int offset = bucket * nodePerGroup; 
   for (int k=0; k<nodePerGroup; k++) {
     int nodeId = beginNode + offset + k;
-    // cout << "-> nodeId is " << nodeId << endl;
+    //cout << "-> nodeId is " << nodeId << endl;
     if (tree.nodes[nodeId].isFreeCode()) {
       bool status = tree.assign(assignLevel,offset+k,userId);
       assert(status);
@@ -815,15 +816,19 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
       return std::make_pair(true,code);
     }
   }
-  // somehow it fails
-  assert(false);
+  // This means, eventhough this group does not have enough capacity for the current
+  // capacity request.
   return std::make_pair(false,WHCode());
 }
 
 std::pair<bool,WHCode> Assigner::assignUserId(int userId, int minLen, int maxLen) 
 {
+  int adjustedMinLen = 1 << Math_Log2(minLen);
+  int adjustedMaxLen = 1 << Math_Log2(maxLen);
+
   std::pair<bool,WHCode> result;
-  for (int len = minLen; len <= maxLen; len*=2) {
+  for (int len = adjustedMinLen; len <= adjustedMaxLen; len*=2) {
+    cout << "request len = " << len << endl;
     result = assignUserId(userId,len);
     if (result.first) 
       return result;

@@ -16,6 +16,7 @@ void test_256bit_code();
 void test_generate_CDMACode();
 void test_hex();
 void test_multiple_assignment();
+void test_range_assignment();
 
 int main()
 {
@@ -24,8 +25,35 @@ int main()
     //test_256bit_code();
     //test_generate_CDMACode();
     //test_hex();
-    test_multiple_assignment();
+    //test_multiple_assignment();
+    test_range_assignment();
     return 0;
+}
+
+void test_range_assignment()
+{
+  Assigner asg;
+  // user 1, rate range (16,16)
+  std::pair<bool,WHCode> r = asg.assignUserId(1,16,16);
+  cout << "User 1 has a WHCode of " << r.second << endl;
+
+  // user 2, rate range (4,16)
+  r = asg.assignUserId(2,4,16);
+  cout << "User 2 has a WHCode of " << r.second << endl;
+
+  r = asg.assignUserId(3,4,4);
+  cout << "User 3 has a WHCode of " << r.second << endl;
+
+  r = asg.assignUserId(4,4,13);
+  cout << "User 4 has a WHCode of " << r.second << endl;
+
+  cout << "current capacity is " << asg.calcCurrentCapacity() << endl;
+  cout << "shortest code now is " << asg.calcShortestFreeCode(4) << endl;
+  r = asg.assignUserId(5,4,29);
+  cout << "User 5 has a WHCode of " << r.second << endl;
+
+  asg.print();
+  cout << endl;
 }
 
 void test_multiple_assignment()
