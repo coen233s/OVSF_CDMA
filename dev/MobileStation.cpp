@@ -65,7 +65,7 @@ void MobileStation::onTick(int time) {
             static int i = 0;
             if (i < sizeof(msg) - 1)
             {
-                cout << getDeviceId() << ": " << "sending data" << endl;
+                cout << getDeviceId() << ": " << "sending data " << hex << showbase << int(msg[i]) << dec << endl;
                 m_pDataChannel->m_tx.pushData(msg[i++]);
             }
         }
