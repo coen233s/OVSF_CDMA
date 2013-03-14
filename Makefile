@@ -20,6 +20,7 @@ SRCS += \
 	dev/MobileStation.cpp \
 	dev/DataChannel.cpp \
 	dev/protocol/ControlProtocol.cpp \
+	dev/protocol/DataProtocol.cpp \
 	dev/protocol/ProtocolData.cpp \
 	sim/Simulator.cpp \
 

@@ -40,6 +40,7 @@ public:
 
     virtual void onTick(int time);
     virtual void onUpdate(void *arg);
+    virtual void onGotWalshCode() {};
 
     void terminate();
 

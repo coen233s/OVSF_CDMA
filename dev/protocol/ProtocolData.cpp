@@ -37,11 +37,11 @@ ostream& operator<<(ostream& os, struct ControlFrame &cf)
 
 ostream& operator<<(ostream& os, struct DataFrame &df)
 {
-    os << "len:" << df.length;
+    os << "from:" << df.from_uid << " to:" << df.to_uid << " len:" << df.length;
 
     for (int i = 0; i < df.length; i++)
     {
-        os << std::hex << (int)df.data[i] << " ";
+        os  << " " << std::hex << (int)df.data[i];
     }
     os << std::dec;
 

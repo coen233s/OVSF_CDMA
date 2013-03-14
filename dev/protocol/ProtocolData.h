@@ -40,7 +40,6 @@ enum {
 #define CF_MAGIC2	0xFF
 
 #define CF_DATA_MAX	256			// Control frame max size
-#define DF_DATA_MAX	256			// Data frame max size
 
 #ifdef WIN32
 #pragma pack(push)
@@ -100,11 +99,27 @@ struct CodeAssignment {
 #pragma pack(pop)
 #endif
 
-// This is a logical data structure used to pass data between
-// DataChannel and Receiver/Receiver
+#define DF_MAGIC1   0xDD
+#define DF_MAGIC2   0xFF
+#define DF_DATA_MAX 1024         // Data frame max size
+
+// This is the data link frame. It is used to send data over
+// the channel. If the uid is one of the MobileStations, BaseStation
+// will forward the data over the MobileStation. Otherwise, it will
+// forward to a data host which does not occupy wireless channel.
 struct DataFrame {
-    uint16_t length;
-    uint8_t data[DF_DATA_MAX];
+    uint8_t         magic1;     // byte 0
+    uint8_t         magic2;     // byte 1
+    uint16_t        from_uid;  // from addr
+    uint16_t        to_uid;    // to addr
+    uint16_t        length;
+    uint8_t         data[DF_DATA_MAX];
+
+    uint16_t size()
+    {
+        uint16_t frameSize = sizeof(*this) - sizeof(data) + length;
+        return frameSize;
+    }
 };
 
 ostream& operator<<(ostream& os, struct ControlFrame &cf);

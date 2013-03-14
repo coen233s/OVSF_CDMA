@@ -181,6 +181,74 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
         }
     }
 }
+
+class MyMobileStation : public MobileStation {
+protected:
+    typedef MobileStation Base;
+
+    enum STATE {
+        STATE_NONE = 0,
+        STATE_SEND,
+	STATE_RECV,
+        STATE_DONE,
+    } m_state;
+public:
+    MyMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
+            int tickDelay = 0)
+    : MobileStation(name, pch, uid, tr, tickDelay)
+    , m_state(STATE_NONE)
+    { }
+
+    virtual void onTick(int time) {
+        MobileStation::onTick(time);
+
+        switch (m_state) {
+        case STATE_NONE:
+            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData())
+                m_state = STATE_SEND;
+            if (m_pDataChannel && m_pDataChannel->m_rx.hasData())
+                m_state = STATE_RECV;
+            break;
+        case STATE_SEND:
+            if (!m_pDataChannel->m_tx.hasPendingData()) {
+                m_state = STATE_DONE;
+                terminate();
+            }
+	case STATE_RECV:
+            if (!m_pDataChannel->m_rx.hasData()) {
+                m_state = STATE_DONE;
+                terminate();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    virtual void onGotWalshCode() {
+        Base::onGotWalshCode();
+
+        char msg[] = "hello";
+
+        cout << getDeviceId() << ": sending msg: " << msg << endl;
+	
+	// Send data
+        if (m_tr) {
+            // Send data
+            m_pDataChannel->m_protData.sendFrame(m_uid,
+                    m_uid + 1, strlen(msg), msg);
+        }
+    }
+};
+
+#define MIN_TIME 100000
+#define TERMINATE_CONN_NUM 1
+
+bool shouldStop(int time, void *arg) {
+    BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
+    return time > MIN_TIME && bs->getDataConnections() == TERMINATE_CONN_NUM;
+}
+
 int main(int argc, char* argv[])
 {
     Simulator sim;
@@ -191,9 +259,9 @@ int main(int argc, char* argv[])
     const int testRate = pch.getChipRate() / 8;
 
 #if 1
-    MobileStation ms(string("Mobile Station #2"), pch, UID_1);
+    MyMobileStation ms(string("Mobile Station #2"), pch, UID_1);
     sim.addObject(&ms);
-    MobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
+    MyMobileStation ms2(string("Mobile Station #3"), pch, UID_2, false, 40000);
     sim.addObject(&ms2);
 
 #if !TEST_CODE_RANGE
@@ -207,8 +275,7 @@ int main(int argc, char* argv[])
 #endif
     sim.addObject(&pch);
 
-    const int timeSteps = 500000;
-    sim.run(timeSteps);
+    sim.run(shouldStop, &bs);
 
     return 0;
 }

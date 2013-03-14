@@ -15,7 +15,8 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
 : DeviceBase(channelId)
 , m_pch(pch)
 , m_tx(channelId + string(".tx"))
-, m_rx(channelId + string(".rx"), this)
+, m_protData(m_tx, this)
+, m_rx(channelId + string(".rx"), &m_protData)
 {
     pch.attachReceiver(&m_rx);
     pch.attachTransmitter(&m_tx);
@@ -60,13 +61,10 @@ void DataChannel::removeRx()
 // Process received data frame
 void DataChannel::onUpdate(void *arg)
 {
-    Receiver &rx(*(Receiver *)arg);
+    DataFrame &dframe(*(DataFrame *)arg);
 
-    if (rx.getDataSize() == 0)
-        return;
-
-    cout << "Data channel " << getDeviceId() << " recv ";
-    cout << hex << (int)rx.popData() << dec << endl;
+    cout << "Data channel " << getDeviceId() << " recv" << endl;
+    cout << "{" << dframe << "}" << endl;
 }
 
 DataChannel::~DataChannel()

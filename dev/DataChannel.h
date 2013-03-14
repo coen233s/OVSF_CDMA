@@ -14,6 +14,7 @@
 #include <phy/AbsPhyChannel.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
+#include "protocol/DataProtocol.h"
 #include "protocol/ProtocolData.h"
 
 class DataChannel : public DeviceBase,
@@ -22,6 +23,7 @@ class DataChannel : public DeviceBase,
 public:
     AbsPhyChannel &m_pch;
     Transmitter m_tx;
+    DataProtocol m_protData;
     Receiver m_rx;
     bool m_txEnable;
     bool m_rxEnable;
