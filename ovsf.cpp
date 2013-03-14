@@ -658,7 +658,7 @@ int Assigner::calcGroupCapacity(int groupNumber)
     return -1;
 
   unsigned int level = tree.getTreeLevel();
-  cout <<"calcGroupCapacity=" << level << endl;
+  //cout <<"calcGroupCapacity=" << level << endl;
 
   // count capacity for each group
   int beginNode = 1 << level;
