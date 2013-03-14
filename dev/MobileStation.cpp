@@ -96,9 +96,9 @@ void MobileStation::onUpdate(void *arg)
             byteArray += ((char)pCa->code[i]);
         }
         WHCode code(byteArray);
-        cout << getDeviceId() << ": got walshcode (len " << code.length() << "): ";
-        code.print();
-        cout << endl;
+        cout << getDeviceId() << ": got walshcode (len " << code.length() << "): "
+	     << code
+	     << endl;
 
         if (m_tr)
         {

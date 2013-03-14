@@ -30,7 +30,7 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
     WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
     Configuration &conf(Configuration::getInstance());
     conf.setControlChannelCode(ctrlCode);
-
+    
     m_txCtrl.setWalshCode(conf.wcCtrl);
     m_rxCtrl.setWalshCode(conf.wcCtrl);
 
@@ -99,7 +99,7 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
 
     std::string byteArray = code.toByteArray();
     pCa->length = byteArray.size();
-
+    
     for (uint16_t i = 0; i < pCa->length; ++i)
     {
         pCa->code[i] = byteArray[i];
@@ -216,7 +216,7 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid,
             minCodeLen, requestCodeLength);
 #endif
-
+   
     if (!result.first)
     {
         // if the capacity is closed too 0.0, it means there is not much space left

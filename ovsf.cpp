@@ -643,6 +643,9 @@ std::ostream& operator<<(std::ostream& os, const OVSFTree& t)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static int SHORTEST_CODE_LEN = 8;
+
 Assigner::Assigner()
 {
 }
@@ -727,14 +730,14 @@ bool Assigner::hasUserId(int userId) const
 
 bool Assigner::validateRequestCodeLength(int codeLen) const
 {
-  return (codeLen > 2 && tree.isPowerOfTwo(codeLen));
+  return (codeLen >= SHORTEST_CODE_LEN && tree.isPowerOfTwo(codeLen));
 }
 
 bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
 {
   for (size_t i=0; i<codeLen.size(); i++) {
-    // all request length has to be a power of two and greater than 2
-    if (codeLen[i] <= 2) 
+    // all request length has to be a power of two and >= SHORTEST_CODE_LEN
+    if (codeLen[i] < SHORTEST_CODE_LEN) 
       return false;
 
     if (!tree.isPowerOfTwo(codeLen[i]))
