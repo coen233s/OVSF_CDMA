@@ -8,6 +8,7 @@
 #include <debug.h>
 #include <iostream>
 #include <sstream>
+#include <assert.h>
 #include <Configuration.h>
 #include "MobileStation.h"
 
@@ -61,15 +62,6 @@ void MobileStation::onTick(int time) {
     {
         if (m_tr) // Transmit
         {
-#if 0
-            static char msg[] = "hello";
-            static size_t i = 0;
-            if (i < sizeof(msg) - 1)
-            {
-                cout << getDeviceId() << ": " << "sending data " << hex << showbase << int(msg[i]) << dec << endl;
-                m_pDataChannel->m_tx.pushData(msg[i++]);
-            }
-#endif
             m_pDataChannel->transmit();
         }
         else // Receive
@@ -130,4 +122,31 @@ void MobileStation::terminate()
 {
     cout << getDeviceId() << ": Terminating..." << endl;
     m_protCtrl.sendTearDown(m_uid, m_tr);
+}
+
+bool MobileStation::validateRate(int rate)
+{
+    switch(rate)
+    {
+    case RATE_1200:
+    case RATE_2400:
+    case RATE_4800:
+    case RATE_9600:
+    case RATE_19200:
+    case RATE_38400:
+    case RATE_76800:
+    case RATE_153600:
+    case RATE_307K:
+    case RATE_614K:
+    case RATE_1M2:
+    case RATE_2M4:
+    case RATE_4M9:
+    case RATE_9M8:
+    case RATE_19M:
+    case RATE_39M:
+        return true;
+    default:
+        assert(0);
+        return false;
+    }
 }

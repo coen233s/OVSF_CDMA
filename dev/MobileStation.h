@@ -33,6 +33,7 @@ protected:
     bool m_attached;				// ms has attached to bs
     bool m_terminated;
     DataChannel* m_pDataChannel;
+    bool validateRate(int rate);
 
 public:
     MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);
@@ -44,6 +45,8 @@ public:
     void terminate();
 
     void setRateRange(int minRate, int maxRate) {
+        validateRate(minRate);
+        validateRate(maxRate);
         m_minRate = minRate;
         m_maxRate = maxRate;
     }
