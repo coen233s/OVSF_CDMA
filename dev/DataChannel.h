@@ -26,7 +26,7 @@ public:
     bool m_txEnable;
     bool m_rxEnable;
 
-    DataChannel(string &channelId, AbsPhyChannel &pch);
+    DataChannel(string &channelId, AbsPhyChannel &pch, bool tr);
     ~DataChannel();
 
     // add Tx code
@@ -48,10 +48,13 @@ public:
         return !m_txEnable && !m_rxEnable;
     }
 
+    void transmit();
+
     // data frame listerner, arg = &DataFrame
     virtual void onUpdate(void *arg);
 private:
-    ofstream m_file;
+    fstream m_file;
+    bool m_tr;
 };
 
 #endif /* DATACHANNEL_H_ */

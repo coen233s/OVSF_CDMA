@@ -191,9 +191,9 @@ int main(int argc, char* argv[])
     const int testRate = pch.getChipRate() / 8;
 
 #if 1
-    MobileStation ms(string("Mobile Station"), pch, UID_1);
+    MobileStation ms(string("MobileStation"), pch, UID_1);
     sim.addObject(&ms);
-    MobileStation ms2(string("Mobile Station"), pch, UID_2, false, 40000);
+    MobileStation ms2(string("MobileStation"), pch, UID_2, false, 40000);
     sim.addObject(&ms2);
 
 #if !TEST_CODE_RANGE
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 #endif
     sim.addObject(&pch);
 
-    const int timeSteps = 500000;
+    const int timeSteps = 50000;
     sim.run(timeSteps);
 
     return 0;

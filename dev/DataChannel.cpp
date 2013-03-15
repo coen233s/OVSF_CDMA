@@ -11,16 +11,25 @@
 
 using namespace std;
 
-DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
+DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch, bool tr)
 : DeviceBase(channelId)
 , m_pch(pch)
 , m_tx(channelId + string(".tx"))
 , m_rx(channelId + string(".rx"), this)
+, m_tr(tr)
 {
     pch.attachReceiver(&m_rx);
     pch.attachTransmitter(&m_tx);
-    string name = getDeviceId() + ".out";
-    m_file.open(name);
+    if (tr)
+    {
+        string name = getDeviceId() + ".out";
+        m_file.open(name, ios::out);
+    }
+    else
+    {
+        string name = getDeviceId() + ".in";
+        m_file.open(name, ios::in);
+    }
 }
 
 void DataChannel::setTxWalshCode(const WHCode &code)
@@ -70,7 +79,23 @@ void DataChannel::onUpdate(void *arg)
     cout << "Data channel " << getDeviceId() << " recv ";
     unsigned char data = rx.popData();
     cout << hex << (int)data << dec << endl;
-    m_file << data;
+    if (m_tr)
+    {
+        m_file << data;
+    }
+}
+
+void DataChannel::transmit()
+{
+    if (m_file.is_open() && !m_file.eof())
+    {
+        char byte;
+
+        if (m_file.read(&byte, sizeof(byte)))
+        {
+            m_tx.pushData(byte);
+        }
+    }
 }
 
 DataChannel::~DataChannel()

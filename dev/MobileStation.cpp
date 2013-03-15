@@ -61,6 +61,7 @@ void MobileStation::onTick(int time) {
     {
         if (m_tr) // Transmit
         {
+#if 0
             static char msg[] = "hello";
             static size_t i = 0;
             if (i < sizeof(msg) - 1)
@@ -68,6 +69,8 @@ void MobileStation::onTick(int time) {
                 cout << getDeviceId() << ": " << "sending data " << hex << showbase << int(msg[i]) << dec << endl;
                 m_pDataChannel->m_tx.pushData(msg[i++]);
             }
+#endif
+            m_pDataChannel->transmit();
         }
         else // Receive
         {
@@ -86,7 +89,7 @@ void MobileStation::onUpdate(void *arg)
         string chanstr = convertId.str();
         if (0 == m_pDataChannel)
         {
-            m_pDataChannel = new DataChannel(chanstr, m_phy);
+            m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
         }
 
         CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
