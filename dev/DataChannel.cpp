@@ -19,6 +19,8 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch)
 {
     pch.attachReceiver(&m_rx);
     pch.attachTransmitter(&m_tx);
+    string name = getDeviceId() + ".out";
+    m_file.open(name);
 }
 
 void DataChannel::setTxWalshCode(const WHCode &code)
@@ -66,11 +68,14 @@ void DataChannel::onUpdate(void *arg)
         return;
 
     cout << "Data channel " << getDeviceId() << " recv ";
-    cout << hex << (int)rx.popData() << dec << endl;
+    unsigned char data = rx.popData();
+    cout << hex << (int)data << dec << endl;
+    m_file << data;
 }
 
 DataChannel::~DataChannel()
 {
     m_pch.detachReceiver(&m_rx);
     m_pch.detachTransmitter(&m_tx);
+    m_file.close();
 }

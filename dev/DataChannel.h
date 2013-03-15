@@ -50,6 +50,8 @@ public:
 
     // data frame listerner, arg = &DataFrame
     virtual void onUpdate(void *arg);
+private:
+    ofstream m_file;
 };
 
 #endif /* DATACHANNEL_H_ */
