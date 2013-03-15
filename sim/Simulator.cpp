@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <Configuration.h>
+#include <dev/protocol/ProtocolData.h>
 #include "Simulator.h"
 
 Simulator::Simulator() {
@@ -119,6 +121,7 @@ public:
 			m_state = STATE_IDLE;
 
 			m_startTime = m_time;
+                	m_tickCount = m_time;
 		}
 	}
 
@@ -167,7 +170,7 @@ public:
 				cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_DONE" << endl;
 				m_state = STATE_DONE;
 				terminate();
-				m_tickCount = time -m_tickCount;
+				m_tickCount = time - m_tickCount;
 			}
 
 			// Initiate data packet
@@ -178,12 +181,10 @@ public:
             if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
                 cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_SEND" << endl;
                 m_state = STATE_SEND;
-                m_tickCount = time;
             }
             if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
                 cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_RECV" << endl;
                 m_state = STATE_RECV;
-                m_tickCount = time;
             }
             break;
         case STATE_SEND:
@@ -222,14 +223,19 @@ void cleanUpMobileStation2(int uid)
 	RandomArrivalSimulator::instance->freeUserId(uid);
 }
 
-RandomArrivalSimulator::RandomArrivalSimulator(AbsPhyChannel& channel, double arrivalRate, int maxUserId):
-	m_arrivalRate(arrivalRate),
-	m_maxUserId(maxUserId),
-	m_physChannel(channel)
+RandomArrivalSimulator::RandomArrivalSimulator(AbsPhyChannel& channel,
+	enum TESTMODE tmode,
+	double arrivalRate) :
+	m_physChannel(channel),
+	m_tmode(tmode),
+	m_arrivalRate(arrivalRate)
 {
-	instance = this;
+        Configuration &cf(Configuration::getInstance());
+        instance = this;
 
-	for(int k=2; k<=maxUserId; k++) {
+	m_maxUserId = cf.numControlChannelPrio;
+
+	for(int k=2; k < m_maxUserId; k++) {
 		freeUserIds.insert(k);
 	}
 }
@@ -250,8 +256,25 @@ void RandomArrivalSimulator::onTick(int time)
 				break;
 			}
 
+			const int fixedCodeLen = 8;
+			int codeLen;
+		 	if (m_tmode == FIXED_LEN) {
+				codeLen = fixedCodeLen;
+			} else {
+				int maxLen = 10;
+				int minLen = 3;
+
+				codeLen = minLen + (rand() % (maxLen - minLen));
+				codeLen = 2 << codeLen;
+			}
+
+			int rate = m_physChannel.getChipRate() / codeLen;
+
+			cout << "Add mobile station " << userId << " with rate " << rate << endl;
+
 			AutoMobileStation *pMS = new AutoMobileStation("foo", m_physChannel, userId, true, 0, cleanUpMobileStation2);
-			pMS->setupParam(5 * 100, .01, 120, 20);
+			pMS->setRateRange(rate, rate);
+			pMS->setupParam(5000, .01, 120, 20);
 			addObject(pMS);
 		}
 	}
@@ -265,7 +288,7 @@ int RandomArrivalSimulator::getNextUserId()
 
 	std::set<int>::iterator it = freeUserIds.begin();
 	int newUserId = *it;
-	assert(newUserId >= 2 && newUserId <= m_maxUserId);
+	assert(newUserId >= 2 && newUserId < m_maxUserId);
 	
 	freeUserIds.erase(newUserId);
 	usedUserIds.insert(newUserId);

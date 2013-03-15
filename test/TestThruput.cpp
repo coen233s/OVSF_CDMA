@@ -13,9 +13,6 @@
 
 using namespace std;
 
-#define UID_1	0x02
-#define UID_2	0x03
-
 #ifndef WIN32
 #include <strings.h>
 #define stricmp strcasecmp
@@ -389,8 +386,8 @@ void cleanUpMobileStation(int uid)
 int main(int argc, char* argv[])
 {
     //Simulator sim;
-	SimplePhyChannel pch;
-	RandomArrivalSimulator sim(pch, 0.01, 30);
+    SimplePhyChannel pch;
+    RandomArrivalSimulator sim(pch, RandomArrivalSimulator::TESTMODE::VAR_LEN, 0.01);
    
     BaseStation::MODE mode = BaseStation::VAR_DYNAMIC;
     bool variableRate = true;
@@ -423,51 +420,15 @@ int main(int argc, char* argv[])
         }
     }
 
+    sim.addObject(&pch);
+
     BaseStation bs(string("BaseStation"), pch, mode);
     sim.addObject(&bs);
-
-    const int testRate = pch.getChipRate() / 8;
-
-#if 0
-
-#if TEST_DEFAULT
-    AutoMobileStation ms(string("MobileStation"), pch, UID_1, true /* tr */, 0, cleanUpMobileStation);
-	ms.setupParam(1000 * 60 /* 60 secs */, .01, 128, 20);
-
-    ms.setRateRange(testRate, testRate);
-    sim.addObject(&ms);
-    
-	s_totalConnections++;
-
-#if 0
-	AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME, 0,
-		cleanUpMobileStation);
-    ms2.setupParam(1000 * 10, .01, 128, 20);
-	
-	ms2.setRateRange(testRate, testRate);
-    sim.addObject(&ms2);
-
-	s_totalConnections++;
-#endif
-
-#if TEST_CODE_RANGE
-    // Fix MS data rate if TEST_CODE_RANGE is not set
-    ms.setRateRange(testRate, testRate);
-    ms2.setRateRange(testRate, testRate);
-#endif
-
-#else // Add user from stdin by test file
-    addUser(sim, pch);
-#endif
-
-#endif /* 0 */
-
-    sim.addObject(&pch);
 
     Timer timer;
     sim.addObject(&timer);
 
-	sim.run(120 * pch.getChipRate());
+    sim.run(120 * pch.getChipRate());
 
     cout << "Time: " << timer.getTime() << endl;
 

@@ -45,15 +45,19 @@ public:
 class AbsPhyChannel;
 
 class RandomArrivalSimulator : public Simulator {
+public:
+	enum TESTMODE {FIXED_LEN, VAR_LEN};  
 protected:
     std::set<int> freeUserIds;
 	std::set<int> usedUserIds;
 	int m_maxUserId;
 	double m_arrivalRate;
 	AbsPhyChannel& m_physChannel;
+	enum TESTMODE m_tmode;
 	
 public:
-    RandomArrivalSimulator(AbsPhyChannel& channel, double arrivalRate=0.1, int maxUserId=250);
+    RandomArrivalSimulator(AbsPhyChannel& channel, enum TESTMODE tmode,
+            double arrivalRate=0.1);
     virtual ~RandomArrivalSimulator();
 
     virtual void onTick(int time);
