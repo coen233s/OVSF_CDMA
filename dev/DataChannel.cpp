@@ -76,9 +76,9 @@ void DataChannel::onUpdate(void *arg)
     if (rx.getDataSize() == 0)
         return;
 
-    cout << "Data channel " << getDeviceId() << " recv ";
+    dout("Data channel " << getDeviceId() << " recv ");
     unsigned char data = rx.popData();
-    cout << hex << (int)data << dec << endl;
+    dout(hex << (int)data << dec << endl);
     if (m_tr)
     {
         m_file << data;

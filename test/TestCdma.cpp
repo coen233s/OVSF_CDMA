@@ -168,11 +168,12 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
             if (NULL != data)
             {
                 state = PARSE_TICK_DELAY;
-                string name = "Mobile Station #";
+                string name = "MobileStation";
 
-                MobileStation ms(string("Mobile Station #1"), pch, uid);
-                ms.setRateRange(dataRate, dataRate);
-                sim.addObject(&ms);
+                // TODO: where do we clean this memory
+                MobileStation* ms = new MobileStation(name, pch, uid);
+                ms->setRateRange(dataRate, dataRate);
+                sim.addObject(ms);
             }
             else
             {
@@ -193,7 +194,7 @@ int main(int argc, char* argv[])
 #if 1
     MobileStation ms(string("MobileStation"), pch, UID_1);
     sim.addObject(&ms);
-    MobileStation ms2(string("MobileStation"), pch, UID_2, false, 40000);
+    MobileStation ms2(string("MobileStation"), pch, UID_2, true, 40000);
     sim.addObject(&ms2);
 
 #if !TEST_CODE_RANGE
@@ -207,7 +208,7 @@ int main(int argc, char* argv[])
 #endif
     sim.addObject(&pch);
 
-    const int timeSteps = 50000;
+    const int timeSteps = 500000;
     sim.run(timeSteps);
 
     return 0;

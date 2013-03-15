@@ -1,0 +1,41 @@
+ Volume in drive C is OS
+ Volume Serial Number is BE69-AFE9
+
+ Directory of C:\Users\ezeng\Documents\GitHub\OVSF_CDMA\test\TestCdma\Release
+
+03/10/2013  09:52 PM    <DIR>          .
+03/10/2013  09:52 PM    <DIR>          ..
+03/10/2013  09:52 PM         1,117,090 BaseStation.obj
+03/10/2013  09:52 PM           849,397 BitInQueue.obj
+03/10/2013  09:52 PM           841,972 BitOutQueue.obj
+03/10/2013  09:52 PM            12,416 cl.command.1.tlog
+03/10/2013  09:52 PM           205,986 CL.read.1.tlog
+03/10/2013  09:52 PM             9,586 CL.write.1.tlog
+03/10/2013  09:52 PM           846,755 Configuration.obj
+03/10/2013  09:52 PM           881,527 ControlProtocol.obj
+03/10/2013  09:52 PM           925,603 DataChannel.obj
+03/10/2013  09:52 PM           808,062 DeviceBase.obj
+03/10/2013  09:52 PM                 2 link-cvtres.read.1.tlog
+03/10/2013  09:52 PM                 2 link-cvtres.write.1.tlog
+03/10/2013  09:52 PM                 2 link-rc.read.1.tlog
+03/10/2013  09:52 PM                 2 link-rc.write.1.tlog
+03/10/2013  09:52 PM             4,688 link.command.1.tlog
+03/10/2013  09:52 PM             7,810 link.read.1.tlog
+03/10/2013  09:52 PM             3,026 link.write.1.tlog
+03/10/2013  09:52 PM           924,898 MobileStation.obj
+03/10/2013  09:52 PM           809,219 NamedObject.obj
+03/10/2013  09:52 PM         1,312,855 ovsf.obj
+03/10/2013  09:52 PM           714,721 ProtocolData.obj
+03/10/2013  09:52 PM           909,344 Receiver.obj
+03/10/2013  09:52 PM           807,661 RxTxBase.obj
+03/10/2013  09:52 PM           972,608 SimplePhyChannel.obj
+03/10/2013  09:52 PM           174,393 Simulator.obj
+03/10/2013  09:52 PM            72,192 TestCdma.exe
+03/10/2013  09:52 PM                91 TestCdma.lastbuildstate
+03/10/2013  09:52 PM             3,079 TestCdma.log
+03/10/2013  09:52 PM           923,500 TestCdma.obj
+03/10/2013  09:52 PM         1,043,456 TestCdma.pdb
+03/10/2013  09:52 PM           869,133 Transmitter.obj
+03/10/2013  09:52 PM           733,184 vc110.pdb
+              32 File(s)     16,784,260 bytes
+               2 Dir(s)  75,762,532,352 bytes free
