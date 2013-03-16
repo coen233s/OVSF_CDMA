@@ -242,7 +242,8 @@ public:
     }
 };
 
-#define MIN_TIME 5000   // >= setup time
+#define MOBILE2_JOIN_TIME   40000
+#define MIN_TIME            (MOBILE2_JOIN_TIME + 5000)   // >= setup time
 
 // Set to 0 if all MS can terminate, to N > 0, if N MS cannot
 // terminate
@@ -278,7 +279,7 @@ int main(int argc, char* argv[])
 #if 1
     AutoMobileStation ms(string("MobileStation"), pch, UID_1);
     sim.addObject(&ms);
-    AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, 40000);
+    AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME);
     sim.addObject(&ms2);
 
 #if !TEST_CODE_RANGE
