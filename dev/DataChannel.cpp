@@ -16,6 +16,8 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch, bool tr)
 , m_pch(pch)
 , m_tx(channelId + string(".tx"))
 , m_rx(channelId + string(".rx"), this)
+, m_txEnable(false)
+, m_rxEnable(false)
 , m_tr(tr)
 {
     pch.attachReceiver(&m_rx);
