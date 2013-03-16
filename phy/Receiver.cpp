@@ -35,10 +35,26 @@ void Receiver::setWalshCode(const vector<WHCode> &newCodes) {
     m_WalshDotProd.resize(newCodes.size(), 0);
 }
 
+// Change walsh code (in case the walsh code exists, keep its index)
 void Receiver::setWalshCode(const WHCode &newCode) {
+    int oldIdx, oldSize = m_WalshCode.size();
+    int oldCodeIdx = -1, oldCodeDotProd = 0;
+    for (oldIdx = 0; oldIdx < oldSize; oldIdx++) {
+        if (m_WalshCode[oldIdx] == newCode) {
+            oldCodeIdx = m_WalshIdx[oldIdx];
+            oldCodeDotProd = m_WalshDotProd[oldIdx];
+            break;
+        }
+    }
+
     vector<WHCode> vec;
     vec.push_back(newCode);
     setWalshCode(vec);
+
+    if (oldCodeIdx != -1) {
+        m_WalshIdx[0] = oldCodeIdx;
+        m_WalshDotProd[0] = oldCodeDotProd;
+    }
 }
 
 void Receiver::addWalshCode(const WHCode &code) {
