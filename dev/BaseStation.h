@@ -46,6 +46,8 @@ protected:
     UserWalshMap m_pendingWalsh;    // Map UID to Walsh Code
     MODE m_mode; // Code Assignment mode
 
+    int m_activeUsers;
+
     int m_totalConnectNum;          // total connection number (for automation)
                                     // incremented every time some ms is connected
 

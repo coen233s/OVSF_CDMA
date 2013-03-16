@@ -5,7 +5,10 @@
  *      Author: danke
  */
 
+#include <algorithm>
 #include <stat/Stat.h>
+
+using namespace std;
 
 Stat::Stat()
 : m_sum(0)
@@ -33,6 +36,11 @@ void Stat::clear() {
 void Stat::addData(float data)
 {
 	m_sum += data;
+}
+
+void Stat::addMaxData(float data)
+{
+	m_sum = max(m_sum, data);
 }
 
 void Stat::addStat(const Stat &rhs)

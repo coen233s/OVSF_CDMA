@@ -29,6 +29,8 @@ public:
 
 	void addData(int slot, float data);
 
+	void addMaxData(int slot, float data);
+
 	float getSum() {
 		float sum = 0;
 		for (int i = 0; i < vec.size(); i++)

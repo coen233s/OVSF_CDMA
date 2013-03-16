@@ -22,6 +22,15 @@ void Histogram::addData(int slot, float data)
 	vec[slot].addData(data);
 }
 
+void Histogram::addMaxData(int slot, float data)
+{
+	Stat newDat;
+	if (vec.size() < slot + 1) {
+		vec.resize(slot + 1000, newDat);
+	}
+	vec[slot].addMaxData(data);
+}
+
 ostream &operator<<(ostream & os, const Histogram &h)
 {
 	for (int i = 0; i < h.vec.size(); i++) {

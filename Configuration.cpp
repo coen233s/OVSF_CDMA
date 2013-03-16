@@ -13,7 +13,7 @@ using namespace std;
 
 Configuration::Configuration()
 {
-	numControlChannelPrio = 8;
+	numControlChannelPrio = 16;
 }
 
 void Configuration::setControlChannelCode(const WHCode& code)

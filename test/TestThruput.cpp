@@ -54,6 +54,7 @@ public:
 	vector<Histogram *> m_hist;
 	int m_time;
 	Histogram m_allDataIn;
+	Histogram m_activeUser;
 
 	StatBaseStation(const string& name, AbsPhyChannel &pch, MODE mode = VAR_DYNAMIC) :
 		BaseStation(name, pch, mode),
@@ -94,6 +95,7 @@ public:
 
 		h->addData(timeMs, 8); // 8 bits
 		m_allDataIn.addData(timeMs, 8);
+		m_activeUser.addMaxData(timeMs, m_activeUsers);
 	}
 
 	virtual void onTick(int time) {
@@ -115,6 +117,12 @@ public:
 		os << "Total time: " << scale << " seconds" << endl;
 
 		os << "Throughput: " << tp << " bps" << endl;
+	}
+
+	// bps
+	void dumpUsers(ostream &os) {
+		os << m_activeUser << endl;
+
 	}
 };
 
@@ -435,9 +443,6 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
     }
 }
 
-
-#define MOBILE2_JOIN_TIME   40000
-
 class Timer : public SimObject {
 private:
     int m_lastTime;
@@ -502,6 +507,12 @@ void testThruput(BaseStation::MODE mode,
     bs.dumpThroughput(trafficFile);
     trafficFile.close();
 
+    ofstream userF;
+    userF.open(modeStr + "_users.txt");
+    bs.dumpStat(userF);
+    bs.dumpThroughput(userF);
+    userF.close();
+
     bs.dumpThroughput(cout);
 }
 
@@ -542,7 +553,7 @@ int main(int argc, char* argv[])
             10,  /* simulation time (second) */
             0.01 /* user arrival rate */,
             500, /* user duration (ms) */
-            .01, /* packet arrival rate */
+            .001, /* packet arrival rate */
             120, /* packet mean size */
             20  /* packet size SD */
             );

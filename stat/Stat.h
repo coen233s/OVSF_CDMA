@@ -19,6 +19,7 @@ public:
 
 	void clear();
 	void addData(float data);
+	void addMaxData(float data);
 
 	void addStat(const Stat &rhs);
 

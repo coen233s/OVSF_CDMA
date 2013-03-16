@@ -29,6 +29,7 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
 , m_mode(mode)
 , m_totalConnectNum(0)
 , m_totalDisconnectNum(0)
+, m_activeUsers(0)
 {
 	//FixedLengthAssigner
 	switch (mode) {
@@ -175,6 +176,8 @@ void BaseStation::addChannel(int uid, int tr, const WHCode &code)
         pdc = new DataChannel(chanstr, uid, m_phy, tr ? true : false);
         pdc->setBaseStation(this);
         m_dataChannel[uid] = pdc;
+
+        m_activeUsers++;
     } else {
         pdc = dc->second;
     }
@@ -208,6 +211,7 @@ void BaseStation::removeChannel(int uid, int tr)
         if (pdc->canFreeChannel()) {
             m_dataChannel.erase(dc);
             delete pdc;
+            m_activeUsers--;
         }
     }
 
