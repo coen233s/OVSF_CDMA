@@ -242,7 +242,7 @@ public:
     }
 };
 
-#define MIN_TIME 100000
+#define MIN_TIME 5000   // >= setup time
 
 // Set to 0 if all MS can terminate, to N > 0, if N MS cannot
 // terminate
@@ -252,6 +252,19 @@ bool shouldStop(int time, void *arg) {
     BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
     return time > MIN_TIME && bs->getDataConnections() == TERMINATE_CONN_NUM;
 }
+
+class Timer : public SimObject {
+private:
+    int m_lastTime;
+    virtual void onTick(int time) {
+        m_lastTime = time;
+    }
+
+public:
+    int getTime() {
+        return m_lastTime;
+    }
+};
 
 int main(int argc, char* argv[])
 {
@@ -279,7 +292,12 @@ int main(int argc, char* argv[])
 #endif
     sim.addObject(&pch);
 
+    Timer timer;
+    sim.addObject(&timer);
+
     sim.run(shouldStop, &bs);
+
+    cout << "Time: " << timer.getTime() << endl;
 
     return 0;
 }
