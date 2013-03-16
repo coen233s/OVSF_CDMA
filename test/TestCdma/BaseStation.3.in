@@ -1,2 +1,19 @@
- Volume in drive K is Hi_Data
-
+#### test1.txt contents ####
+# Field format: Tick Delay, UID, T/R, Rate kB
+ 
+# Mobile Station 1 transmits file 1.in to Base Station at 256kbps
+# Base Station receives the content and save it as 1.out,
+# Also create file 1.chip for chipcount
+# diff 1.in 1.out
+0 2 1 1200
+ 
+# User 2 receives file 2.in from Base Station at 128 kbps, and save it as 2.out
+# We need to prebuild a file 2.bin save it to the subdirectory of Base Station
+# Also create file 2.chip for chipcount
+# diff 2.in 2.out
+0 3 1 4800
+ 
+# User 3 delays 64 ticks, then receives file 3.in from Base Station at 1024 kbps, and save it as 3.out
+# Also create file 3.chip for chipcount
+# diff 3.in 3.out
+64 4 1 1200

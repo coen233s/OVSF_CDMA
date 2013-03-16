@@ -73,7 +73,7 @@ public:
     }
 
     bool hasData() {
-        return !m_BitQueue.empty();
+        return m_BitQueue.hasData();
     }
 
     int getDataSize() {

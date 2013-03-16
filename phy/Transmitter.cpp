@@ -34,15 +34,16 @@ void Transmitter::onTick(int time) {
 
     vout(getName() << ": time:" << time << " idx:" << m_walshIdx
             << " walshlen:" << m_walshCode.length()
+            << " hasdata:" << (int)m_BitQueue.hasData()
             << endl);
 
     m_nextChip = 0;
 
     if (m_walshCode.length() == 0) {
         postProcessing();
-	return;
+        return;
     }
-    
+
     // Update Walsh code
     if (m_walshIdx == 0 && m_hasPendingWalsh) {
         m_walshCode = m_pendingWalshCode;

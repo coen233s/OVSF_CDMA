@@ -21,9 +21,9 @@ int main()
     cout << "InQueue" << endl;
 
     // push data
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 80; i++)
         for (int j = 0; j < 8; j++)
-            inq.pushBit(i == j);
+            inq.pushBit((i % 8) == j);
 
     while (!inq.empty()) {
         cout << "Pop data: " << (int) inq.front() << endl;

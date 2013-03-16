@@ -109,7 +109,8 @@ void Receiver::onTick(int time) {
                 m_WalshCode[i].getChipBit(m_WalshIdx[i]);
 
         vout(getName() << " lastChip: " << m_LastChip <<
-                " walsh idx: " << (int)m_WalshCode[i].getChipBit(m_WalshIdx[i]) <<
+                " walsh idx: " << (int)m_WalshIdx[i] <<
+                " walsh len: " << (int)codeLen <<
                 " dot prod: " << (int)m_WalshDotProd[i] << endl);
 
         // Received one bit

@@ -194,11 +194,14 @@ protected:
         STATE_DONE,
     } m_state;
 
+    int m_rxIdle;
+
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
             int tickDelay = 0)
     : MobileStation(name, pch, uid, tr, tickDelay)
     , m_state(STATE_NONE)
+    , m_rxIdle(0)
     { }
 
     virtual void onTick(int time) {
@@ -206,20 +209,31 @@ public:
 
         switch (m_state) {
         case STATE_NONE:
-            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData())
+            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
+                cout << getDeviceId() << ": STATE_NONE --> STATE_SEND" << endl;
                 m_state = STATE_SEND;
-            if (m_pDataChannel && m_pDataChannel->m_rx.hasData())
+            }
+            if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
+                cout << getDeviceId() << ": STATE_NONE --> STATE_RECV" << endl;
                 m_state = STATE_RECV;
+            }
             break;
         case STATE_SEND:
             if (!m_pDataChannel->m_tx.hasPendingData()) {
+                cout << getDeviceId() << ": STATE_SEND --> STATE_DONE" << endl;
                 m_state = STATE_DONE;
                 terminate();
             }
+            break;
         case STATE_RECV:
             if (!m_pDataChannel->m_rx.hasData()) {
-                m_state = STATE_DONE;
-                terminate();
+                if (++m_rxIdle > 10) {
+                    cout << getDeviceId() << ": STATE_RECV --> STATE_DONE" << endl;
+                    m_state = STATE_DONE;
+                    terminate();
+                }
+            } else {
+                m_rxIdle = 0;
             }
             break;
         default:
@@ -229,7 +243,10 @@ public:
 };
 
 #define MIN_TIME 100000
-#define TERMINATE_CONN_NUM 1
+
+// Set to 0 if all MS can terminate, to N > 0, if N MS cannot
+// terminate
+#define TERMINATE_CONN_NUM 0
 
 bool shouldStop(int time, void *arg) {
     BaseStation *bs = reinterpret_cast<BaseStation *>(arg);

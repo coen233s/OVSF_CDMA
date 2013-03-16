@@ -70,6 +70,7 @@ void MobileStation::onUpdate(void *arg)
         string chanstr = convertId.str();
         if (0 == m_pDataChannel)
         {
+            cout << getDeviceId() << ": bringing up data channel" << endl;
             m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
         }
 
@@ -112,6 +113,8 @@ void MobileStation::terminate()
 {
     cout << getDeviceId() << ": Terminating..." << endl;
     m_protCtrl.sendTearDown(m_uid, m_tr);
+    delete m_pDataChannel;
+    m_pDataChannel = 0;
 }
 
 bool MobileStation::validateRate(int rate)

@@ -24,11 +24,21 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch, bool tr)
     {
         string name = getDeviceId() + ".out";
         m_file = fopen(name.c_str(), "wb");
+        if (!m_file)
+        {
+            cout << getDeviceId() << " ERROR: cannot open file: "
+                    << name << endl;
+        }
     }
     else
     {
         string name = getDeviceId() + ".in";
         m_file = fopen(name.c_str(), "rb");
+        if (!m_file)
+        {
+            cout << getDeviceId() << " ERROR: cannot open file: "
+                 << name << endl;
+        }
     }
 }
 
@@ -91,12 +101,15 @@ void DataChannel::transmit()
     {
         do
         {
+            dout("Pushing data: ");
             unsigned char byte[1024];
             size_t size = fread(byte, sizeof(byte[0]), sizeof(byte), m_file); 
             for (size_t i = 0; i < size; ++i)
             {
+                dout(byte[i]);
                 m_tx.pushData(byte[i]);
             }
+            dout(endl);
         }
         while (!feof(m_file));
     }
