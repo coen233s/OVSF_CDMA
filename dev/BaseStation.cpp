@@ -95,6 +95,7 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
     } else {
         // MobileStation is Rx - do not change the code until it is ack'ed
         // do nothing here
+        m_pendingWalsh[frameOut.uid] = code;
     }
 
     std::string byteArray = code.toByteArray();
