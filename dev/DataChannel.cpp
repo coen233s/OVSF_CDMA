@@ -23,12 +23,12 @@ DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch, bool tr)
     if (tr)
     {
         string name = getDeviceId() + ".out";
-        m_file.open(name, ios::out);
+        m_file = fopen(name.c_str(), "wb");
     }
     else
     {
         string name = getDeviceId() + ".in";
-        m_file.open(name, ios::in);
+        m_file = fopen(name.c_str(), "rb");
     }
 }
 
@@ -81,17 +81,17 @@ void DataChannel::onUpdate(void *arg)
     dout(hex << (int)data << dec << endl);
     if (m_tr)
     {
-        m_file << data;
+        fwrite(&data, sizeof(data), 1, m_file);
     }
 }
 
 void DataChannel::transmit()
 {
-    if (m_file.is_open() && !m_file.eof())
+    if (NULL != m_file&& !feof(m_file))
     {
         char byte;
 
-        if (m_file.read(&byte, sizeof(byte)))
+        if (fread(&byte, sizeof(byte), 1, m_file))
         {
             m_tx.pushData(byte);
         }
@@ -102,5 +102,5 @@ DataChannel::~DataChannel()
 {
     m_pch.detachReceiver(&m_rx);
     m_pch.detachTransmitter(&m_tx);
-    m_file.close();
+    fclose(m_file);
 }

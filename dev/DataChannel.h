@@ -15,6 +15,7 @@
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
 #include "protocol/ProtocolData.h"
+#include <stdio.h>
 
 class DataChannel : public DeviceBase,
                     public UpdateListener
@@ -53,7 +54,7 @@ public:
     // data frame listerner, arg = &DataFrame
     virtual void onUpdate(void *arg);
 private:
-    fstream m_file;
+    FILE* m_file;
     bool m_tr;
 };
 
