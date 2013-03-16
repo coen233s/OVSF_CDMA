@@ -7,12 +7,15 @@
 
 #include <debug.h>
 #include <iostream>
+#include <dev/BaseStation.h>
 #include "DataChannel.h"
 
 using namespace std;
 
-DataChannel::DataChannel(string &channelId, AbsPhyChannel &pch, bool tr)
+DataChannel::DataChannel(string &channelId, int id, AbsPhyChannel &pch, bool tr)
 : DeviceBase(channelId)
+, m_pBS(0)
+, m_id(id)
 , m_pch(pch)
 , m_tx(channelId + string(".tx"))
 , m_rx(channelId + string(".rx"), this)
@@ -95,6 +98,9 @@ void DataChannel::onUpdate(void *arg)
     if (m_tr)
     {
         fwrite(&data, sizeof(data), 1, m_file);
+        if (m_pBS) {
+        	m_pBS->onDataIn(m_id, data);
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <cstdlib>
 #include <debug.h>
+#include <iostream>
+#include <vector>
 #include <phy/SimplePhyChannel.h>
 #include <dev/BaseStation.h>
 #include <dev/MobileStation.h>
@@ -41,6 +43,78 @@ public:
 
 	static float rand_gauss(float mean, float sd) {
 		return rand_gauss() * sd + mean;
+	}
+};
+
+class StatBaseStation : public BaseStation {
+private:
+	int m_tickToMs;
+
+public:
+	vector<Histogram *> m_hist;
+	int m_time;
+	Histogram m_allDataIn;
+
+	StatBaseStation(const string& name, AbsPhyChannel &pch, MODE mode = VAR_DYNAMIC) :
+		BaseStation(name, pch, mode),
+		m_time(0)
+	{
+		m_tickToMs = pch.getChipRate() / 1000;
+	}
+
+	~StatBaseStation() {
+		for (int i = 0; i < m_hist.size(); i++)
+			if (m_hist[i])
+				delete m_hist[i];
+	}
+
+	int tickToMs(int tick) {
+		return tick / m_tickToMs;
+	}
+
+	virtual void addChannel(int uid, int tr, const WHCode &code) {
+		DataChannelMap::iterator dc = m_dataChannel.find(uid);
+
+		if (dc == m_dataChannel.end()) {
+			if (m_hist.size() < uid + 1) {
+				m_hist.resize(uid + 1, 0);
+			}
+			m_hist[uid] = new Histogram();
+		}
+
+		BaseStation::addChannel(uid, tr, code);
+	}
+
+	virtual void onDataIn(int id, char ch) {
+		Histogram *h = m_hist[id];
+
+		assert(h);
+
+		int timeMs = tickToMs(m_time);
+
+		h->addData(timeMs, 8); // 8 bits
+		m_allDataIn.addData(timeMs, 8);
+	}
+
+	virtual void onTick(int time) {
+		m_time = time;
+		BaseStation::onTick(time);
+	}
+
+	void dumpStat(ostream &os) {
+		os << m_allDataIn << endl;
+	}
+
+	// bps
+	void dumpThroughput(ostream &os) {
+		float total = m_allDataIn.getSum();
+		float scale = m_allDataIn.getTimeRange() / 1000;
+		float tp = total / scale;
+
+		os << "Total data: " << total << " bits" << endl;
+		os << "Total time: " << scale << " seconds" << endl;
+
+		os << "Throughput: " << tp << " bps" << endl;
 	}
 };
 
@@ -408,7 +482,8 @@ void testThruput(BaseStation::MODE mode,
 
     sim.addObject(&pch);
 
-    BaseStation bs(string("BaseStation"), pch, mode);
+    StatBaseStation bs(string("BaseStation"), pch,
+    		BaseStation::VAR_DYNAMIC); // use var. dynamic internally
     sim.addObject(&bs);
 
     Timer timer;
@@ -416,7 +491,18 @@ void testThruput(BaseStation::MODE mode,
 
     sim.run(simulationTime * pch.getChipRate());
 
-    cout << "Time: " << timer.getTime() << endl;
+    cout << "Time: " << timer.getTime() << endl << endl;
+
+    ofstream trafficFile;
+    string modeStr = tmode == RandomArrivalSimulator::TESTMODE::FIXED_LEN ?
+    		"fixlen" : "varlen";
+
+    trafficFile.open(modeStr + "_traffic.txt");
+    bs.dumpStat(trafficFile);
+    bs.dumpThroughput(trafficFile);
+    trafficFile.close();
+
+    bs.dumpThroughput(cout);
 }
 
 int main(int argc, char* argv[])

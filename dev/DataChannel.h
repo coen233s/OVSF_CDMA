@@ -14,12 +14,17 @@
 #include <phy/AbsPhyChannel.h>
 #include <phy/Receiver.h>
 #include <phy/Transmitter.h>
+#include <stat/Histogram.h>
 #include "protocol/ProtocolData.h"
 #include <stdio.h>
 
+class BaseStation;
 class DataChannel : public DeviceBase,
                     public UpdateListener
 {
+protected:
+	BaseStation *m_pBS;
+	int m_id;
 public:
     AbsPhyChannel &m_pch;
     Transmitter m_tx;
@@ -27,7 +32,7 @@ public:
     bool m_txEnable;
     bool m_rxEnable;
 
-    DataChannel(string &channelId, AbsPhyChannel &pch, bool tr);
+    DataChannel(string &channelId, int id, AbsPhyChannel &pch, bool tr);
     ~DataChannel();
 
     // add Tx code
@@ -51,8 +56,13 @@ public:
 
     void transmit();
 
-    // data frame listerner, arg = &DataFrame
+    // data frame listerner, arg = Receiver*
     virtual void onUpdate(void *arg);
+
+    void setBaseStation(BaseStation *pBS) {
+    	m_pBS = pBS;
+    }
+
 private:
     FILE* m_file;
     bool m_tr;

@@ -49,6 +49,9 @@ private:
     // Update listener
     UpdateListener *m_updateListener;
 
+    // Last time stamp
+    int m_time;
+
 public:
     Receiver(const string name, UpdateListener *updateListener = 0);
     virtual ~Receiver();
@@ -98,6 +101,10 @@ public:
     int peekData(int idx);
 
     virtual void onUpdate(void *arg);
+
+    int getTime() {
+    	return m_time;
+    }
 };
 
 #endif /* RECEIVER_H_ */

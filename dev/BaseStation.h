@@ -33,7 +33,7 @@ public:
 		VAR_DYNAMIC
     };
 
-private:
+protected:
     typedef map<int, DataChannel *> DataChannelMap;
     typedef map<int, WHCode> UserWalshMap;
 
@@ -61,6 +61,9 @@ public:
     // control frame listerner, arg = &ControlFrame
     virtual void onUpdate(void *arg);
 
+    // on data in
+    virtual void onDataIn(int id, char ch) {}
+
     virtual void onTick(int time) {}
 
     int getTotalConnections() {
@@ -78,7 +81,7 @@ protected:
     void addUser(int uid, int tr, int minRate, int maxRate);
     void removeUser(int uid, int tr);
     // Add code to a channel (this method can be invoked to update the code too)
-    void addChannel(int uid, int tr, const WHCode &code);
+    virtual void addChannel(int uid, int tr, const WHCode &code);
     void removeChannel(int uid, int tr);
     int rateToCodeLength(int dataRate);
 

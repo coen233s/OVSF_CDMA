@@ -111,6 +111,8 @@ int Receiver::peekData(int idx) {
 void Receiver::onTick(int time) {
     vout(getName() << ": " << time << " idle: " << m_idleCount << endl);
 
+    m_time = time;
+
     size_t i;
 
     for (i = 0; i < m_WalshCode.size(); i++) {

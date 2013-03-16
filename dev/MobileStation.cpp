@@ -79,7 +79,7 @@ void MobileStation::onUpdate(void *arg)
 			if (0 == m_pDataChannel)
 			{
 				cout << getDeviceId() << m_uid << ": bringing up data channel" << endl;
-				m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
+				m_pDataChannel = new DataChannel(chanstr, m_uid, m_phy, !m_tr);
 			}
 
 			CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);

@@ -22,6 +22,8 @@ SRCS += \
 	dev/DataChannel.cpp \
 	dev/protocol/ControlProtocol.cpp \
 	dev/protocol/ProtocolData.cpp \
+	stat/Stat.cpp \
+	stat/Histogram.cpp \
 	sim/Simulator.cpp \
 
 BINDIR := bin
