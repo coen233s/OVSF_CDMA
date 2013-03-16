@@ -87,14 +87,18 @@ void DataChannel::onUpdate(void *arg)
 
 void DataChannel::transmit()
 {
-    if (NULL != m_file&& !feof(m_file))
+    if (NULL != m_file) 
     {
-        char byte;
-
-        if (fread(&byte, sizeof(byte), 1, m_file))
+        do
         {
-            m_tx.pushData(byte);
+            unsigned char byte[1024];
+            size_t size = fread(byte, sizeof(byte[0]), sizeof(byte), m_file); 
+            for (size_t i = 0; i < size; ++i)
+            {
+                m_tx.pushData(byte[i]);
+            }
         }
+        while (!feof(m_file));
     }
 }
 

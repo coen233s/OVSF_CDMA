@@ -57,17 +57,6 @@ void MobileStation::onTick(int time) {
         cout << getDeviceId() << ": " << "sending handshake" << endl;
         m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
     }
-
-    if (0 != m_pDataChannel)
-    {
-        if (m_tr) // Transmit
-        {
-            m_pDataChannel->transmit();
-        }
-        else // Receive
-        {
-        }
-    }
 }
 
 void MobileStation::onUpdate(void *arg)
@@ -104,6 +93,7 @@ void MobileStation::onUpdate(void *arg)
             m_protCtrl.sendCodeAck(m_uid, m_tr);
 
             // TODO: start sending data
+            m_pDataChannel->transmit();
         }
         else
         {

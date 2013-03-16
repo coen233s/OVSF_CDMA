@@ -151,7 +151,10 @@ void BaseStation::addChannel(int uid, int tr, const WHCode &code)
     if (tr)
         pdc->addRxWalshCode(code);
     else
+    {
         pdc->setTxWalshCode(code);
+        pdc->transmit();
+    }
 }
 
 void BaseStation::removeChannel(int uid, int tr)
