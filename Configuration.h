@@ -17,7 +17,7 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////////
 
 // Test dynamic code length allocation based on min and max code lengths
-#define TEST_CODE_RANGE 1
+#define TEST_CODE_RANGE 0
 
 class Configuration {
 private:

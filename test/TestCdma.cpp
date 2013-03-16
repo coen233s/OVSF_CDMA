@@ -243,15 +243,13 @@ public:
 };
 
 #define MOBILE2_JOIN_TIME   40000
-#define MIN_TIME            (MOBILE2_JOIN_TIME + 5000)   // >= setup time
 
-// Set to 0 if all MS can terminate, to N > 0, if N MS cannot
-// terminate
-#define TERMINATE_CONN_NUM 0
+#define TOTAL_CONN_NUM      2
 
 bool shouldStop(int time, void *arg) {
     BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
-    return time > MIN_TIME && bs->getDataConnections() == TERMINATE_CONN_NUM;
+    return bs->getTotalConnections() == TOTAL_CONN_NUM &&
+           bs->getTotalDisconnections() == TOTAL_CONN_NUM;
 }
 
 class Timer : public SimObject {

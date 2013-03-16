@@ -40,7 +40,8 @@ public:
 
 bool shouldStop(int time, void *arg) {
     BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
-    return time > MIN_TIME && bs->getDataConnections() == 0;
+    return time > MIN_TIME && bs->getTotalConnections() == 1
+            && bs->getTotalDisconnections() == 1;
 }
 
 int main()
@@ -48,7 +49,7 @@ int main()
     Simulator sim;
     SimplePhyChannel pch;
     BaseStation bs(string("BaseStation"), pch);
-    MyMobileStation ms(string("Mobile Station #1"), pch, UID_1);
+    MyMobileStation ms(string("Mobile Station"), pch, UID_1);
 
     const int testRate = pch.getChipRate() / 8;
 

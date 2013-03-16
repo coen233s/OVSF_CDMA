@@ -26,6 +26,8 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
 , m_protCtrl(m_txCtrl, this)
 , m_rxCtrl(name + ".rx", &m_protCtrl)
 , m_mode(mode)
+, m_totalConnectNum(0)
+, m_totalDisconnectNum(0)
 {
     WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
     Configuration &conf(Configuration::getInstance());
@@ -275,10 +277,16 @@ void BaseStation::onUpdate(void *arg)
             } else {
                 // shutdown the channel
                 removeUser(cframe.uid, cframe.tr);
+                m_totalDisconnectNum++;
+                cout << "m_totalDisconnectNum: " << m_totalDisconnectNum << endl;
             }
         } else {
             cout << getDeviceId() << " recv ack from uid " << cframe.uid << " tr: "
                     << (int)cframe.tr << endl;
+
+            // add up connections
+            m_totalConnectNum++;
+            cout << "m_totalConnectNum: " << m_totalConnectNum << endl;
 
             if (cframe.tr) {
                 cout << getDeviceId() << " use only new code to recv uid " << cframe.uid

@@ -46,6 +46,11 @@ private:
     UserWalshMap m_pendingWalsh;    // Map UID to Walsh Code
     MODE m_mode; // Code Assignment mode
 
+    int m_totalConnectNum;          // total connection number (for automation)
+                                    // incremented every time some ms is connected
+
+    int m_totalDisconnectNum;       // total disconnections (for automation)
+
     static const int CTRL_USERID;     // ID for the control channel - to distinguish from other users
     static const int CTRL_CODELEN; // # of bits of control channel's Walsh code
 
@@ -58,8 +63,12 @@ public:
 
     virtual void onTick(int time) {}
 
-    int getDataConnections() {
-        return m_dataChannel.size();
+    int getTotalConnections() {
+        return m_totalConnectNum;
+    }
+
+    int getTotalDisconnections() {
+        return m_totalDisconnectNum;
     }
 
 protected:
