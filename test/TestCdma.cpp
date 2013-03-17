@@ -71,6 +71,14 @@ public:
     }
 };
 
+static int s_totalConnections = 0;
+
+bool shouldStop(int time, void *arg) {
+    BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
+    return bs->getTotalConnections() == s_totalConnections &&
+           bs->getTotalDisconnections() == s_totalConnections;
+}
+
 /*-----------------------------------------------------------------------------
 Read a line from stdin
 -----------------------------------------------------------------------------*/
@@ -83,6 +91,10 @@ char getLine(char* line, int size)
         if (EOF == *line)
         {
             *line = '\0';
+            if (line > p)
+            {
+                return 1;
+            }
             return EOF;
         }
 
@@ -228,9 +240,10 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
             {
                 state = PARSE_TICK_DELAY;
                 string name = "MobileStation";
-
+                cout << "Adding " << name << uid << endl;
                 // TODO: where do we clean this memory
                 AutoMobileStation* ms = new AutoMobileStation(name, pch, uid, tr, tickDelay);
+                ++s_totalConnections;
                 ms->setRateRange(dataRate, dataRate);
                 sim.addObject(ms);
             }
@@ -244,14 +257,6 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
 
 
 #define MOBILE2_JOIN_TIME   40000
-
-#define TOTAL_CONN_NUM      2
-
-bool shouldStop(int time, void *arg) {
-    BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
-    return bs->getTotalConnections() == TOTAL_CONN_NUM &&
-           bs->getTotalDisconnections() == TOTAL_CONN_NUM;
-}
 
 class Timer : public SimObject {
 private:
