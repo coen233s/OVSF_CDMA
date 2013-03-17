@@ -45,10 +45,12 @@ public:
             if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
                 cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_SEND" << endl;
                 m_state = STATE_SEND;
+                m_tickCount = time;
             }
             if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
                 cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_RECV" << endl;
                 m_state = STATE_RECV;
+                m_tickCount = time;
             }
             break;
         case STATE_SEND:
@@ -57,6 +59,7 @@ public:
                     cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();
+                    m_tickCount = time -m_tickCount;
                 }
             } else {
                 m_coolingOff = 0;
@@ -68,6 +71,7 @@ public:
                     cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();
+                    m_tickCount = time -m_tickCount;
                 }
             } else {
                 m_coolingOff = 0;
@@ -320,7 +324,7 @@ int main(int argc, char* argv[])
 
     const int testRate = pch.getChipRate() / 8;
 
-#if 0
+#if TEST_DEFAULT
     AutoMobileStation ms(string("MobileStation"), pch, UID_1);
     ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);

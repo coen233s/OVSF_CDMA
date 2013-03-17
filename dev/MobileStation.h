@@ -32,6 +32,7 @@ protected:
     int m_maxRate;
     bool m_tr;
     int m_tickDelay;
+    int m_tickCount;
 
     bool m_attached;				// ms has attached to bs
     bool m_terminated;

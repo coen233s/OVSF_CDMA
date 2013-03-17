@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <Configuration.h>
 #include "MobileStation.h"
+#include <stdio.h>
 
 using namespace std;
 
@@ -25,6 +26,7 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 , m_maxRate(RATE_MAX)
 , m_tr(tr)
 , m_tickDelay(tickDelay)
+, m_tickCount(0)
 , m_attached(false)
 , m_terminated(false)
 , m_pDataChannel(0)
@@ -115,6 +117,12 @@ void MobileStation::terminate()
     m_protCtrl.sendTearDown(m_uid, m_tr);
     delete m_pDataChannel;
     m_pDataChannel = 0;
+    ostringstream convertId;
+    convertId << getDeviceId() << "." << m_uid;
+    string name = convertId.str() + ".tick.txt";
+    FILE* f = fopen(name.c_str(), "w");
+    fprintf(f, "%d", m_tickCount);
+    fclose(f);
 }
 
 bool MobileStation::validateRate(int rate)
