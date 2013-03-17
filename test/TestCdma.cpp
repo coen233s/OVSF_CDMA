@@ -280,7 +280,38 @@ int main(int argc, char* argv[])
 {
     Simulator sim;
     SimplePhyChannel pch;
-    BaseStation bs(string("BaseStation"), pch);
+    BaseStation::MODE mode = BaseStation::VAR_DYNAMIC;
+    bool variableRate = true;
+    bool dynamicCode = true;
+    for (int i = 1; i < argc; ++ i)
+    {
+        if ((0 == stricmp("-f", argv[i])) || (0 == stricmp("--fixed-rate", argv[i])))
+        {
+            variableRate = false;
+            if (dynamicCode)
+            {
+                mode = BaseStation::FIXED_DYNAMIC;
+            }
+            else
+            {
+                mode = BaseStation::FIXED_ONCE;
+            }
+        }
+        else if ((0 == stricmp("-o", argv[i])) || (0 == stricmp("--once-code", argv[i])))
+        {
+            dynamicCode = false;
+            if (variableRate)
+            {
+                mode = BaseStation::VAR_ONCE;
+            }
+            else
+            {
+                mode = BaseStation::FIXED_ONCE;
+            }
+        }
+    }
+
+    BaseStation bs(string("BaseStation"), pch, mode);
     sim.addObject(&bs);
 
     const int testRate = pch.getChipRate() / 8;
