@@ -244,6 +244,7 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
                 // TODO: where do we clean this memory
                 AutoMobileStation* ms = new AutoMobileStation(name, pch, uid, tr ? true: false, tickDelay);
                 ++s_totalConnections;
+                cout << "s_totalConnections: " << s_totalConnections << endl;
                 ms->setRateRange(dataRate, dataRate);
                 sim.addObject(ms);
             }

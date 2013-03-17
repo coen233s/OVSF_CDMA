@@ -8,11 +8,14 @@
 #ifndef MOBILESTATION_H_
 #define MOBILESTATION_H_
 
+#include <sstream>
 #include <phy/AbsPhyChannel.h>
 #include <sim/SimObject.h>
 #include <dev/DataChannel.h>
 #include "DeviceBase.h"
 #include "protocol/ControlProtocol.h"
+
+using namespace std;
 
 class MobileStation : public DeviceBase,
                       public UpdateListener,
@@ -34,6 +37,13 @@ protected:
     bool m_terminated;
     DataChannel* m_pDataChannel;
     bool validateRate(int rate);
+
+private:
+    static string getCtrlIdString(const string& name, int uid) {
+        ostringstream  os;
+        os << name << ".ctl" << uid;
+        return os.str();
+    }
 
 public:
     MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);

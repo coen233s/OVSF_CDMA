@@ -58,11 +58,13 @@ void Transmitter::onTick(int time) {
 
     // Collision detection (check if channel is busy)
     if (m_pCoupledReceiver) {
-        if (!m_isTransmitting && m_pCoupledReceiver->getIdleCount()
-	    < m_CSMADelay) {
-	    postProcessing();
-	    return;
-	}
+        vout(getName() << " idle:" << m_pCoupledReceiver->getIdleCount() <<
+                " csma_delay:" << m_CSMADelay << endl);
+        if (m_walshIdx == 0 && !m_isTransmitting && m_pCoupledReceiver->getIdleCount()
+                < m_CSMADelay) {
+            postProcessing();
+            return;
+        }
     }
 
     walshChip = m_walshCode.getChipBit(m_walshIdx);

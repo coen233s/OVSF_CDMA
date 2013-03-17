@@ -274,6 +274,10 @@ void BaseStation::onUpdate(void *arg)
                 // send walsh code to the calling user, or to all users if code
                 // needs reassignment
                 addUser(cframe.uid, cframe.tr, pReq->min_rate, pReq->max_rate);
+
+                // add up connections
+                m_totalConnectNum++;
+                cout << "m_totalConnectNum: " << m_totalConnectNum << endl;
             } else {
                 // shutdown the channel
                 removeUser(cframe.uid, cframe.tr);
@@ -283,10 +287,6 @@ void BaseStation::onUpdate(void *arg)
         } else {
             cout << getDeviceId() << " recv ack from uid " << cframe.uid << " tr: "
                     << (int)cframe.tr << endl;
-
-            // add up connections
-            m_totalConnectNum++;
-            cout << "m_totalConnectNum: " << m_totalConnectNum << endl;
 
             if (cframe.tr) {
                 cout << getDeviceId() << " use only new code to recv uid " << cframe.uid
