@@ -143,7 +143,7 @@ void BaseStation::addChannel(int uid, int tr, const WHCode &code)
         ostringstream convertId;
         convertId << getDeviceId() << "." << uid;
         string chanstr = convertId.str();
-        pdc = new DataChannel(chanstr, m_phy, tr);
+        pdc = new DataChannel(chanstr, m_phy, tr ? true : false);
         m_dataChannel[uid] = pdc;
     } else {
         pdc = dc->second;
