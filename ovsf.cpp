@@ -341,7 +341,7 @@ OVSFTree::NodeInfo& OVSFTree::NodeInfo::operator=(const NodeInfo& rhs)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//#define _OVSFTREE_SANITY_CHECK_ENABLE 1
+#define _OVSFTREE_SANITY_CHECK_ENABLE 1
 
 OVSFTree::OVSFTree(int initialSize)
 {
