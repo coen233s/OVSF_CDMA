@@ -39,17 +39,17 @@ public:
         switch (m_state) {
         case STATE_NONE:
             if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << ": STATE_NONE --> STATE_SEND" << endl;
+                cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_SEND" << endl;
                 m_state = STATE_SEND;
             }
             if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
-                cout << getDeviceId() << ": STATE_NONE --> STATE_RECV" << endl;
+                cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_RECV" << endl;
                 m_state = STATE_RECV;
             }
             break;
         case STATE_SEND:
             if (!m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << ": STATE_SEND --> STATE_DONE" << endl;
+                cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
                 m_state = STATE_DONE;
                 terminate();
             }
@@ -57,7 +57,7 @@ public:
         case STATE_RECV:
             if (!m_pDataChannel->m_rx.hasData()) {
                 if (++m_rxIdle > 10) {
-                    cout << getDeviceId() << ": STATE_RECV --> STATE_DONE" << endl;
+                    cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();
                 }

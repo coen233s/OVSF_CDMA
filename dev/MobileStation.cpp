@@ -54,7 +54,7 @@ MobileStation::~MobileStation() {
 void MobileStation::onTick(int time) {
     if ((!m_attached) && (time >= m_tickDelay)){
         m_attached = true;
-        cout << getDeviceId() << ": " << "sending handshake" << endl;
+        cout << getDeviceId() << m_uid << ": " << "sending handshake" << endl;
         m_protCtrl.sendHandshake(m_uid, m_minRate, m_maxRate, m_tr);
     }
 }
@@ -64,13 +64,13 @@ void MobileStation::onUpdate(void *arg)
     ControlFrame &cframe(*(ControlFrame *)arg);
     if (!cframe.c2s && cframe.uid == m_uid)
     {
-        cout << getDeviceId() << " recv control frame \n[" << cframe << "]" << endl;
+        cout << getDeviceId() << m_uid << " recv control frame \n[" << cframe << "]" << endl;
         ostringstream convertId;
         convertId << getDeviceId() << "." << m_uid;
         string chanstr = convertId.str();
         if (0 == m_pDataChannel)
         {
-            cout << getDeviceId() << ": bringing up data channel" << endl;
+            cout << getDeviceId() << m_uid << ": bringing up data channel" << endl;
             m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
         }
 
@@ -81,7 +81,7 @@ void MobileStation::onUpdate(void *arg)
             byteArray += ((char)pCa->code[i]);
         }
         WHCode code(byteArray);
-        cout << getDeviceId() << ": got walshcode (len " << code.length() << "): "
+        cout << getDeviceId() << m_uid << ": got walshcode (len " << code.length() << "): "
 	     << code
 	     << endl;
 
@@ -90,7 +90,7 @@ void MobileStation::onUpdate(void *arg)
             m_pDataChannel->setTxWalshCode(code);
 
             // Acknowledge the new code
-            cout << getDeviceId() << ": ack the walsh code for tx channel" << endl;
+            cout << getDeviceId() << m_uid << ": ack the walsh code for tx channel" << endl;
             m_protCtrl.sendCodeAck(m_uid, m_tr);
 
             // TODO: start sending data
@@ -101,7 +101,7 @@ void MobileStation::onUpdate(void *arg)
             m_pDataChannel->addRxWalshCode(code);
 
             // Acknowledge the new code
-            cout << getDeviceId() << ": ack and add the walsh code for rx channel" << endl;
+            cout << getDeviceId() << m_uid << ": ack and add the walsh code for rx channel" << endl;
             m_protCtrl.sendCodeAck(m_uid, m_tr);
 
             // TODO: start receiving data
@@ -111,7 +111,7 @@ void MobileStation::onUpdate(void *arg)
 
 void MobileStation::terminate()
 {
-    cout << getDeviceId() << ": Terminating..." << endl;
+    cout << getDeviceId() << m_uid << ": Terminating..." << endl;
     m_protCtrl.sendTearDown(m_uid, m_tr);
     delete m_pDataChannel;
     m_pDataChannel = 0;
