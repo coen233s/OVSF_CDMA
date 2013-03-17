@@ -326,7 +326,7 @@ OVSFTree::OVSFTree(int initialSize)
   // index 0 is unused. 
   nodes.push_back(NodeInfo());
   // index 1 is a root node
-  nodes.push_back(NodeInfo());
+  nodes.push_back(NodeInfo(1));
 
   expandTree(initialSize);
 }
@@ -504,6 +504,8 @@ int OVSFTree::expandTree(unsigned int size)
   }
   
   // construct new WHCode for the expanding nodes
+  std::vector<int> usedNodeIds; // a list of nodeId that are in used.
+
   queue<int> q;
   q.push(1);
   while (!q.empty()) {
@@ -511,6 +513,10 @@ int OVSFTree::expandTree(unsigned int size)
     q.pop();
     if (nodeId >= upperbound) 
       continue;
+
+	// Keep tracking the used nodeId
+	if (nodeId <= lastNode && nodes[nodeId].isUsedCode())
+		usedNodeIds.push_back(nodeId);
 
     q.push(nodeId * 2);
     q.push(nodeId * 2 + 1);
@@ -531,6 +537,12 @@ int OVSFTree::expandTree(unsigned int size)
     nodes[nodeId] = NodeInfo(WHCode(parent,pattern), nodeId);
 
   }
+ 
+  for(size_t k=0; k<usedNodeIds.size(); k++) {
+	  setAncestorBlockNode(usedNodeIds[k],true);
+	  setDescendantBlockNode(usedNodeIds[k],true);
+  }
+  
   assert(upperbound - 1 == codeCount());
   return upperbound - 1;
 }
@@ -562,22 +574,20 @@ int OVSFTree::setAncestorBlockNode(int nodeId, bool isBlock)
 
 int OVSFTree::setDescendantBlockNode(int nodeId, bool isBlock)
 {
-  int childId = nodeId;
+  queue<int> q;
+  q.push(nodeId * 2);
+  q.push(nodeId * 2 + 1);
+
   const int lastNode = codeCount();
-  while (childId <= lastNode) {
-    childId = childId * 2 + 1;
+  while (!q.empty()) {
+    int childId = q.front();
+    q.pop();
 
     if (childId > lastNode)
       break;
 
-    if (isBlock)
-      nodes[childId].setBlockNodeId(nodeId);
-    else
-      nodes[childId].unsetBlockNodeId(nodeId);
-
-    childId--;
-    if (childId > lastNode)
-      break;
+	q.push(childId * 2);
+	q.push(childId * 2 + 1);
 
     if (isBlock)
       nodes[childId].setBlockNodeId(nodeId);
