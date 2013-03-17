@@ -1,0 +1,20 @@
+#### test1.txt contents ####
+# Field format: Tick Delay, UID, T/R, Rate kB
+ 
+# Mobile Station 2 transmits file 2.in to Base Station at 1200 kbps
+# Base Station receives the content and save it as 2.out,
+# Also create file 2.chip for chipcount
+# diff 2.in 2.out
+0 2 1 153600
+ 
+# MS 3 receives file 3.in from Base Station at 4800 kbps, and save it as 3.out
+# We need to prebuild a file 3.bin save it to the subdirectory of Base Station
+# Also create file 3.chip for chipcount
+# diff 3.in 3.out
+30000 3 0 1200
+ 
+# MS 4 delays 40000 ticks, then receives file 4.in from Base Station at 1200 kbps, and save it as 4.out
+# Also create file 4.chip for chipcount
+# diff 4.in 4.out
+70000 4 1 153600
+
