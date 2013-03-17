@@ -12,6 +12,65 @@ using namespace std;
 #define UID_1	0x02
 #define UID_2	0x03
 
+class AutoMobileStation : public MobileStation {
+protected:
+    typedef MobileStation Base;
+
+    enum STATE {
+        STATE_NONE = 0,
+        STATE_SEND,
+        STATE_RECV,
+        STATE_DONE,
+    } m_state;
+
+    int m_rxIdle;
+
+public:
+    AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
+            int tickDelay = 0)
+    : MobileStation(name, pch, uid, tr, tickDelay)
+    , m_state(STATE_NONE)
+    , m_rxIdle(0)
+    { }
+
+    virtual void onTick(int time) {
+        MobileStation::onTick(time);
+
+        switch (m_state) {
+        case STATE_NONE:
+            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
+                cout << getDeviceId() << ": STATE_NONE --> STATE_SEND" << endl;
+                m_state = STATE_SEND;
+            }
+            if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
+                cout << getDeviceId() << ": STATE_NONE --> STATE_RECV" << endl;
+                m_state = STATE_RECV;
+            }
+            break;
+        case STATE_SEND:
+            if (!m_pDataChannel->m_tx.hasPendingData()) {
+                cout << getDeviceId() << ": STATE_SEND --> STATE_DONE" << endl;
+                m_state = STATE_DONE;
+                terminate();
+            }
+            break;
+        case STATE_RECV:
+            if (!m_pDataChannel->m_rx.hasData()) {
+                if (++m_rxIdle > 10) {
+                    cout << getDeviceId() << ": STATE_RECV --> STATE_DONE" << endl;
+                    m_state = STATE_DONE;
+                    terminate();
+                }
+            } else {
+                m_rxIdle = 0;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+};
+
 /*-----------------------------------------------------------------------------
 Read a line from stdin
 -----------------------------------------------------------------------------*/
@@ -171,7 +230,7 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
                 string name = "MobileStation";
 
                 // TODO: where do we clean this memory
-                MobileStation* ms = new MobileStation(name, pch, uid);
+                AutoMobileStation* ms = new AutoMobileStation(name, pch, uid, tr, tickDelay);
                 ms->setRateRange(dataRate, dataRate);
                 sim.addObject(ms);
             }
@@ -183,64 +242,6 @@ void addUser(Simulator& sim, SimplePhyChannel& pch)
     }
 }
 
-class AutoMobileStation : public MobileStation {
-protected:
-    typedef MobileStation Base;
-
-    enum STATE {
-        STATE_NONE = 0,
-        STATE_SEND,
-        STATE_RECV,
-        STATE_DONE,
-    } m_state;
-
-    int m_rxIdle;
-
-public:
-    AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
-            int tickDelay = 0)
-    : MobileStation(name, pch, uid, tr, tickDelay)
-    , m_state(STATE_NONE)
-    , m_rxIdle(0)
-    { }
-
-    virtual void onTick(int time) {
-        MobileStation::onTick(time);
-
-        switch (m_state) {
-        case STATE_NONE:
-            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << ": STATE_NONE --> STATE_SEND" << endl;
-                m_state = STATE_SEND;
-            }
-            if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
-                cout << getDeviceId() << ": STATE_NONE --> STATE_RECV" << endl;
-                m_state = STATE_RECV;
-            }
-            break;
-        case STATE_SEND:
-            if (!m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << ": STATE_SEND --> STATE_DONE" << endl;
-                m_state = STATE_DONE;
-                terminate();
-            }
-            break;
-        case STATE_RECV:
-            if (!m_pDataChannel->m_rx.hasData()) {
-                if (++m_rxIdle > 10) {
-                    cout << getDeviceId() << ": STATE_RECV --> STATE_DONE" << endl;
-                    m_state = STATE_DONE;
-                    terminate();
-                }
-            } else {
-                m_rxIdle = 0;
-            }
-            break;
-        default:
-            break;
-        }
-    }
-};
 
 #define MOBILE2_JOIN_TIME   40000
 
@@ -274,13 +275,15 @@ int main(int argc, char* argv[])
 
     const int testRate = pch.getChipRate() / 8;
 
-#if 1
+#if 0
     AutoMobileStation ms(string("MobileStation"), pch, UID_1);
+    ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
     AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME);
+    ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
 
-#if !TEST_CODE_RANGE
+#if TEST_CODE_RANGE
     // Fix MS data rate if TEST_CODE_RANGE is not set
     ms.setRateRange(testRate, testRate);
     ms2.setRateRange(testRate, testRate);

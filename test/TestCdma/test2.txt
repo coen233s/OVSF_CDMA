@@ -1,4 +1,4 @@
-#### test1.txt contents ####
+#### test2.txt contents ####
 # Field format: Tick Delay, UID, T/R, Rate kB
  
 # Mobile Station 2 transmits file 2.in to Base Station at 1200 kbps
@@ -11,7 +11,8 @@
 # We need to prebuild a file 3.bin save it to the subdirectory of Base Station
 # Also create file 3.chip for chipcount
 # diff 3.in 3.out
-40000 3 0 153600
+# tickDelay = 0 cause a hang
+0 3 0 153600
  
 # MS 4 delays 40000 ticks, then receives file 4.in from Base Station at 1200 kbps, and save it as 4.out
 # Also create file 4.chip for chipcount

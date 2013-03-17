@@ -1,0 +1,16 @@
+ Volume in drive C is OS
+ Volume Serial Number is BE69-AFE9
+
+ Directory of C:\Users\ezeng\Documents\GitHub\OVSF_CDMA\test
+
+03/16/2013  08:42 PM    <DIR>          .
+03/16/2013  08:42 PM    <DIR>          ..
+03/10/2013  01:55 AM               718 test1.txt
+03/16/2013  08:42 PM             1,670 TestBaseStation.cpp
+03/16/2013  08:42 PM               810 TestBitQueue.cpp
+03/16/2013  08:42 PM    <DIR>          TestCdma
+03/16/2013  08:48 PM             7,280 TestCdma.cpp
+03/15/2013  11:06 AM            10,894 TestOVSF.cpp
+03/15/2013  11:06 AM             1,148 TestTransmit.cpp
+               6 File(s)         22,520 bytes
+               3 Dir(s)  74,828,857,344 bytes free
