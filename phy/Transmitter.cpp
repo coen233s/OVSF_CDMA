@@ -39,15 +39,15 @@ void Transmitter::onTick(int time) {
 
     m_nextChip = 0;
 
-    if (m_walshCode.length() == 0) {
-        postProcessing();
-        return;
-    }
-
     // Update Walsh code
     if (m_walshIdx == 0 && m_hasPendingWalsh) {
         m_walshCode = m_pendingWalshCode;
         m_hasPendingWalsh = false;
+    }
+	
+	if (m_walshCode.length() == 0) {
+        postProcessing();
+        return;
     }
 
     // Sync time to multiple of code length

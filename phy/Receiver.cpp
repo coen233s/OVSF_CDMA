@@ -5,6 +5,7 @@
  *      Author: Danke
  */
 
+#include <algorithm>
 #include <assert.h>
 #include <debug.h>
 #include <iostream>
@@ -17,6 +18,7 @@ using namespace std;
 Receiver::Receiver(const string name, UpdateListener *updateListener)
 : RxTxBase(name)
 , m_idleCount(0)
+, m_maxWalshLen(0)
 , m_hasWalshToWait(false)
 , m_BitQueue(name, this)
 , m_updateListener(updateListener)
@@ -33,6 +35,8 @@ void Receiver::setWalshCode(const vector<WHCode> &newCodes) {
     m_WalshIdx.resize(newCodes.size(), 0);
     m_WalshDotProd.clear();
     m_WalshDotProd.resize(newCodes.size(), 0);
+
+	updateWalshCodeLength();
 }
 
 // Change walsh code (in case the walsh code exists, keep its index)
@@ -57,10 +61,22 @@ void Receiver::setWalshCode(const WHCode &newCode) {
     }
 }
 
+void Receiver::updateWalshCodeLength() {
+	int maxLen = 0;
+	for (vector<WHCode>::iterator it = m_WalshCode.begin();
+		it != m_WalshCode.end();
+		it++) {
+			maxLen = max(maxLen, (*it).length());
+	}
+	m_maxWalshLen = maxLen;
+}
+
 void Receiver::addWalshCode(const WHCode &code) {
     m_WalshCode.push_back(code);
     m_WalshIdx.resize(m_WalshCode.size(), 0);
     m_WalshDotProd.resize(m_WalshCode.size(), 0);
+
+	m_maxWalshLen = max(m_maxWalshLen, code.length());
 }
 
 void Receiver::removeWalshCode(const WHCode &code) {

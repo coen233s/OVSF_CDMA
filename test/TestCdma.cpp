@@ -55,7 +55,7 @@ public:
             break;
         case STATE_SEND:
             if (!m_pDataChannel->m_tx.hasPendingData()) {
-                if (m_coolingOff++ > m_pDataChannel->m_tx.geWalshLength()) {
+                if (m_coolingOff++ > m_pDataChannel->m_tx.getWalshLength()) {
                     cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();
@@ -67,7 +67,7 @@ public:
             break;
         case STATE_RECV:
             if (!m_pDataChannel->m_rx.hasData()) {
-                if (++m_coolingOff > 10) {
+				if (++m_coolingOff > m_pDataChannel->m_rx.getWalshLength()) {
                     cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();

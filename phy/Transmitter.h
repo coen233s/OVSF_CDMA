@@ -52,7 +52,7 @@ public:
         m_hasPendingWalsh = false;
     }
 
-    int geWalshLength() {
+    int getWalshLength() {
         return m_walshCode.length();
     }
 

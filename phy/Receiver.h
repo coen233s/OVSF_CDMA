@@ -28,6 +28,9 @@ private:
     // Set of Walsh codes
     vector<WHCode> m_WalshCode;
 
+	// Max code length
+	int m_maxWalshLen;
+
     // Walsh code to wait
     WHCode m_WalshCodeToWait;
 
@@ -65,6 +68,12 @@ public:
         m_WalshCodeToWait = code;
         m_hasWalshToWait = true;
     }
+
+	void updateWalshCodeLength();
+
+	int getWalshLength() {
+		return m_maxWalshLen;
+	}
 
     // Called before onTick(). Sets the chip value.
     // Chip value can be negative, 0, or positive
