@@ -122,5 +122,8 @@ DataChannel::~DataChannel()
 {
     m_pch.detachReceiver(&m_rx);
     m_pch.detachTransmitter(&m_tx);
-    fclose(m_file);
+    if (NULL != m_file) 
+    {
+        fclose(m_file);
+    }
 }
