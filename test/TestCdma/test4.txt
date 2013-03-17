@@ -18,4 +18,4 @@
 # MS 4 delays 40000 ticks, then receives file 4.in from Base Station at 1200 kbps, and save it as 4.out
 # Also create file 4.chip for chipcount
 # diff 4.in 4.out
-40000 4 0 153600
+40016 4 0 153600
