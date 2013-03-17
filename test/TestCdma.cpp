@@ -12,6 +12,10 @@ using namespace std;
 #define UID_1	0x02
 #define UID_2	0x03
 
+#ifndef WIN32
+#define stricmp strcasecmp
+#endif
+
 class AutoMobileStation : public MobileStation {
 protected:
     typedef MobileStation Base;
