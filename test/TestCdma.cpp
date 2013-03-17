@@ -23,14 +23,14 @@ protected:
         STATE_DONE,
     } m_state;
 
-    int m_rxIdle;
+    int m_coolingOff;
 
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
             int tickDelay = 0)
     : MobileStation(name, pch, uid, tr, tickDelay)
     , m_state(STATE_NONE)
-    , m_rxIdle(0)
+    , m_coolingOff(0)
     { }
 
     virtual void onTick(int time) {
@@ -49,20 +49,24 @@ public:
             break;
         case STATE_SEND:
             if (!m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
-                m_state = STATE_DONE;
-                terminate();
+                if (m_coolingOff++ > m_pDataChannel->m_tx.geWalshLength()) {
+                    cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
+                    m_state = STATE_DONE;
+                    terminate();
+                }
+            } else {
+                m_coolingOff = 0;
             }
             break;
         case STATE_RECV:
             if (!m_pDataChannel->m_rx.hasData()) {
-                if (++m_rxIdle > 10) {
+                if (++m_coolingOff > 10) {
                     cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_DONE" << endl;
                     m_state = STATE_DONE;
                     terminate();
                 }
             } else {
-                m_rxIdle = 0;
+                m_coolingOff = 0;
             }
             break;
         default:

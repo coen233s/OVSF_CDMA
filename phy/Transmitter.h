@@ -52,6 +52,10 @@ public:
         m_hasPendingWalsh = false;
     }
 
+    int geWalshLength() {
+        return m_walshCode.length();
+    }
+
     // Called after onTick(). Returns 0, +1 or -1.
     int getChip() {
         return m_nextChip;
