@@ -156,6 +156,26 @@ int WHCode::dot(const WHCode& rhs) const
   return sum;
 }
 
+bool WHCode::isOrthogonal(const WHCode& rhs) const
+{
+	if (length() == rhs.length()) {
+		return (dot(rhs) == 0);
+	}
+	const WHCode& longCode = (length() > rhs.length() ) ? *this: rhs;
+	const WHCode& shortCode = (length() > rhs.length() ) ? rhs: *this;
+
+	assert(shortCode.length() > 0);
+	int fraction = longCode.length() / shortCode.length();
+
+	std::vector<WHCode> splitcodes = longCode.split(fraction);
+	for (size_t k=0; k<splitcodes.size(); ++k) {
+		assert(splitcodes[k].length() == shortCode.length());
+		if (splitcodes[k].dot(shortCode) != 0)
+			return false;
+	}
+	return true;
+}
+
 std::string WHCode::toByteArray() const
 {
   // WH code is always a power of 2.
@@ -320,6 +340,8 @@ OVSFTree::NodeInfo& OVSFTree::NodeInfo::operator=(const NodeInfo& rhs)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+//#define _OVSFTREE_SANITY_CHECK_ENABLE 1
 
 OVSFTree::OVSFTree(int initialSize)
 {
@@ -821,11 +843,21 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
     int nodeId = beginNode + offset + k;
     //cout << "-> nodeId is " << nodeId << endl;
     if (tree.nodes[nodeId].isFreeCode()) {
-      bool status = tree.assign(assignLevel,offset+k,userId);
+		WHCode code;
+	 
+#ifdef _OVSFTREE_SANITY_CHECK_ENABLE
+	  std::vector<std::pair<int,WHCode> > usedCode = listUsedCode();
+	  bool status = tree.assign(assignLevel,offset+k,userId);
       assert(status);
-
-      WHCode code;
       tree.peek(assignLevel,offset+k,code);
+	  for (size_t k=0; k<usedCode.size(); k++) {
+		  assert(usedCode[k].second.isOrthogonal(code));
+	  }
+#else
+		bool status = tree.assign(assignLevel,offset+k,userId);
+		assert(status);
+		tree.peek(assignLevel,offset+k,code);
+#endif
       return std::make_pair(true,code);
     }
   }

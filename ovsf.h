@@ -35,6 +35,8 @@ public:
   virtual ~WHCode();
 
   int dot(const WHCode& rhs) const;
+  bool isOrthogonal(const WHCode& rhs) const;
+
   bool equals(const WHCode& rhs) const;
   int length() const;
 
