@@ -1063,6 +1063,20 @@ bool Math_IsPowerOfTwo(unsigned int v)
   return ((v > 0) && ((v & (v-1)) == 0));
 }
 
+int Poisson_Rand(const double lambda)
+{
+	double r = -1.0 * (double)lambda;
+	double L = exp(r);
+	int k = 0;
+	double p = 1.0;
+	do {
+		k = k + 1;
+		double u =((double)rand()/(double)RAND_MAX);
+		p = p * u;
+	} while (p > L);
+	return k - 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 

@@ -268,6 +268,7 @@ std::vector<WHCode> CDMA_GenerateCode(int numUsers);
 // Math utils
 unsigned int Math_Log2(unsigned int v);
 bool Math_IsPowerOfTwo(unsigned int v);
+int Poisson_Rand(const double lambda);
 
 ///////////////////////////////////////////////////////////////////////////////
 
