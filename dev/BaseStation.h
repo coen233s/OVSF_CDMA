@@ -28,9 +28,9 @@ class BaseStation : public DeviceBase,
 public:
     enum MODE {
         FIXED_ONCE = 1,
-	FIXED_DYNAMIC,
-	VAR_ONCE,
-	VAR_DYNAMIC
+		FIXED_DYNAMIC,
+		VAR_ONCE,
+		VAR_DYNAMIC
     };
 
 private:
@@ -41,7 +41,7 @@ private:
     Transmitter m_txCtrl;			// control channel transmitter
     ControlProtocol m_protCtrl;		// control protocol processor
     Receiver m_rxCtrl;				// control channel receiver
-    Assigner m_assigner;			// OVSF Code assigner
+	AssignerInterface* m_pAssigner; // OVSF Code assigner
     DataChannelMap m_dataChannel;	// Data channels to talk to MobileStations
     UserWalshMap m_pendingWalsh;    // Map UID to Walsh Code
     MODE m_mode; // Code Assignment mode

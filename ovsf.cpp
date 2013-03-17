@@ -491,19 +491,6 @@ int OVSFTree::blockCodeCount() const
   return s;
 }
 
-bool OVSFTree::isPowerOfTwo(unsigned int v) const
-{
-  return ((v > 0) && ((v & (v-1)) == 0));
-}
-
-unsigned int OVSFTree::log2(unsigned int v) const
-{
-  unsigned int shift = 0;
-  while (v >>= 1) 
-    shift++;
-  return shift;
-}
-
 int OVSFTree::expandTreeByLevel(unsigned int level)
 {
   return expandTree(1 << level);
@@ -512,7 +499,7 @@ int OVSFTree::expandTreeByLevel(unsigned int level)
 int OVSFTree::expandTree(unsigned int size)
 {
   // convert size to a multiple of 2
-  int upperbound = 1 << (log2(size)+1);
+  int upperbound = 1 << (Math_Log2(size)+1);
   
   if (codeCount() >= upperbound)
     return codeCount();
@@ -633,7 +620,7 @@ std::vector<std::pair<int,WHCode> > OVSFTree::listUsedCode() const
 
 unsigned int OVSFTree::getTreeLevel() const
 {
-  return log2(codeCount() - 1);
+  return Math_Log2(codeCount() - 1);
 }
 
 void OVSFTree::print() const
@@ -762,7 +749,7 @@ bool Assigner::hasUserId(int userId) const
 
 bool Assigner::validateRequestCodeLength(int codeLen) const
 {
-  return (codeLen >= SHORTEST_CODE_LEN && tree.isPowerOfTwo(codeLen));
+  return (codeLen >= SHORTEST_CODE_LEN && Math_IsPowerOfTwo(codeLen));
 }
 
 bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
@@ -772,7 +759,7 @@ bool Assigner::validateRequestCodeLength(const std::vector<int>& codeLen) const
     if (codeLen[i] < SHORTEST_CODE_LEN) 
       return false;
 
-    if (!tree.isPowerOfTwo(codeLen[i]))
+    if (!Math_IsPowerOfTwo(codeLen[i]))
       return false;
   }
   
@@ -819,7 +806,7 @@ std::pair<bool,WHCode> Assigner::assignUserId(int userId, int codeLens)
 
   // look for the non-full bucket that has the least capacity
   unsigned int level = tree.getTreeLevel();
-  unsigned int assignLevel = tree.log2(codeLens);
+  unsigned int assignLevel = Math_Log2(codeLens);
   if (assignLevel > level) {
     // there is not enough nodes
     tree.expandTreeByLevel(assignLevel);
@@ -937,12 +924,12 @@ std::vector<std::pair<int, WHCode> > Assigner::listUsedCode() const
 
 int Assigner::calcShortestFreeCode(int requestLen) const 
 { 
-  assert(tree.isPowerOfTwo(requestLen));
-  if (!tree.isPowerOfTwo(requestLen)) 
+  assert(Math_IsPowerOfTwo(requestLen));
+  if (!Math_IsPowerOfTwo(requestLen)) 
     return 0;
 
   int lastNode = tree.codeCount();
-  unsigned int lastLevel = tree.log2(lastNode - 1);
+  unsigned int lastLevel = Math_Log2(lastNode - 1);
   for (unsigned int lv = 2; lv <= lastLevel; lv++) {
     int codeLen = 1 << lv;
 
@@ -966,7 +953,7 @@ int Assigner::calcShortestFreeCode(int requestLen) const
 double Assigner::calcCurrentCapacity() const 
 { 
   int lastNode = tree.codeCount();
-  unsigned int level = tree.log2(lastNode - 1);
+  unsigned int level = Math_Log2(lastNode - 1);
   //cout << "level=" << level << endl;
 
   int count = 0;
@@ -1006,6 +993,45 @@ bool Assigner::hasExceedCapacity(const std::vector<int>& codeLength)
     sum += (1.0/(double)codeLength[k]);
   }
   return (sum >= 1.0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+FixedLengthAssigner::FixedLengthAssigner(int codeLength, int specialUserId): 
+	Assigner(),
+	m_codeLength(codeLength),
+	m_specialUserId(specialUserId)
+{
+}
+
+FixedLengthAssigner::~FixedLengthAssigner() 
+{
+}
+
+std::pair<bool,WHCode> FixedLengthAssigner::assignUserId(int userId, int codeLen)
+{
+	if (userId != m_specialUserId)
+		return Assigner::assignUserId(userId,m_codeLength);
+	else
+		return Assigner::assignUserId(userId,codeLen);
+}
+
+std::pair<bool,WHCode> FixedLengthAssigner::assignUserId(int userId, int minLen, int maxLen)
+{
+	if (userId != m_specialUserId)
+		return Assigner::assignUserId(userId,m_codeLength);
+	else
+		return Assigner::assignUserId(userId,minLen,maxLen);
+}
+
+std::vector<std::pair<int,WHCode> > FixedLengthAssigner::assignUserIds(	const std::vector<int>& userId, 
+																		const std::vector<int>& codeLens)
+{
+	std::vector<int> adjustedCodeLen;
+	for (size_t k=0; k<codeLens.size(); k++) {
+		adjustedCodeLen.push_back(m_codeLength);
+	}
+	return Assigner::assignUserIds(userId,adjustedCodeLen);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -25,10 +25,29 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
 , m_txCtrl(name + ".tx")
 , m_protCtrl(m_txCtrl, this)
 , m_rxCtrl(name + ".rx", &m_protCtrl)
+, m_pAssigner(NULL)
 , m_mode(mode)
 , m_totalConnectNum(0)
 , m_totalDisconnectNum(0)
 {
+	//FixedLengthAssigner
+	switch (mode) {
+	case VAR_DYNAMIC:
+		m_pAssigner = new Assigner;
+		break;
+	case FIXED_DYNAMIC:
+		assert(false); // not yet support
+		break;
+
+	case FIXED_ONCE:
+		m_pAssigner = new FixedLengthAssigner(1024,1); // 1K channel
+		break;
+
+	case VAR_ONCE:
+		assert(false); // not yet support
+		break;
+	}
+
     WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
     Configuration &conf(Configuration::getInstance());
     conf.setControlChannelCode(ctrlCode);
@@ -43,17 +62,25 @@ BaseStation::BaseStation(const string& name, AbsPhyChannel &pch, MODE mode)
 }
 
 BaseStation::~BaseStation() {
+	if (m_pAssigner)
+		delete m_pAssigner;
 }
 
 WHCode BaseStation::initControlChannelWalshCode(const int id, const int codelen)
 {
     // These constraits must be satisfied before we are running the basestation
-    assert(m_assigner.validateRequestCodeLength(codelen));
-    assert(id > 0);
-    assert(m_assigner.calcCurrentCapacity() == 1.0);
-    assert(m_assigner.calcShortestFreeCode(codelen) <= codelen);
+	if (m_mode == VAR_DYNAMIC) {
+		assert(m_pAssigner->validateRequestCodeLength(codelen));
+		assert(id > 0);
+		assert(m_pAssigner->calcCurrentCapacity() == 1.0);
+		assert(m_pAssigner->calcShortestFreeCode(codelen) <= codelen);
+	}
+	else {
+		assert(id > 0);
+		assert(m_pAssigner->calcCurrentCapacity() == 1.0);
+	}
 
-    std::pair<bool,WHCode> rval = m_assigner.assignUserId(id,codelen);
+    std::pair<bool,WHCode> rval = m_pAssigner->assignUserId(id,codelen);
     assert(rval.first);
     return rval.second;
 }
@@ -61,9 +88,9 @@ WHCode BaseStation::initControlChannelWalshCode(const int id, const int codelen)
 // Calculate the new code length for everybody. This method will give the same code length to everybody.
 std::vector<std::pair<int,WHCode> > BaseStation::assignAvgCodeLength(int newUserId)
 {
-    std::vector<std::pair<int,WHCode> > snapshots = m_assigner.listUsedCode();
+    std::vector<std::pair<int,WHCode> > snapshots = m_pAssigner->listUsedCode();
 
-    m_assigner.releaseAll();
+    m_pAssigner->releaseAll();
     // need to preserve the 16-bit 0xffff for control channel
     WHCode ctrlCode = initControlChannelWalshCode(CTRL_USERID,CTRL_CODELEN);
     Configuration &conf(Configuration::getInstance());
@@ -81,7 +108,7 @@ std::vector<std::pair<int,WHCode> > BaseStation::assignAvgCodeLength(int newUser
     userIds.push_back(newUserId);
     codeLens.push_back(avgCodeLength);
 
-    return m_assigner.assignUserIds(userIds,codeLens);
+    return m_pAssigner->assignUserIds(userIds,codeLens);
 }
 
 void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame& frameOut)
@@ -201,14 +228,14 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
 
     cout << getDeviceId() << " send code assignment\n";
 
-    if (m_assigner.hasUserId(frameOut.uid)) {
+    if (m_pAssigner->hasUserId(frameOut.uid)) {
         cerr << "Error: " << getDeviceId() << ": user has already connected, " <<
                 "uid: " << (int)frameOut.uid << endl;
         return;
     }
 
     int requestCodeLength = maxCodeLen;
-    if (!m_assigner.validateRequestCodeLength(requestCodeLength)) {
+    if (!m_pAssigner->validateRequestCodeLength(requestCodeLength)) {
         cerr << "Error: " << getDeviceId() << ": valiate request code length failed," <<
                 " maxCodeLen: " << maxCodeLen <<
                 " requestCodeLength: " << requestCodeLength << endl;
@@ -217,16 +244,16 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
 
     // Trying to specify code length range
 #if !TEST_CODE_RANGE
-    std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid, requestCodeLength);
+    std::pair<bool,WHCode> result = m_pAssigner->assignUserId(frameOut.uid, requestCodeLength);
 #else
-    std::pair<bool,WHCode> result = m_assigner.assignUserId(frameOut.uid,
+    std::pair<bool,WHCode> result = m_pAssigner->assignUserId(frameOut.uid,
             minCodeLen, requestCodeLength);
 #endif
    
     if (!result.first)
     {
         // if the capacity is closed too 0.0, it means there is not much space left
-        double capacity = m_assigner.calcCurrentCapacity();
+        double capacity = m_pAssigner->calcCurrentCapacity();
         if (capacity <= 0.0) {
             std::vector<std::pair<int,WHCode> > r = assignAvgCodeLength(frameOut.uid);
             assert(!r.empty());
@@ -242,8 +269,8 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
             return;
         }
         // we will just give the lowest rate to the new guys
-        int newCodeLength = m_assigner.calcShortestFreeCode(requestCodeLength);
-        result = m_assigner.assignUserId(frameOut.uid, newCodeLength);
+        int newCodeLength = m_pAssigner->calcShortestFreeCode(requestCodeLength);
+        result = m_pAssigner->assignUserId(frameOut.uid, newCodeLength);
         assert(result.first);
     }
 
@@ -255,7 +282,7 @@ void BaseStation::removeUser(int uid, int tr)
     // XXX m_assigner does not allow 2 codes for each user. But this is
     // supported by BaseStation (each uid can have two subchannels, rx and tx),
     // To get full duplex support, we can add 'tr' parameter to Assigner.
-    m_assigner.releaseUserId(uid);
+    m_pAssigner->releaseUserId(uid);
     removeChannel(uid, tr);
 }
 

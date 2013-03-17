@@ -127,8 +127,6 @@ public:
   unsigned int getTreeLevel() const;
 
   // Utils
-  unsigned int log2(unsigned int v) const;
-  bool isPowerOfTwo(unsigned int v) const;
   int convertToNodeId(int level, int id) const;
   bool validate(int level, int id) const;
   bool isAncestorFreeCode(int nodeId) const;
@@ -144,7 +142,50 @@ std::ostream& operator<<(std::ostream& os, const OVSFTree& tree);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Assigner 
+class AssignerInterface
+{
+public:
+	AssignerInterface() {}
+	virtual ~AssignerInterface() {}
+
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int codeLen) = 0;
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen) = 0;
+  virtual std::vector<std::pair<int,WHCode> > assignUserIds(const std::vector<int>& userId,
+													const std::vector<int>& codeLens) = 0;
+
+  virtual void releaseUserId(int userId) = 0;
+  virtual void releaseAll() = 0;
+
+  // check if the request code length is valid. It must be >= 4 and a power of two.
+  virtual bool validateRequestCodeLength(int codeLen) const = 0;
+
+  // check if the given request code lengths can be found on OVSF Tree.
+  virtual bool validateRequestCodeLength(const std::vector<int>& codeLen) const = 0;
+
+  // list all used code and its userId
+  virtual std::vector<std::pair<int, WHCode> > listUsedCode() const = 0;
+
+  // return all codes that are assigned to the given userId
+  virtual std::vector<WHCode> getWHCodeByUserId(int userId) const = 0;
+
+  // query if the given userId has assigned some WHCode
+  virtual bool hasUserId(int userId) const = 0;
+
+  // requestLen : target code length (must be a power of two)
+  // return the code length >= requestLen
+  // or zero when there is no code available
+  virtual int calcShortestFreeCode(int requestLen) const = 0;
+
+  // query the current capacity of the OVSF Tree. The capacity is 
+  // a fraction between [0,1.0]. 1.0 means 100% free capacity. 
+  virtual double calcCurrentCapacity() const = 0;
+
+  virtual void print() const = 0;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Dynamic Length CDMA code assigner
+class Assigner: public AssignerInterface
 {
 public:
   Assigner();
@@ -152,41 +193,41 @@ public:
 
   // Use Compact coding assignment algorithm.
   // This method will reject any codeLen <= 2
-  std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
 
-  std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen);
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen);
 
-  std::vector<std::pair<int,WHCode> > assignUserIds(const std::vector<int>& userId,
+  virtual std::vector<std::pair<int,WHCode> > assignUserIds(const std::vector<int>& userId,
 						    const std::vector<int>& codeLens);
 
-  void releaseUserId(int userId);
-  void releaseAll();
+  virtual void releaseUserId(int userId);
+  virtual void releaseAll();
 
   // check if the request code length is valid. It must be >= 4 and a power of two.
-  bool validateRequestCodeLength(int codeLen) const;
+  virtual bool validateRequestCodeLength(int codeLen) const;
 
   // check if the given request code lengths can be found on OVSF Tree.
-  bool validateRequestCodeLength(const std::vector<int>& codeLen) const;
+  virtual bool validateRequestCodeLength(const std::vector<int>& codeLen) const;
 
   // list all used code and its userId
-  std::vector<std::pair<int, WHCode> > listUsedCode() const;
+  virtual std::vector<std::pair<int, WHCode> > listUsedCode() const;
 
   // return all codes that are assigned to the given userId
-  std::vector<WHCode> getWHCodeByUserId(int userId) const;
+  virtual std::vector<WHCode> getWHCodeByUserId(int userId) const;
 
   // query if the given userId has assigned some WHCode
-  bool hasUserId(int userId) const;
+  virtual bool hasUserId(int userId) const;
 
   // requestLen : target code length (must be a power of two)
   // return the code length >= requestLen
   // or zero when there is no code available
-  int calcShortestFreeCode(int requestLen) const;
+  virtual int calcShortestFreeCode(int requestLen) const;
 
   // query the current capacity of the OVSF Tree. The capacity is 
   // a fraction between [0,1.0]. 1.0 means 100% free capacity. 
-  double calcCurrentCapacity() const;
+  virtual double calcCurrentCapacity() const;
 
-  void print() const;
+  virtual void print() const;
 
   // check if the given requested code length is valid. Meaning,
   // there exists some configuration that satisfy this capacity requirement.
@@ -197,6 +238,24 @@ protected:
   int calcGroupCapacity(int groupNumber);
 
   OVSFTree tree;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Fixed-length CDMA code assigner
+class FixedLengthAssigner: public Assigner
+{
+public:
+	FixedLengthAssigner(int codeLength, int specialUserId = 1);
+	virtual ~FixedLengthAssigner();
+
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int codeLen);
+  virtual std::pair<bool,WHCode> assignUserId(int userId, int minLen, int maxLen);
+  virtual std::vector<std::pair<int,WHCode> > assignUserIds(const std::vector<int>& userId,
+													const std::vector<int>& codeLens);
+
+protected:
+	int m_codeLength;
+	int m_specialUserId;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
