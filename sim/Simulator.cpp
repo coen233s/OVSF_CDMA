@@ -11,6 +11,7 @@
 #include <dev/protocol/ProtocolData.h>
 #include <dev/MobileStation.h>
 #include "Simulator.h"
+#include <math.h>
 
 Simulator::Simulator() {
 }
