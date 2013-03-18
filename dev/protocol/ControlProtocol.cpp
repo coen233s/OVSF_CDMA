@@ -114,3 +114,7 @@ void ControlProtocol::sendCodeAck(int uid, bool tr) {
 void ControlProtocol::sendDisconect(int uid, bool tr) {
 	sendControl(uid, 0, 0, false /* req */, tr, true, false /* c2s */);
 }
+
+void ControlProtocol::sendReject(int uid, bool tr) {
+    sendControl(uid, 0, 0, true /* req */, tr, true, false /* c2s */);
+}

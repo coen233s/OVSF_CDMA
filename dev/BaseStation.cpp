@@ -251,7 +251,7 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
     std::pair<bool,WHCode> result = m_pAssigner->assignUserId(frameOut.uid,
             minCodeLen, requestCodeLength);
 #endif
-   
+
     if (!result.first)
     {
         // if the capacity is closed too 0.0, it means there is not much space left
@@ -262,18 +262,20 @@ void BaseStation::addUser(int uid, int tr, int minRate, int maxRate)
 
             // transmit the new code to everybody
             for (size_t k=0; k<r.size(); k++) {
-	        if(r[k].first != 0) {
-		    //int userId = r[k].first;
-		    //WHCode& wcode = r[k].second;
-		    transmit(pCa,r[k].second,frameOut);
-		}
+                if(r[k].first != 0) {
+                    //int userId = r[k].first;
+                    //WHCode& wcode = r[k].second;
+                    transmit(pCa,r[k].second,frameOut);
+                }
             }
             return;
         }
         // we will just give the lowest rate to the new guys
         int newCodeLength = m_pAssigner->calcShortestFreeCode(requestCodeLength);
         result = m_pAssigner->assignUserId(frameOut.uid, newCodeLength);
-        assert(result.first);
+
+        cout << getDeviceId() << ": rejecting user " << frameOut.uid << endl;
+        result.second = WHCode();
     }
 
     transmit(pCa,result.second,frameOut);

@@ -42,6 +42,7 @@ public:
 
 	// For base station
 	void sendDisconect(int uid, bool tr);
+	void sendReject(int uid, bool tr);
 
 private:
     void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false,

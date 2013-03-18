@@ -93,6 +93,12 @@ void MobileStation::onUpdate(void *arg)
 			 << code
 			 << endl;
 
+			/* rejected? */
+			if (code.length() <= 1) {
+			    terminate();
+			    return;
+			}
+
 			if (m_tr)
 			{
 				m_pDataChannel->setTxWalshCode(code);
