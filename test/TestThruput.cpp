@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
 
 #if TEST_DEFAULT
     AutoMobileStation ms(string("MobileStation"), pch, UID_1);
-	ms.setupParam(1000 * 10 /* 10 secs */, .01, 128, 20);
+	ms.setupParam(1000 * 60 /* 60 secs */, .01, 128, 20);
 
     ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
