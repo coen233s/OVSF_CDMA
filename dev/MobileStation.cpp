@@ -68,28 +68,28 @@ void MobileStation::onUpdate(void *arg)
     ControlFrame &cframe(*(ControlFrame *)arg);
     if (!cframe.c2s && cframe.uid == m_uid)
     {
-        cout << getDeviceId() << m_uid << " recv control frame \n[" << cframe << "]" << endl;
-        ostringstream convertId;
-        convertId << getDeviceId() << "." << m_uid;
-        string chanstr = convertId.str();
-        if (0 == m_pDataChannel)
-        {
-            cout << getDeviceId() << m_uid << ": bringing up data channel" << endl;
-            m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
-        }
-
-        CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
-        std::string byteArray = "";
-        for (uint32_t i = 0; i < pCa->length; ++i)
-        {
-            byteArray += ((char)pCa->code[i]);
-        }
-        WHCode code(byteArray);
-        cout << getDeviceId() << m_uid << ": got walshcode (len " << code.length() << "): "
-	     << code
-	     << endl;
-
 		if (cframe.req) {
+			cout << getDeviceId() << m_uid << " recv control frame \n[" << cframe << "]" << endl;
+			ostringstream convertId;
+			convertId << getDeviceId() << "." << m_uid;
+			string chanstr = convertId.str();
+			if (0 == m_pDataChannel)
+			{
+				cout << getDeviceId() << m_uid << ": bringing up data channel" << endl;
+				m_pDataChannel = new DataChannel(chanstr, m_phy, !m_tr);
+			}
+
+			CodeAssignment *pCa = reinterpret_cast<CodeAssignment *>(&cframe.data);
+			std::string byteArray = "";
+			for (uint32_t i = 0; i < pCa->length; ++i)
+			{
+				byteArray += ((char)pCa->code[i]);
+			}
+			WHCode code(byteArray);
+			cout << getDeviceId() << m_uid << ": got walshcode (len " << code.length() << "): "
+			 << code
+			 << endl;
+
 			if (m_tr)
 			{
 				m_pDataChannel->setTxWalshCode(code);
