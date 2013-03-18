@@ -6,6 +6,7 @@
  */
 
 #include <algorithm>
+#include <assert.h>
 #include "Simulator.h"
 
 Simulator::Simulator() {
@@ -48,4 +49,67 @@ void Simulator::run(int timeLim) {
     for (m_time = 0; m_time < timeLim; m_time++) {
         onTick(m_time);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RandomArrivalSimulator::RandomArrivalSimulator(double arrivalRate, int maxUserId):
+	m_arrivalRate(arrivalRate),
+	m_maxUserId(maxUserId)
+{
+	for(int k=2; k<=maxUserId; k++) {
+		freeUserIds.insert(k);
+	}
+}
+
+RandomArrivalSimulator::~RandomArrivalSimulator()
+{
+}
+
+void RandomArrivalSimulator::onTick(int time)
+{
+	int newUserCount = Poisson_Rand(m_arrivalRate);
+	for (int k=0; k<newUserCount; k++) {
+		int userId = getNextUserId();
+		if (userId == 0) { // the channel is full
+			assert(false);
+			break;
+		}
+
+		//addObject(user(id));
+	}
+	Simulator::onTick(time);
+}
+
+int RandomArrivalSimulator::getNextUserId()
+{
+	if (freeUserIds.empty())
+		return 0;
+
+	std::set<int>::iterator it = freeUserIds.begin();
+	int newUserId = *it;
+	assert(newUserId >= 2 && newUserId <= m_maxUserId);
+	
+	freeUserIds.erase(newUserId);
+	usedUserIds.insert(newUserId);
+}
+
+void RandomArrivalSimulator::freeUserId(int userId)
+{
+	usedUserIds.erase(userId);
+	freeUserIds.insert(userId);
+}
+
+int RandomArrivalSimulator::Poisson_Rand(const double lambda)
+{
+	double r = -1.0 * (double)lambda;
+	double L = exp(r);
+	int k = 0;
+	double p = 1.0;
+	do {
+		k = k + 1;
+		double u =((double)rand()/(double)RAND_MAX);
+		p = p * u;
+	} while (p > L);
+	return k - 1;
 }

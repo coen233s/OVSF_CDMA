@@ -9,6 +9,7 @@
 #define SIMULATOR_H_
 
 #include <vector>
+#include <set>
 #include "SimObject.h"
 
 using namespace std;
@@ -38,5 +39,27 @@ public:
     // Run for timeMax time steps
     virtual void run(int timeMax);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Random arrival users simular
+class RandomArrivalSimulator : public Simulator {
+protected:
+    std::set<int> freeUserIds;
+	std::set<int> usedUserIds;
+	int m_maxUserId;
+	double m_arrivalRate;
+
+public:
+    RandomArrivalSimulator(double arrivalRate=0.1, int maxUserId=250);
+    virtual ~RandomArrivalSimulator();
+
+    virtual void onTick(int time);
+
+protected:
+	int getNextUserId();
+	void freeUserId(int userId);
+	int Poisson_Rand(const double lambda);
+};
+
 
 #endif /* SIMULATOR_H_ */
