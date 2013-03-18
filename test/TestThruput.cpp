@@ -387,8 +387,10 @@ void cleanUpMobileStation(int uid)
 
 int main(int argc, char* argv[])
 {
-    Simulator sim;
-    SimplePhyChannel pch;
+    //Simulator sim;
+	SimplePhyChannel pch;
+	RandomArrivalSimulator sim(pch, 0.01, 30);
+   
     BaseStation::MODE mode = BaseStation::VAR_DYNAMIC;
     bool variableRate = true;
     bool dynamicCode = true;
@@ -425,7 +427,7 @@ int main(int argc, char* argv[])
 
     const int testRate = pch.getChipRate() / 8;
 
-#define TEST_DEFAULT 1
+#if 0
 
 #if TEST_DEFAULT
     AutoMobileStation ms(string("MobileStation"), pch, UID_1, true /* tr */, 0, cleanUpMobileStation);
@@ -456,12 +458,15 @@ int main(int argc, char* argv[])
 #else // Add user from stdin by test file
     addUser(sim, pch);
 #endif
+
+#endif /* 0 */
+
     sim.addObject(&pch);
 
     Timer timer;
     sim.addObject(&timer);
 
-    sim.run(shouldStop, &bs);
+	sim.run(120 * pch.getChipRate());
 
     cout << "Time: " << timer.getTime() << endl;
 

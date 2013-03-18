@@ -42,24 +42,27 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Random arrival users simular
+class AbsPhyChannel;
+
 class RandomArrivalSimulator : public Simulator {
 protected:
     std::set<int> freeUserIds;
 	std::set<int> usedUserIds;
 	int m_maxUserId;
 	double m_arrivalRate;
-
+	AbsPhyChannel& m_physChannel;
+	
 public:
-    RandomArrivalSimulator(double arrivalRate=0.1, int maxUserId=250);
+    RandomArrivalSimulator(AbsPhyChannel& channel, double arrivalRate=0.1, int maxUserId=250);
     virtual ~RandomArrivalSimulator();
 
     virtual void onTick(int time);
 
-protected:
 	int getNextUserId();
 	void freeUserId(int userId);
 	int Poisson_Rand(const double lambda);
-};
 
+	static RandomArrivalSimulator* instance;
+};
 
 #endif /* SIMULATOR_H_ */

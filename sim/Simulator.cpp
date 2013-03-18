@@ -53,10 +53,182 @@ void Simulator::run(int timeLim) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RandomArrivalSimulator::RandomArrivalSimulator(double arrivalRate, int maxUserId):
-	m_arrivalRate(arrivalRate),
-	m_maxUserId(maxUserId)
+#include "dev/MobileStation.h"
+#include "debug.h"
+
+class GaussRandom {
+public:
+	static float randn() {
+		return (float) rand() / RAND_MAX;
+	}
+
+	static float rand_gauss() {
+		float v1,v2,s;
+
+		do {
+			v1 = 2.0 * ((float) rand()/RAND_MAX) - 1;
+			v2 = 2.0 * ((float) rand()/RAND_MAX) - 1;
+			s = v1*v1 + v2*v2;
+		} while ( s >= 1.0 );
+
+		if (s == 0.0)
+			return 0.0;
+		else
+			return (v1*sqrt(-2.0 * log(s) / s));
+	}
+
+	static float rand_gauss(float mean, float sd) {
+		return rand_gauss() * sd + mean;
+	}
+};
+
+class AutoMobileStation : public MobileStation {
+protected:
+    typedef MobileStation Base;
+
+    enum STATE {
+		STATE_NONE = 0,
+        STATE_IDLE,
+        STATE_SEND,
+        STATE_RECV,
+        STATE_DONE,
+    } m_state;
+
+    int m_coolingOff;
+
+	int m_time;			// current time
+	int m_startTime;	// time the MS started to connect
+	int m_totalTime;	// MS life time
+
+	float m_probTransmit;
+	float m_pktSizeMean;
+	float m_pktSizeSD;
+
+public:
+    AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
+            int tickDelay = 0,
+			void (*cleanUpMobileStation)(int) = 0)
+    : MobileStation(name, pch, uid, tr, tickDelay, cleanUpMobileStation)
+    , m_state(STATE_NONE)
+    , m_coolingOff(0)
+    { }
+
+	virtual void startTransmit() {
+		if (m_state == STATE_NONE) {
+			cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_IDLE" << endl;
+			m_state = STATE_IDLE;
+
+			m_startTime = m_time;
+		}
+	}
+
+	void setupParam(int totalTime /* milliseconds */,
+					float probTransmit,
+					float pktSizeMean,
+					float pktSizeSD)
+	{
+		m_totalTime = totalTime * m_phy.getChipRate() / 1000;
+		m_probTransmit = probTransmit;
+		m_pktSizeMean = pktSizeMean;
+		m_pktSizeSD = pktSizeSD;
+	}
+
+	void generateRandomPacket() {
+		assert(m_pktSizeMean > 1); // needs to initialize with setupParam()
+		
+		if (GaussRandom::randn() > m_probTransmit)
+			return; // not transmitting at this time step
+		
+		int packetLen = (int)GaussRandom::rand_gauss(m_pktSizeMean, m_pktSizeSD);
+
+		cout << "Generating packet data: size = " << packetLen << endl;
+
+		for (int i = 0; i < packetLen; i++)
+        {
+            unsigned char ch = '0' + i % 10;
+            
+            dout(ch);
+            m_pDataChannel->m_tx.pushData(ch);
+        }
+
+		dout(endl);
+	}
+
+    virtual void onTick(int time) {
+        MobileStation::onTick(time);
+
+		m_time = time;
+
+        switch (m_state) {
+		case STATE_NONE:
+			break;
+        case STATE_IDLE:
+			if (time > m_startTime + m_totalTime) {
+				cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_DONE" << endl;
+				m_state = STATE_DONE;
+				terminate();
+				m_tickCount = time -m_tickCount;
+			}
+
+			// Initiate data packet
+			if (m_tr) {
+				generateRandomPacket();
+			}
+
+            if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
+                cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_SEND" << endl;
+                m_state = STATE_SEND;
+                m_tickCount = time;
+            }
+            if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
+                cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_RECV" << endl;
+                m_state = STATE_RECV;
+                m_tickCount = time;
+            }
+            break;
+        case STATE_SEND:
+            if (!m_pDataChannel->m_tx.hasPendingData()) {
+                if (m_coolingOff++ > m_pDataChannel->m_tx.getWalshLength()) {
+                    cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_IDLE" << endl;
+                    m_state = STATE_IDLE;                                       
+                }
+            } else {
+                m_coolingOff = 0;
+            }
+            break;
+        case STATE_RECV:
+            if (!m_pDataChannel->m_rx.hasData()) {
+				if (++m_coolingOff > m_pDataChannel->m_rx.getWalshLength()) {
+                    cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_IDLE" << endl;
+                    m_state = STATE_IDLE;                                       
+                }
+            } else {
+                m_coolingOff = 0;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RandomArrivalSimulator* RandomArrivalSimulator::instance = NULL;
+
+void cleanUpMobileStation2(int uid)
 {
+	assert(RandomArrivalSimulator::instance);
+	RandomArrivalSimulator::instance->freeUserId(uid);
+}
+
+RandomArrivalSimulator::RandomArrivalSimulator(AbsPhyChannel& channel, double arrivalRate, int maxUserId):
+	m_arrivalRate(arrivalRate),
+	m_maxUserId(maxUserId),
+	m_physChannel(channel)
+{
+	instance = this;
+
 	for(int k=2; k<=maxUserId; k++) {
 		freeUserIds.insert(k);
 	}
@@ -68,15 +240,20 @@ RandomArrivalSimulator::~RandomArrivalSimulator()
 
 void RandomArrivalSimulator::onTick(int time)
 {
-	int newUserCount = Poisson_Rand(m_arrivalRate);
-	for (int k=0; k<newUserCount; k++) {
-		int userId = getNextUserId();
-		if (userId == 0) { // the channel is full
-			assert(false);
-			break;
-		}
+	int newUserCount = (Poisson_Rand(m_arrivalRate) > 0)? 1: 0;
+	if (!freeUserIds.empty()) {
+		for (int k=0; k<newUserCount; k++) {
+			int userId = getNextUserId();
 
-		//addObject(user(id));
+			if (userId == 0) { // the channel is full
+				// assert(false);
+				break;
+			}
+
+			AutoMobileStation *pMS = new AutoMobileStation("foo", m_physChannel, userId, true, 0, cleanUpMobileStation2);
+			pMS->setupParam(5 * 100, .01, 120, 20);
+			addObject(pMS);
+		}
 	}
 	Simulator::onTick(time);
 }
@@ -92,6 +269,8 @@ int RandomArrivalSimulator::getNextUserId()
 	
 	freeUserIds.erase(newUserId);
 	usedUserIds.insert(newUserId);
+
+	return newUserId;
 }
 
 void RandomArrivalSimulator::freeUserId(int userId)
