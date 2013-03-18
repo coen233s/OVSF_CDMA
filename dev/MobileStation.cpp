@@ -15,7 +15,8 @@
 
 using namespace std;
 
-MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr, int tickDelay)
+MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr, int tickDelay,
+	void (*cleanUpMobileStation)(int))
 : DeviceBase(name)
 , m_phy(pch)
 , m_txCtrl(getCtrlIdString(name, uid) + ".tx")
@@ -30,6 +31,7 @@ MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bo
 , m_attached(false)
 , m_terminated(false)
 , m_pDataChannel(0)
+, m_cleanUpMobileStation(cleanUpMobileStation)
 {
     Configuration &conf(Configuration::getInstance());
     m_txCtrl.setWalshCode(conf.wcCtrl);
@@ -87,27 +89,35 @@ void MobileStation::onUpdate(void *arg)
 	     << code
 	     << endl;
 
-        if (m_tr)
-        {
-            m_pDataChannel->setTxWalshCode(code);
+		if (cframe.req) {
+			if (m_tr)
+			{
+				m_pDataChannel->setTxWalshCode(code);
 
-            // Acknowledge the new code
-            cout << getDeviceId() << m_uid << ": ack the walsh code for tx channel" << endl;
-            m_protCtrl.sendCodeAck(m_uid, m_tr);
+				// Acknowledge the new code
+				cout << getDeviceId() << m_uid << ": ack the walsh code for tx channel" << endl;
+				m_protCtrl.sendCodeAck(m_uid, m_tr);
 
-            // TODO: start sending data
-            startTransmit();
-        }
-        else
-        {
-            m_pDataChannel->addRxWalshCode(code);
+				// TODO: start sending data
+				startTransmit();
+			}
+			else
+			{
+				m_pDataChannel->addRxWalshCode(code);
 
-            // Acknowledge the new code
-            cout << getDeviceId() << m_uid << ": ack and add the walsh code for rx channel" << endl;
-            m_protCtrl.sendCodeAck(m_uid, m_tr);
+				// Acknowledge the new code
+				cout << getDeviceId() << m_uid << ": ack and add the walsh code for rx channel" << endl;
+				m_protCtrl.sendCodeAck(m_uid, m_tr);
 
-            // TODO: start receiving data
-        }
+				// TODO: start receiving data
+			}
+		} else {
+			// req == 0
+			if (cframe.ack) {
+				// disconnect message
+				onCleanup();
+			}
+		}
     }
 }
 

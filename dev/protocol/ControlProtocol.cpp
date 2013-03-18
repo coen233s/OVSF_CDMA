@@ -77,11 +77,11 @@ void ControlProtocol::onUpdate(void *arg) {
 }
 
 void ControlProtocol::sendControl(int uid, int rateMin, int rateMax,
-        bool request, bool tr, bool ack)
+        bool request, bool tr, bool ack, bool c2s)
 {
     m_frameOut.magic1 = CF_MAGIC1;
     m_frameOut.magic2 = CF_MAGIC2;
-    m_frameOut.c2s = 1;
+    m_frameOut.c2s = c2s ? 1 : 0;
     m_frameOut.ack = ack ? 1 : 0;
     m_frameOut.req = request ? 1 : 0;
     m_frameOut.tr = tr ? 1 : 0;
@@ -104,9 +104,13 @@ void ControlProtocol::sendHandshake(int uid, int rateMin, int rateMax, bool tr) 
 }
 
 void ControlProtocol::sendTearDown(int uid, bool tr) {
-    sendControl(uid, 0, 0, false /* req */, tr);
+    sendControl(uid, 0, 0, false /* req */, tr, false);
 }
 
 void ControlProtocol::sendCodeAck(int uid, bool tr) {
     sendControl(uid, 0, 0, true /* req */, tr, true /* ack */);
+}
+
+void ControlProtocol::sendDisconect(int uid, bool tr) {
+	sendControl(uid, 0, 0, false /* req */, tr, true, false /* c2s */);
 }

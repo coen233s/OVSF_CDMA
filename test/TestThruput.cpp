@@ -70,8 +70,9 @@ protected:
 
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
-            int tickDelay = 0)
-    : MobileStation(name, pch, uid, tr, tickDelay)
+            int tickDelay = 0,
+			void (*cleanUpMobileStation)(int) = 0)
+    : MobileStation(name, pch, uid, tr, tickDelay, cleanUpMobileStation)
     , m_state(STATE_NONE)
     , m_coolingOff(0)
     { }
@@ -176,11 +177,13 @@ public:
 };
 
 static int s_totalConnections = 0;
+static int s_totalCleanup = 0;
 
 bool shouldStop(int time, void *arg) {
     BaseStation *bs = reinterpret_cast<BaseStation *>(arg);
     return bs->getTotalConnections() == s_totalConnections &&
-           bs->getTotalDisconnections() == s_totalConnections;
+           bs->getTotalDisconnections() == s_totalConnections &&
+		   s_totalCleanup == s_totalConnections;
 }
 
 /*-----------------------------------------------------------------------------
@@ -376,6 +379,12 @@ public:
     }
 };
 
+void cleanUpMobileStation(int uid)
+{
+	cout << "Cleaning up " << uid << endl;
+	s_totalCleanup++;
+}
+
 int main(int argc, char* argv[])
 {
     Simulator sim;
@@ -419,7 +428,7 @@ int main(int argc, char* argv[])
 #define TEST_DEFAULT 1
 
 #if TEST_DEFAULT
-    AutoMobileStation ms(string("MobileStation"), pch, UID_1);
+    AutoMobileStation ms(string("MobileStation"), pch, UID_1, true /* tr */, 0, cleanUpMobileStation);
 	ms.setupParam(1000 * 60 /* 60 secs */, .01, 128, 20);
 
     ms.setRateRange(testRate, testRate);
@@ -428,7 +437,8 @@ int main(int argc, char* argv[])
 	s_totalConnections++;
 
 #if 0
-	AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME);
+	AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME, 0,
+		cleanUpMobileStation);
     ms2.setupParam(1000 * 10, .01, 128, 20);
 	
 	ms2.setRateRange(testRate, testRate);

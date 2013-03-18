@@ -39,6 +39,8 @@ protected:
     DataChannel* m_pDataChannel;
     bool validateRate(int rate);
 
+	void (*m_cleanUpMobileStation)(int);
+
 private:
     static string getCtrlIdString(const string& name, int uid) {
         ostringstream  os;
@@ -49,8 +51,16 @@ private:
 protected:
 	virtual void startTransmit() {};
 
+	// called when mobile station object can be removed
+	virtual void onCleanup() {
+		cout << getDeviceId() << ": calling onCleanup() callback" << endl;
+		if (m_cleanUpMobileStation)
+			m_cleanUpMobileStation(m_uid);
+	};
+
 public:
-    MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);
+    MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0,
+		void (*cleanUpMobileStation)(int) = 0);
     virtual ~MobileStation();
 
     virtual void onTick(int time);

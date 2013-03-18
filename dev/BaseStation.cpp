@@ -127,6 +127,8 @@ void BaseStation::transmit(CodeAssignment* pCa, const WHCode& code, ControlFrame
         m_pendingWalsh[frameOut.uid] = code;
     }
 
+	frameOut.req = 1;
+
     std::string byteArray = code.toByteArray();
     pCa->length = byteArray.size();
     
@@ -310,6 +312,7 @@ void BaseStation::onUpdate(void *arg)
                 removeUser(cframe.uid, cframe.tr);
                 m_totalDisconnectNum++;
                 cout << "m_totalDisconnectNum: " << m_totalDisconnectNum << endl;
+				m_protCtrl.sendDisconect(cframe.uid, cframe.tr);
             }
         } else {
             cout << getDeviceId() << " recv ack from uid " << cframe.uid << " tr: "

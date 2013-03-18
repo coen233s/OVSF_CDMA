@@ -40,9 +40,12 @@ public:
     void sendTearDown(int uid, bool tr);
     void sendCodeAck(int uid, bool tr);
 
+	// For base station
+	void sendDisconect(int uid, bool tr);
+
 private:
     void sendControl(int uid, int rateMin, int rateMax, bool request, bool tr = false,
-         bool ack = false);
+         bool ack = false, bool c2s = true);
 };
 
 #endif /* CONTROLPROTOCOL_H_ */
