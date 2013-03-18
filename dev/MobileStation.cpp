@@ -96,7 +96,7 @@ void MobileStation::onUpdate(void *arg)
             m_protCtrl.sendCodeAck(m_uid, m_tr);
 
             // TODO: start sending data
-            m_pDataChannel->transmit();
+            startTransmit();
         }
         else
         {

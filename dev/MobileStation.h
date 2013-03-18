@@ -46,6 +46,9 @@ private:
         return os.str();
     }
 
+protected:
+	virtual void startTransmit() {};
+
 public:
     MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0);
     virtual ~MobileStation();

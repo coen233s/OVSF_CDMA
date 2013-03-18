@@ -1,7 +1,11 @@
+#include <assert.h>
+#include <cstdlib>
+#include <debug.h>
 #include <phy/SimplePhyChannel.h>
 #include <dev/BaseStation.h>
 #include <dev/MobileStation.h>
 #include <dev/protocol/ProtocolData.h>
+#include <math.h>
 #include <sim/Simulator.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,18 +20,53 @@ using namespace std;
 #define stricmp strcasecmp
 #endif
 
+class GaussRandom {
+public:
+	static float randn() {
+		return (float) rand() / RAND_MAX;
+	}
+
+	static float rand_gauss() {
+		float v1,v2,s;
+
+		do {
+			v1 = 2.0 * ((float) rand()/RAND_MAX) - 1;
+			v2 = 2.0 * ((float) rand()/RAND_MAX) - 1;
+			s = v1*v1 + v2*v2;
+		} while ( s >= 1.0 );
+
+		if (s == 0.0)
+			return 0.0;
+		else
+			return (v1*sqrt(-2.0 * log(s) / s));
+	}
+
+	static float rand_gauss(float mean, float sd) {
+		return rand_gauss() * sd + mean;
+	}
+};
+
 class AutoMobileStation : public MobileStation {
 protected:
     typedef MobileStation Base;
 
     enum STATE {
-        STATE_NONE = 0,
+		STATE_NONE = 0,
+        STATE_IDLE,
         STATE_SEND,
         STATE_RECV,
         STATE_DONE,
     } m_state;
 
     int m_coolingOff;
+
+	int m_time;			// current time
+	int m_startTime;	// time the MS started to connect
+	int m_totalTime;	// MS life time
+
+	float m_probTransmit;
+	float m_pktSizeMean;
+	float m_pktSizeSD;
 
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
@@ -37,18 +76,75 @@ public:
     , m_coolingOff(0)
     { }
 
+	virtual void startTransmit() {
+		if (m_state == STATE_NONE) {
+			cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_IDLE" << endl;
+			m_state = STATE_IDLE;
+
+			m_startTime = m_time;
+		}
+	}
+
+	void setupParam(int totalTime /* milliseconds */,
+					float probTransmit,
+					float pktSizeMean,
+					float pktSizeSD)
+	{
+		m_totalTime = totalTime * m_phy.getChipRate() / 1000;
+		m_probTransmit = probTransmit;
+		m_pktSizeMean = pktSizeMean;
+		m_pktSizeSD = pktSizeSD;
+	}
+
+	void generateRandomPacket() {
+		assert(m_pktSizeMean > 1); // needs to initialize with setupParam()
+		
+		if (GaussRandom::randn() > m_probTransmit)
+			return; // not transmitting at this time step
+		
+		int packetLen = (int)GaussRandom::rand_gauss(m_pktSizeMean, m_pktSizeSD);
+
+		cout << "Generating packet data: size = " << packetLen << endl;
+
+		for (int i = 0; i < packetLen; i++)
+        {
+            unsigned char ch = '0' + i % 10;
+            
+            dout(ch);
+            m_pDataChannel->m_tx.pushData(ch);
+        }
+
+		dout(endl);
+	}
+
     virtual void onTick(int time) {
         MobileStation::onTick(time);
 
+		m_time = time;
+
         switch (m_state) {
-        case STATE_NONE:
+		case STATE_NONE:
+			break;
+        case STATE_IDLE:
+			if (time > m_startTime + m_totalTime) {
+				cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_DONE" << endl;
+				m_state = STATE_DONE;
+				terminate();
+				m_tickCount = time -m_tickCount;
+			}
+
+			// Initiate data packet
+			if (m_tr) {
+				generateRandomPacket();
+			}
+
             if (m_pDataChannel && m_pDataChannel->m_tx.hasPendingData()) {
-                cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_SEND" << endl;
+                cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_SEND" << endl;
                 m_state = STATE_SEND;
                 m_tickCount = time;
             }
             if (m_pDataChannel && m_pDataChannel->m_rx.hasData()) {
-                cout << getDeviceId() << m_uid << ": STATE_NONE --> STATE_RECV" << endl;
+                cout << getDeviceId() << m_uid << ": STATE_IDLE --> STATE_RECV" << endl;
                 m_state = STATE_RECV;
                 m_tickCount = time;
             }
@@ -56,10 +152,8 @@ public:
         case STATE_SEND:
             if (!m_pDataChannel->m_tx.hasPendingData()) {
                 if (m_coolingOff++ > m_pDataChannel->m_tx.getWalshLength()) {
-                    cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_DONE" << endl;
-                    m_state = STATE_DONE;
-                    terminate();
-                    m_tickCount = time -m_tickCount;
+                    cout << getDeviceId() << m_uid << ": STATE_SEND --> STATE_IDLE" << endl;
+                    m_state = STATE_IDLE;                                       
                 }
             } else {
                 m_coolingOff = 0;
@@ -68,10 +162,8 @@ public:
         case STATE_RECV:
             if (!m_pDataChannel->m_rx.hasData()) {
 				if (++m_coolingOff > m_pDataChannel->m_rx.getWalshLength()) {
-                    cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_DONE" << endl;
-                    m_state = STATE_DONE;
-                    terminate();
-                    m_tickCount = time -m_tickCount;
+                    cout << getDeviceId() << m_uid << ": STATE_RECV --> STATE_IDLE" << endl;
+                    m_state = STATE_IDLE;                                       
                 }
             } else {
                 m_coolingOff = 0;
@@ -324,13 +416,26 @@ int main(int argc, char* argv[])
 
     const int testRate = pch.getChipRate() / 8;
 
+#define TEST_DEFAULT 1
+
 #if TEST_DEFAULT
     AutoMobileStation ms(string("MobileStation"), pch, UID_1);
+	ms.setupParam(1000 * 10 /* 10 secs */, .01, 128, 20);
+
     ms.setRateRange(testRate, testRate);
     sim.addObject(&ms);
-    AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME);
-    ms2.setRateRange(testRate, testRate);
+    
+	s_totalConnections++;
+
+#if 0
+	AutoMobileStation ms2(string("MobileStation"), pch, UID_2, false, MOBILE2_JOIN_TIME);
+    ms2.setupParam(1000 * 10, .01, 128, 20);
+	
+	ms2.setRateRange(testRate, testRate);
     sim.addObject(&ms2);
+
+	s_totalConnections++;
+#endif
 
 #if TEST_CODE_RANGE
     // Fix MS data rate if TEST_CODE_RANGE is not set

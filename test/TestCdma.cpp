@@ -37,6 +37,10 @@ public:
     , m_coolingOff(0)
     { }
 
+	virtual void startTransmit() {
+		m_pDataChannel->transmit();
+	}
+
     virtual void onTick(int time) {
         MobileStation::onTick(time);
 
