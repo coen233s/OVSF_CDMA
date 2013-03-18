@@ -54,10 +54,20 @@ protected:
 	double m_arrivalRate;
 	AbsPhyChannel& m_physChannel;
 	enum TESTMODE m_tmode;
-	
+
+	int m_userDuration;
+	float m_packetArrivalRate;
+	int m_packetSizeMean;
+	int m_packetSizeSD;
+
 public:
     RandomArrivalSimulator(AbsPhyChannel& channel, enum TESTMODE tmode,
-            double arrivalRate=0.1);
+            double arrivalRate,
+            int userDuration /* ms */,
+            float packetArrivalRate,
+            int packetSizeMean,
+            int packetSizeSD
+    );
     virtual ~RandomArrivalSimulator();
 
     virtual void onTick(int time);

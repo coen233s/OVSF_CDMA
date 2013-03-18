@@ -69,7 +69,7 @@ protected:
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
             int tickDelay = 0,
-			void (*cleanUpMobileStation)(int) = 0)
+			void (*cleanUpMobileStation)(MobileStation *) = 0)
     : MobileStation(name, pch, uid, tr, tickDelay, cleanUpMobileStation)
     , m_state(STATE_NONE)
     , m_coolingOff(0)
@@ -377,18 +377,50 @@ public:
     }
 };
 
-void cleanUpMobileStation(int uid)
+void cleanUpMobileStation(MobileStation *from)
 {
-	cout << "Cleaning up " << uid << endl;
+	cout << "Cleaning up " << from->getDeviceId() << endl;
 	s_totalCleanup++;
+}
+
+void testThruput(BaseStation::MODE mode,
+        int simulationTime,
+        float userArrivalRate,
+        int userDuration,
+        float packetAR,
+        float packetMean,
+        float packetSD
+)
+{
+    //Simulator sim;
+    SimplePhyChannel pch;
+
+    RandomArrivalSimulator::TESTMODE tmode =
+            mode == BaseStation::FIXED_DYNAMIC || mode == BaseStation::FIXED_ONCE ?
+            RandomArrivalSimulator::TESTMODE::FIXED_LEN :
+            RandomArrivalSimulator::TESTMODE::VAR_LEN;
+
+    RandomArrivalSimulator sim(pch, tmode, userArrivalRate,
+            userDuration,
+            packetAR,
+            packetMean,
+            packetSD);
+
+    sim.addObject(&pch);
+
+    BaseStation bs(string("BaseStation"), pch, mode);
+    sim.addObject(&bs);
+
+    Timer timer;
+    sim.addObject(&timer);
+
+    sim.run(simulationTime * pch.getChipRate());
+
+    cout << "Time: " << timer.getTime() << endl;
 }
 
 int main(int argc, char* argv[])
 {
-    //Simulator sim;
-    SimplePhyChannel pch;
-    RandomArrivalSimulator sim(pch, RandomArrivalSimulator::TESTMODE::VAR_LEN, 0.01);
-   
     BaseStation::MODE mode = BaseStation::VAR_DYNAMIC;
     bool variableRate = true;
     bool dynamicCode = true;
@@ -420,17 +452,14 @@ int main(int argc, char* argv[])
         }
     }
 
-    sim.addObject(&pch);
-
-    BaseStation bs(string("BaseStation"), pch, mode);
-    sim.addObject(&bs);
-
-    Timer timer;
-    sim.addObject(&timer);
-
-    sim.run(120 * pch.getChipRate());
-
-    cout << "Time: " << timer.getTime() << endl;
+    testThruput(mode,
+            10,  /* simulation time (second) */
+            0.01 /* user arrival rate */,
+            500, /* user duration (ms) */
+            .01, /* packet arrival rate */
+            120, /* packet mean size */
+            20  /* packet size SD */
+            );
 
     return 0;
 }

@@ -10,8 +10,24 @@
 
 // The base class for all simualted objects
 class SimObject {
+protected:
+    bool m_autoRemove;
 public:
+    SimObject()
+    : m_autoRemove(false)
+    { }
+
+    virtual ~SimObject(){}
+
     virtual void onTick(int time) = 0;
+
+    bool isAutoRemove() {
+        return m_autoRemove;
+    }
+
+    void setAutoRemove(bool remove) {
+        m_autoRemove = remove;
+    }
 };
 
 #endif /* SIMOBJECT_H_ */

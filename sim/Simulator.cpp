@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <Configuration.h>
 #include <dev/protocol/ProtocolData.h>
+#include <dev/MobileStation.h>
 #include "Simulator.h"
 
 Simulator::Simulator() {
@@ -23,9 +24,18 @@ void Simulator::onTick(int time) {
         for (vector<SimObject *>::iterator it = m_removeObjects.begin();
                 it != m_removeObjects.end();
                 it++) {
+
             m_simObjects.erase(find(m_simObjects.begin(), m_simObjects.end(),
                     (*it)));
+
+            if ((*it)->isAutoRemove()) {
+                SimObject *pSO = (*it);
+                // XXX if deleted object is not MS
+                MobileStation *pMS = dynamic_cast<MobileStation *>(pSO);
+                delete pMS;
+            }
         }
+
         m_removeObjects.clear();
     }
 
@@ -109,7 +119,7 @@ protected:
 public:
     AutoMobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true,
             int tickDelay = 0,
-			void (*cleanUpMobileStation)(int) = 0)
+			void (*cleanUpMobileStation)(MobileStation *) = 0)
     : MobileStation(name, pch, uid, tr, tickDelay, cleanUpMobileStation)
     , m_state(STATE_NONE)
     , m_coolingOff(0)
@@ -217,18 +227,28 @@ public:
 
 RandomArrivalSimulator* RandomArrivalSimulator::instance = NULL;
 
-void cleanUpMobileStation2(int uid)
+void cleanUpMobileStation2(MobileStation *from)
 {
 	assert(RandomArrivalSimulator::instance);
-	RandomArrivalSimulator::instance->freeUserId(uid);
+	RandomArrivalSimulator::instance->freeUserId(from->getUid());
+	RandomArrivalSimulator::instance->removeObject(from);
 }
 
 RandomArrivalSimulator::RandomArrivalSimulator(AbsPhyChannel& channel,
 	enum TESTMODE tmode,
-	double arrivalRate) :
+	double arrivalRate,
+	int userDuration /* ms */,
+	float packetArrivalRate,
+	int packetSizeMean,
+	int packetSizeSD
+) :
 	m_physChannel(channel),
 	m_tmode(tmode),
-	m_arrivalRate(arrivalRate)
+	m_arrivalRate(arrivalRate),
+	m_userDuration(userDuration),
+	m_packetArrivalRate(packetArrivalRate),
+	m_packetSizeMean(packetSizeMean),
+	m_packetSizeSD(packetSizeSD)
 {
         Configuration &cf(Configuration::getInstance());
         instance = this;
@@ -272,9 +292,12 @@ void RandomArrivalSimulator::onTick(int time)
 
 			cout << "Add mobile station " << userId << " with rate " << rate << endl;
 
-			AutoMobileStation *pMS = new AutoMobileStation("foo", m_physChannel, userId, true, 0, cleanUpMobileStation2);
+			AutoMobileStation *pMS = new AutoMobileStation("foo", m_physChannel,
+			        userId, true, 0, cleanUpMobileStation2);
 			pMS->setRateRange(rate, rate);
-			pMS->setupParam(5000, .01, 120, 20);
+			pMS->setupParam(m_userDuration, m_packetArrivalRate,
+			        m_packetSizeMean, m_packetSizeSD);
+			pMS->setAutoRemove(true);
 			addObject(pMS);
 		}
 	}

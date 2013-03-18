@@ -39,7 +39,7 @@ protected:
     DataChannel* m_pDataChannel;
     bool validateRate(int rate);
 
-	void (*m_cleanUpMobileStation)(int);
+	void (*m_cleanUpMobileStation)(MobileStation *);
 
 private:
     static string getCtrlIdString(const string& name, int uid) {
@@ -55,12 +55,12 @@ protected:
 	virtual void onCleanup() {
 		cout << getDeviceId() << ": calling onCleanup() callback" << endl;
 		if (m_cleanUpMobileStation)
-			m_cleanUpMobileStation(m_uid);
+			m_cleanUpMobileStation(this);
 	};
 
 public:
     MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr=true, int tickDelay = 0,
-		void (*cleanUpMobileStation)(int) = 0);
+		void (*cleanUpMobileStation)(MobileStation *) = 0);
     virtual ~MobileStation();
 
     virtual void onTick(int time);
@@ -73,6 +73,10 @@ public:
         validateRate(maxRate);
         m_minRate = minRate;
         m_maxRate = maxRate;
+    }
+
+    int getUid() {
+        return m_uid;
     }
 };
 

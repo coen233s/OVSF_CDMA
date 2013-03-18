@@ -16,7 +16,7 @@
 using namespace std;
 
 MobileStation::MobileStation(const string& name, AbsPhyChannel &pch, int uid, bool tr, int tickDelay,
-	void (*cleanUpMobileStation)(int))
+	void (*cleanUpMobileStation)(MobileStation *))
 : DeviceBase(name)
 , m_phy(pch)
 , m_txCtrl(getCtrlIdString(name, uid) + ".tx")
@@ -53,6 +53,9 @@ MobileStation::~MobileStation() {
         delete m_pDataChannel;
         m_pDataChannel = 0;
     }
+
+    m_phy.detachReceiver(&m_rxCtrl);
+    m_phy.detachTransmitter(&m_txCtrl);
 }
 
 void MobileStation::onTick(int time) {
