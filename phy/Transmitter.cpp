@@ -7,6 +7,7 @@
 
 #include <debug.h>
 #include <iostream>
+#include <Configuration.h>
 #include "Transmitter.h"
 
 using namespace std;
@@ -60,8 +61,11 @@ void Transmitter::onTick(int time) {
     if (m_pCoupledReceiver) {
         vout(getName() << " idle:" << m_pCoupledReceiver->getIdleCount() <<
                 " csma_delay:" << m_CSMADelay << endl);
-        if (m_walshIdx == 0 && !m_isTransmitting && m_pCoupledReceiver->getIdleCount()
-                < m_CSMADelay) {
+
+		Configuration &cf(Configuration::getInstance());
+		int prio = m_pCoupledReceiver->getIdleCount() & (cf.numControlChannelPrio - 1);
+
+        if (m_walshIdx == 0 && !m_isTransmitting && prio < m_CSMADelay) {
             postProcessing();
             return;
         }

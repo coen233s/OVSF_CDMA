@@ -24,6 +24,8 @@ private:
     Configuration();
 public:
     WHCode wcCtrl;
+	int numControlChannelPrio;		// level of priorities, power of 2
+
     static Configuration& getInstance() {
         static Configuration inst;
         return inst;

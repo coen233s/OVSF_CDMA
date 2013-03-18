@@ -11,7 +11,9 @@
 
 using namespace std;
 
-Configuration::Configuration() {
+Configuration::Configuration()
+{
+	numControlChannelPrio = 8;
 }
 
 void Configuration::setControlChannelCode(const WHCode& code)
