@@ -65,7 +65,7 @@ void Transmitter::onTick(int time) {
 		Configuration &cf(Configuration::getInstance());
 		int prio = m_pCoupledReceiver->getIdleCount() & (cf.numControlChannelPrio - 1);
 
-        if (m_walshIdx == 0 && !m_isTransmitting && prio < m_CSMADelay) {
+        if (m_walshIdx == 0 && !m_isTransmitting && prio != m_CSMADelay) {
             postProcessing();
             return;
         }
