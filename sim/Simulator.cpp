@@ -30,9 +30,7 @@ void Simulator::onTick(int time) {
 
             if ((*it)->isAutoRemove()) {
                 SimObject *pSO = (*it);
-                // XXX if deleted object is not MS
-                MobileStation *pMS = dynamic_cast<MobileStation *>(pSO);
-                delete pMS;
+                delete pSO;
             }
         }
 
