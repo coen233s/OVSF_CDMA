@@ -27,7 +27,7 @@ SRCS += \
 BINDIR := bin
 INCLUDES += -I.
 
-CPPFLAGS += -std=c++0x -Wall
+CPPFLAGS += -std=c++0x
 
 ifneq ($(DEBUG),)
   CPPFLAGS += -g -O0 -DDEBUG
