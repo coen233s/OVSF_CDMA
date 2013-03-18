@@ -4,6 +4,7 @@ TESTS += \
 	test/TestOVSF.cpp \
 	test/TestBaseStation.cpp \
 	test/TestCdma.cpp \
+	test/TestThruput.cpp \
 
 SRCS += \
 	ovsf.cpp \

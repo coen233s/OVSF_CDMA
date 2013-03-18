@@ -13,6 +13,7 @@ using namespace std;
 #define UID_2	0x03
 
 #ifndef WIN32
+#include <strings.h>
 #define stricmp strcasecmp
 #endif
 
