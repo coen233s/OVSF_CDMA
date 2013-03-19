@@ -275,12 +275,12 @@ void RandomArrivalSimulator::onTick(int time)
 				break;
 			}
 
-			const int fixedCodeLen = 8;
+			const int fixedCodeLen = 32;
 			int codeLen;
 		 	if (m_tmode == FIXED_LEN) {
 				codeLen = fixedCodeLen;
 			} else {
-				int maxLen = 10;
+				int maxLen = 5; //32
 				int minLen = 3;
 
 				codeLen = minLen + (rand() % (maxLen - minLen));
