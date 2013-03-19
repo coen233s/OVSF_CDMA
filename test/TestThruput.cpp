@@ -550,7 +550,7 @@ int main(int argc, char* argv[])
     }
 
     testThruput(mode,
-            10,  /* simulation time (second) */
+            5,  /* simulation time (second) */
             0.01 /* user arrival rate */,
             500, /* user duration (ms) */
             .001, /* packet arrival rate */
